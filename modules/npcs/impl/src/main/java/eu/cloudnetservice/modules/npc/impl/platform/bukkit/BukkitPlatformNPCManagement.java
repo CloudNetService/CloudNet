@@ -48,6 +48,8 @@ import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.bukkit.Location;
@@ -71,6 +73,19 @@ import org.bukkit.util.NumberConversions;
 })
 public class BukkitPlatformNPCManagement extends
   PlatformNPCManagement<Location, Player, ItemStack, Inventory, Scoreboard> {
+
+  private static final MethodHandle SERVER_GET_MINECRAFT_VERSION;
+
+  static {
+    MethodHandle getVersionMh = null;
+    try {
+      var lookup = java.lang.invoke.MethodHandles.publicLookup();
+      getVersionMh = lookup.findVirtual(Server.class, "getMinecraftVersion", MethodType.methodType(String.class));
+    } catch (Throwable ignored) {
+    }
+
+    SERVER_GET_MINECRAFT_VERSION = getVersionMh;
+  }
 
   protected final Plugin plugin;
   protected final Server server;
@@ -291,14 +306,26 @@ public class BukkitPlatformNPCManagement extends
 
   protected @NonNull PlatformPacketAdapter<World, Player, ItemStack, Plugin> resolvePacketAdapter() {
     var bukkitVersion = this.server.getBukkitVersion();
-    var parsedVersion = PEVersion.fromString(bukkitVersion.substring(0, bukkitVersion.indexOf("-")));
-    var latestPEVersion = PEVersion.fromString(ServerVersion.getLatest().getReleaseName());
-    if (parsedVersion.isNewerThan(latestPEVersion)) {
-      this.plugin.getLogger().info("NPCs using ProtocolLib for version " + bukkitVersion);
-      return BukkitProtocolAdapter.protocolLib();
+    if (SERVER_GET_MINECRAFT_VERSION != null) {
+      try {
+        bukkitVersion = SERVER_GET_MINECRAFT_VERSION.invoke(this.server).toString();
+      } catch (Throwable _) {
+      }
     }
 
-    this.plugin.getLogger().info("NPCs using PacketEvents for version " + bukkitVersion);
-    return BukkitProtocolAdapter.packetEvents();
+    try {
+      var parsedVersion = PEVersion.fromString(bukkitVersion.substring(0, bukkitVersion.indexOf("-")));
+      var latestPEVersion = PEVersion.fromString(ServerVersion.getLatest().getReleaseName());
+      if (parsedVersion.isNewerThan(latestPEVersion)) {
+        this.plugin.getLogger().info("NPCs using ProtocolLib for version " + bukkitVersion);
+        return BukkitProtocolAdapter.protocolLib();
+      }
+
+      this.plugin.getLogger().info("NPCs using PacketEvents for version " + bukkitVersion);
+      return BukkitProtocolAdapter.packetEvents();
+    } catch (Throwable ex) {
+      this.plugin.getLogger().warning("Could not parse Bukkit version, falling back to ProtocolLib");
+      return BukkitProtocolAdapter.protocolLib();
+    }
   }
 }
