@@ -21,10 +21,7 @@ import com.github.juliarn.npclib.api.Platform;
 import com.github.juliarn.npclib.api.protocol.PlatformPacketAdapter;
 import com.github.juliarn.npclib.bukkit.BukkitPlatform;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
-import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
-import com.github.retrooper.packetevents.util.PEVersion;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -42,15 +39,13 @@ import eu.cloudnetservice.modules.npc.configuration.NPCConfiguration;
 import eu.cloudnetservice.modules.npc.impl.AbstractNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.InternalNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.platform.PlatformNPCManagement;
+import eu.cloudnetservice.modules.npc.impl.platform.bukkit.util.BukkitPacketAdapterUtil;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.NPCBukkitPlatformSelector;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
 import org.bukkit.Location;
@@ -74,19 +69,6 @@ import org.bukkit.util.NumberConversions;
 })
 public class BukkitPlatformNPCManagement extends
   PlatformNPCManagement<Location, Player, ItemStack, Inventory, Scoreboard> {
-
-  private static final MethodHandle SERVER_GET_MINECRAFT_VERSION;
-
-  static {
-    MethodHandle getVersionMh = null;
-    try {
-      var lookup = MethodHandles.publicLookup();
-      getVersionMh = lookup.findVirtual(Server.class, "getMinecraftVersion", MethodType.methodType(String.class));
-    } catch (Throwable ignored) {
-    }
-
-    SERVER_GET_MINECRAFT_VERSION = getVersionMh;
-  }
 
   protected final Plugin plugin;
   protected final Server server;
@@ -306,27 +288,6 @@ public class BukkitPlatformNPCManagement extends
   }
 
   protected @NonNull PlatformPacketAdapter<World, Player, ItemStack, Plugin> resolvePacketAdapter() {
-    var bukkitVersion = this.server.getBukkitVersion();
-    if (SERVER_GET_MINECRAFT_VERSION != null) {
-      try {
-        bukkitVersion = SERVER_GET_MINECRAFT_VERSION.invokeExact(this.server).toString();
-      } catch (Throwable _) {
-      }
-    }
-
-    try {
-      var parsedVersion = PEVersion.fromString(bukkitVersion.substring(0, bukkitVersion.indexOf("-")));
-      var latestPEVersion = PEVersion.fromString(ServerVersion.getLatest().getReleaseName());
-      if (parsedVersion.isNewerThan(latestPEVersion)) {
-        this.plugin.getLogger().info("NPCs using ProtocolLib for version " + bukkitVersion);
-        return BukkitProtocolAdapter.protocolLib();
-      }
-
-      this.plugin.getLogger().info("NPCs using PacketEvents for version " + bukkitVersion);
-      return BukkitProtocolAdapter.packetEvents();
-    } catch (Throwable ex) {
-      this.plugin.getLogger().warning("Could not parse Bukkit version, falling back to ProtocolLib");
-      return BukkitProtocolAdapter.protocolLib();
-    }
+    return BukkitPacketAdapterUtil.resolve();
   }
 }
