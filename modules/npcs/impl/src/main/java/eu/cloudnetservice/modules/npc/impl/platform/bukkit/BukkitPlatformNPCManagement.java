@@ -49,6 +49,7 @@ import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.NonNull;
@@ -79,7 +80,7 @@ public class BukkitPlatformNPCManagement extends
   static {
     MethodHandle getVersionMh = null;
     try {
-      var lookup = java.lang.invoke.MethodHandles.publicLookup();
+      var lookup = MethodHandles.publicLookup();
       getVersionMh = lookup.findVirtual(Server.class, "getMinecraftVersion", MethodType.methodType(String.class));
     } catch (Throwable ignored) {
     }
