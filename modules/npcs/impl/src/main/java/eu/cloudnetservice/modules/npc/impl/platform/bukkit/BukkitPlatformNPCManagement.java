@@ -309,7 +309,7 @@ public class BukkitPlatformNPCManagement extends
     var bukkitVersion = this.server.getBukkitVersion();
     if (SERVER_GET_MINECRAFT_VERSION != null) {
       try {
-        bukkitVersion = SERVER_GET_MINECRAFT_VERSION.invoke(this.server).toString();
+        bukkitVersion = SERVER_GET_MINECRAFT_VERSION.invokeExact(this.server).toString();
       } catch (Throwable _) {
       }
     }
