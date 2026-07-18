@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,21 @@ package eu.cloudnetservice.node.impl.version.execute.defaults;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.node.impl.version.ServiceVersionType;
 import eu.cloudnetservice.node.impl.version.execute.InstallStepExecutor;
 import eu.cloudnetservice.node.impl.version.information.VersionInstaller;
 import eu.cloudnetservice.utils.base.StringUtil;
-import io.leangen.geantyref.TypeFactory;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
 
-  private static final String VERSION_LIST_URL = "https://api.papermc.io/v2/projects/%s/versions/%s";
-  private static final String DOWNLOAD_URL = "https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s-%s-%d.jar";
-  private static final Type INT_SET_TYPE = TypeFactory.parameterizedClass(Set.class, Integer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PaperApiVersionFetchStepExecutor.class);
+  private static final String LATEST_BUILD_URL = "https://fill.papermc.io/v3/projects/%s/versions/%s/builds/latest";
 
   @Override
   public @NonNull Set<Path> execute(
@@ -46,47 +44,59 @@ public class PaperApiVersionFetchStepExecutor implements InstallStepExecutor {
     var enabled = installer.serviceVersion().properties().getBoolean("fetchOverPaperApi");
     var versionGroup = installer.serviceVersion().properties().getString("versionGroup");
     if (enabled && versionGroup != null) {
-      // resolve the project name we should use for the api request
-      var project = this.decideApiProjectName(installer.serviceVersionType());
-      var versionInformation = this.makeRequest(String.format(VERSION_LIST_URL, project, versionGroup));
-      // check if there are any builds for the version
-      if (versionInformation.contains("builds")) {
-        // extract the build numbers from the response
-        Set<Integer> builds = versionInformation.readObject("builds", INT_SET_TYPE);
-        // find the highest build number (the newest build)
-        var newestBuild = builds.stream().reduce(Math::max);
-        // check if there is a build
-        if (newestBuild.isPresent()) {
-          // set the download url of the service version required in the download step
-          int build = newestBuild.get();
-          installer.serviceVersion()
-            .url(String.format(DOWNLOAD_URL, project, versionGroup, build, project, versionGroup, build));
-        } else {
-          throw new IllegalStateException(
-            "Unable to retrieve latest build for papermc project " + project + " version-group " + versionGroup);
-        }
-      } else {
-        throw new IllegalStateException(
-          "Unable to load build information for papermc project " + project + " version-group " + versionGroup);
+      // resolve the download url to the latest available version for the version group
+      var projectName = StringUtil.toLower(installer.serviceVersionType().name());
+      var latestBuildUri = String.format(LATEST_BUILD_URL, projectName, versionGroup);
+      var latestBuildInfo = this.makeRequest(latestBuildUri);
+      if (latestBuildInfo.empty()) {
+        throw new IllegalStateException(String.format(
+          "Unable to load latest build info from papermc api [project=%s, versionGroup=%s]",
+          projectName, versionGroup));
       }
+
+      LOGGER.debug(
+        "Latest build available in papermc api for [project={}, versionGroup={}] is {} ({})",
+        projectName, versionGroup, latestBuildInfo.getInt("id"), latestBuildInfo.getString("time"));
+
+      // get the available downloads (spigot and mojang mapped server jars)
+      var downloads = latestBuildInfo.readDocument("downloads");
+      var defaultMappedDownload = downloads.readDocument("server:default", null);
+      var mojangMappedDownload = downloads.readDocument("server:mojang", null);
+      if (defaultMappedDownload == null && mojangMappedDownload == null) {
+        throw new IllegalStateException(String.format(
+          "Unable to resolve download info from papermc api response for [project=%s, versionGroup=%s], got %s",
+          projectName, versionGroup, latestBuildInfo.serializeToString()));
+      }
+
+      // resolve the url to use for downloading the service version
+      var download = Objects.requireNonNullElse(defaultMappedDownload, mojangMappedDownload);
+      var downloadUrl = download.getString("url");
+      if (downloadUrl == null) {
+        throw new IllegalStateException(String.format(
+          "No download url provided by papermc api for [project=%s, versionGroup=%s, build=%s]",
+          projectName, versionGroup, latestBuildInfo.getInt("id")));
+      }
+
+      // update the download url for the service version
+      LOGGER.debug(
+        "Resolved download url from papermc api for [project={}, versionGroup={}, build={}] to {}",
+        projectName, versionGroup, latestBuildInfo.getInt("id"), downloadUrl);
+      installer.serviceVersion().url(downloadUrl);
     }
-    // we generated no paths
-    return Collections.emptySet();
+
+    return Set.of();
   }
 
-  private @NonNull Document makeRequest(@NonNull String apiUrl) {
-    var response = Unirest.get(apiUrl)
-      .accept("application/json")
-      .asString();
-    if (response.isSuccess()) {
-      return DocumentFactory.json().parse(response.getBody());
-    }
-
-    return Document.newJsonDocument();
-  }
-
-  @NonNull
-  private String decideApiProjectName(@NonNull ServiceVersionType type) {
-    return StringUtil.toLower(type.name());
+  /**
+   * Makes a single api request to the given uri, returning the parsed response body on success. An empty document is
+   * returned in case the request was not successful.
+   *
+   * @param uri the uri to send a get request to.
+   * @return the parsed response body in the form of a document on success, an empty document on failure.
+   * @throws NullPointerException if the given uri is null.
+   */
+  private @NonNull Document makeRequest(@NonNull String uri) {
+    var response = Unirest.get(uri).accept("application/json").asString();
+    return response.isSuccess() ? DocumentFactory.json().parse(response.getBody()) : Document.emptyDocument();
   }
 }

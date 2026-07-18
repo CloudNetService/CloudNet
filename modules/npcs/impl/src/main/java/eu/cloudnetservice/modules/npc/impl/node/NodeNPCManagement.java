@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.module.ModuleHelper;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.npc.NPC;
@@ -54,7 +53,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   private static final Path PROTOCOL_LIB_CACHE_PATH = FileUtil.TEMP_DIR.resolve("caches/ProtocolLib.jar");
   private static final String PROTOCOL_LIB_DOWNLOAD_URL = System.getProperty(
     "cloudnet.protocollib.download",
-    "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar");
+    "https://github.com/dmulloy2/ProtocolLib/releases/download/dev-build/ProtocolLib.jar");
 
   private final Database database;
   private final Path configurationPath;
@@ -119,22 +118,14 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   public void createNPC(@NonNull NPC npc) {
     this.database.insert(documentKey(npc.location()), Document.newJsonDocument().appendTree(npc));
     this.npcs.put(npc.location(), npc);
-
-    this.channelMessage(NPC_CREATED)
-      .targetAll()
-      .buffer(DataBuf.empty().writeObject(npc))
-      .build().send();
+    this.channelMessage(NPC_CREATED).targetAll().build(buffer -> buffer.writeObject(npc)).send();
   }
 
   @Override
   public void deleteNPC(@NonNull WorldPosition position) {
     this.npcs.remove(position);
     this.database.delete(documentKey(position));
-
-    this.channelMessage(NPC_DELETED)
-      .targetAll()
-      .buffer(DataBuf.empty().writeObject(position))
-      .build().send();
+    this.channelMessage(NPC_DELETED).targetAll().build(buffer -> buffer.writeObject(position)).send();
   }
 
   @Override
@@ -148,10 +139,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
       this.database.delete(documentKey(position));
     });
 
-    this.channelMessage(NPC_BULK_DELETE)
-      .targetAll()
-      .buffer(DataBuf.empty().writeObject(positions))
-      .build().send();
+    this.channelMessage(NPC_BULK_DELETE).targetAll().build(buffer -> buffer.writeObject(positions)).send();
     return positions.size();
   }
 
@@ -163,16 +151,12 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
       this.database.delete(documentKey(position));
     }
 
-    this.channelMessage(NPC_BULK_DELETE)
-      .targetAll()
-      .buffer(DataBuf.empty().writeObject(positions))
-      .build().send();
+    this.channelMessage(NPC_BULK_DELETE).targetAll().build(buffer -> buffer.writeObject(positions)).send();
     return positions.size();
   }
 
   @Override
   public @NonNull Collection<NPC> npcs(@NonNull Collection<String> groups) {
-    // filter all npcs
     return this.npcs.values().stream()
       .filter(npc -> groups.contains(npc.location().group()))
       .collect(Collectors.toList());
@@ -181,10 +165,7 @@ public final class NodeNPCManagement extends AbstractNPCManagement {
   @Override
   public void npcConfiguration(@NonNull NPCConfiguration configuration) {
     this.handleInternalNPCConfigUpdate(configuration);
-    this.channelMessage(NPC_CONFIGURATION_UPDATE)
-      .targetAll()
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build().send();
+    this.channelMessage(NPC_CONFIGURATION_UPDATE).targetAll().build(buffer -> buffer.writeObject(configuration)).send();
   }
 
   @Override

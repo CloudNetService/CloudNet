@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright 2019-2024 CloudNetService team & contributors
+  ~ Copyright 2019-present CloudNetService team & contributors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -34,6 +34,9 @@
     <property name="fileExtensions" value="java"/>
     <property name="max" value="140"/>
     <property name="ignorePattern" value="^package.*|^import.*|a href|http://|https://|ftp://|//.*"/>
+  </module>
+  <module name="NewlineAtEndOfFile">
+    <property name="lineSeparator" value="lf"/>
   </module>
   <module name="TreeWalker">
     <property name="skipFileOnJavaParseException" value="true"/>
@@ -231,12 +234,12 @@
     <module name="LocalVariableName">
       <message key="name.invalidPattern"
         value="Local variable name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z_]([a-z0-9][a-zA-Z0-9]*)?$"/>
     </module>
     <module name="PatternVariableName">
       <message key="name.invalidPattern"
         value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z_]([a-z0-9][a-zA-Z0-9]*)?$"/>
     </module>
     <module name="ClassTypeParameterName">
       <message key="name.invalidPattern"

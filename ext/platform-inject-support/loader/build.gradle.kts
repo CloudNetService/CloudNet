@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-dependencies {
-  "api"(projects.ext.platformInjectSupport.platformInjectApi)
-  "implementation"(projects.utils.utilsBase)
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
-tasks.withType<Jar> {
-  // depend on the output of the jar task
-  val jarTask = projects.ext.platformInjectSupport.platformInjectRuntime.dependencyProject.tasks.getByName("jar")
-  dependsOn(jarTask)
+val bundled = configurations.register("bundled") {
+  isTransitive = false
+  isCanBeConsumed = false
+}
 
-  // copy over the final output file
-  from("../runtime/build/libs") {
-    include(Files.injectSupport)
-  }
+dependencies {
+  api(projects.utils.utilsBase)
+  api(projects.ext.platformInjectSupport.platformInjectApi)
+  bundled(projects.ext.platformInjectSupport.platformInjectRuntime)
+}
+
+tasks.jar {
+  from(bundled)
 }

@@ -1,7 +1,5 @@
-import net.fabricmc.loom.task.RemapJarTask
-
 /*
- * Copyright 2019-2023 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +14,40 @@ import net.fabricmc.loom.task.RemapJarTask
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
-  alias(libs.plugins.fabricLoom)
+  id("cloudnet-plugins")
 }
 
+repositories {
+  maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.waterdog.dev/snapshots/")
+  maven("https://repo.loohpjames.com/repository")
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+}
 
 dependencies {
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(libs.bundles.serverPlatform)
+  compileOnly(libs.fabricLoader)
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnly(libs.bundles.serverPlatform)
 
-  "compileOnly"(libs.luckPermsApi)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.modules.bridge.bridgeApi)
+  compileOnly(libs.luckPermsApi)
+  compileOnly(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.modules.bridge.bridgeApi)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
-  "minecraft"(libs.minecraft)
-  "modCompileOnly"(libs.fabricLoader)
-  "mappings"(loom.officialMojangMappings())
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
 }
 
-tasks.withType<RemapJarTask> {
-  // base setup
-  archiveFileName.set(Files.luckPermsPlugin)
+tasks.jar.configure {
+  archiveFileName = Files.luckPermsPlugin
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
 }

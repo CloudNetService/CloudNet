@@ -6,7 +6,6 @@ on:
     tags-ignore: [ "**" ]
   pull_request:
   workflow_dispatch:
-  merge_group:
 
 concurrency:
   cancel-in-progress: true
@@ -19,45 +18,44 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
-          java-version: 23
+          java-version: 25
           check-latest: true
           distribution: 'zulu'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
         with:
           add-job-summary: always
           cache-cleanup: on-success
           cache-read-only: ${{ github.ref != 'refs/heads/nightly' }}
-
-      - name: Setup Loom cache
-        uses: actions/cache@v4
-        with:
-          path: '.gradle/loom-cache'
-          restore-keys: ${{ runner.os }}-gradle-loom-
-          key: ${{ runner.os }}-gradle-loom-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
+          cache-encryption-key: ${{ secrets.GRADLE_CONFIG_CACHE_SECRET }}
+          # automatically publishes build scans on nightly
+          build-scan-publish: ${{ github.ref == 'refs/heads/nightly' }}
+          build-scan-terms-of-use-agree: yes
+          build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
 
       - name: Execute build and tests
-        run: ./gradlew build test shadowJar genUpdaterInformation --stacktrace
+        run: ./gradlew build genUpdaterInformation --no-daemon
 
       - name: Publish test summary
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
+        if: ${{ always() }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          junit_files: "**/build/test-results/test/TEST-*.xml"
+          files: '**/build/test-results/test/TEST-*.xml'
+          comment_mode: ${{ github.event_name == 'pull_request' && 'always' || 'off' }}
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v8
+        uses: tj-actions/branch-names@v9
 
       - name: Publish updater metadata
         uses: s0/git-publish-subdir-action@develop
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/renovate/') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
+        if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/heads/renovate/') }}
         env:
           REPO: git@github.com:CloudNetService/launchermeta.git
           BRANCH: ${{ steps.branch-name.outputs.current_branch }}
@@ -76,15 +74,14 @@ jobs:
             echo "STATUS=release" >> $GITHUB_ENV
           fi
 
-      - name: Publish snapshot to Sonatype
-        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
-        run: ./gradlew publish
+      - name: Publish snapshot to central portal
+        if: ${{ github.event_name == 'push' && env.STATUS != 'release' && startsWith(github.ref, 'refs/heads/nightly') }}
+        run: ./gradlew publish --no-daemon
         env:
-          SONATYPE_USER: "${{ secrets.SONATYPE_USER }}"
-          SONATYPE_TOKEN: "${{ secrets.SONATYPE_TOKEN }}"
+          CENTRAL_USER: "${{ secrets.CENTRAL_USER }}"
+          CENTRAL_PASSWORD: "${{ secrets.CENTRAL_PASSWORD }}"
 
       - name: Prepare artifacts zip
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
         run: |
           mkdir -p temp/;
           mkdir -p temp/plugins;
@@ -96,8 +93,7 @@ jobs:
           find plugins/ -type f -regex '.*/build/libs/.*\.jar' ! -name '*-javadoc.jar' ! -name '*-sources.jar' -exec cp {} temp/plugins \;
 
       - name: Upload artifacts zip
-        uses: actions/upload-artifact@v4
-        if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
+        uses: actions/upload-artifact@v6
         with:
           name: CloudNet
           path: temp/

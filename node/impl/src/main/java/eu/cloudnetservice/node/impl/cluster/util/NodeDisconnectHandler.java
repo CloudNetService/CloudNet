@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@
 package eu.cloudnetservice.node.impl.cluster.util;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.service.CloudServiceLifecycleChangeEvent;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
@@ -61,7 +59,7 @@ public final class NodeDisconnectHandler {
     var builder = ChannelMessage.builder();
     // iterate over all local services - if the service is connected append it as target
     for (var service : services) {
-      builder.target(ChannelMessageTarget.Type.SERVICE, service.serviceId().name());
+      builder.targetService(service.serviceId().name());
     }
     // for chaining
     return builder;
@@ -91,8 +89,7 @@ public final class NodeDisconnectHandler {
           targetServices(localServices)
             .message("update_service_lifecycle")
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-            .buffer(DataBuf.empty().writeObject(lifeCycle).writeObject(newSnapshot))
-            .build()
+            .build(buffer -> buffer.writeObject(lifeCycle).writeObject(newSnapshot))
             .send();
         }
       }

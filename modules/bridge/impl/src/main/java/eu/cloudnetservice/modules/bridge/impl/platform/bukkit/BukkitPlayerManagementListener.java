@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.bukkit;
 
+import eu.cloudnetservice.ext.scheduler.BukkitPlatformScheduler;
 import eu.cloudnetservice.modules.bridge.impl.platform.PlatformBridgeManagement;
 import eu.cloudnetservice.modules.bridge.impl.platform.helper.ServerPlatformHelper;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
@@ -30,13 +31,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 @Singleton
 public final class BukkitPlayerManagementListener implements Listener {
 
   private final Plugin plugin;
-  private final BukkitScheduler scheduler;
   private final ServiceInfoHolder serviceInfoHolder;
   private final ServerPlatformHelper serverPlatformHelper;
   private final PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management;
@@ -44,13 +43,11 @@ public final class BukkitPlayerManagementListener implements Listener {
   @Inject
   public BukkitPlayerManagementListener(
     @NonNull Plugin plugin,
-    @NonNull BukkitScheduler scheduler,
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull ServerPlatformHelper serverPlatformHelper,
     @NonNull PlatformBridgeManagement<Player, NetworkPlayerServerInfo> management
   ) {
     this.plugin = plugin;
-    this.scheduler = scheduler;
     this.serviceInfoHolder = serviceInfoHolder;
     this.serverPlatformHelper = serverPlatformHelper;
     this.management = management;
@@ -87,8 +84,7 @@ public final class BukkitPlayerManagementListener implements Listener {
     this.serverPlatformHelper.sendChannelMessageLoginSuccess(
       event.getPlayer().getUniqueId(),
       this.management.createPlayerInformation(event.getPlayer()));
-    // update the service info in the next tick
-    this.scheduler.runTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
+    BukkitPlatformScheduler.bukkitScheduler().globalRun(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 
   @EventHandler
@@ -96,7 +92,6 @@ public final class BukkitPlayerManagementListener implements Listener {
     this.serverPlatformHelper.sendChannelMessageDisconnected(
       event.getPlayer().getUniqueId(),
       this.management.ownNetworkServiceInfo());
-    // update the service info in the next tick
-    this.scheduler.runTask(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
+    BukkitPlatformScheduler.bukkitScheduler().globalRun(this.plugin, this.serviceInfoHolder::publishServiceInfoUpdate);
   }
 }

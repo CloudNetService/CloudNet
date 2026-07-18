@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import eu.cloudnetservice.driver.network.rpc.RPC;
 import eu.cloudnetservice.driver.network.rpc.RPCChain;
 import eu.cloudnetservice.driver.network.rpc.RPCExecutable;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
-import java.lang.classfile.AccessFlags;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
@@ -75,7 +74,7 @@ final class RPCGenerationConstants {
     MethodTypeDesc.of(ConstantDescs.CD_Object, CD_CHAINABLE_RPC, CD_SUPPLIER, ConstantDescs.CD_Object.arrayType());
 
   // ==== Access Flag Masks =====
-  static final int AFM_FIELD_PF = AccessFlags.ofField(AccessFlag.PRIVATE, AccessFlag.FINAL).flagsMask();
+  static final int AFM_FIELD_PF = AccessFlag.PRIVATE.mask() | AccessFlag.FINAL.mask();
 
   private RPCGenerationConstants() {
     throw new UnsupportedOperationException();

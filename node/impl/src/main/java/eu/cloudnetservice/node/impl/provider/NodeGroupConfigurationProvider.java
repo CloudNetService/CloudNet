@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.GroupConfigurationProvider;
@@ -141,8 +140,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       .targetAll()
       .message("add_group_configuration")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(groupConfigurationEvent.group()))
-      .build()
+      .build(buffer -> buffer.writeObject(groupConfigurationEvent.group()))
       .send();
     return true;
   }
@@ -166,8 +164,7 @@ public class NodeGroupConfigurationProvider implements GroupConfigurationProvide
       .targetAll()
       .message("remove_group_configuration")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(groupConfiguration))
-      .build()
+      .build(buffer -> buffer.writeObject(groupConfiguration))
       .send();
   }
 

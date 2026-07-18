@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import lombok.NonNull;
 public final class NettyNetworkChannel extends DefaultNetworkChannel implements NetworkChannel {
 
   private final Channel channel;
+  private volatile boolean closed;
 
   /**
    * Constructs a new netty network channel instance.
@@ -128,7 +129,26 @@ public final class NettyNetworkChannel extends DefaultNetworkChannel implements 
    * {@inheritDoc}
    */
   @Override
+  public boolean closed() {
+    return this.closed;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void close() {
     this.channel.close();
+  }
+
+  /**
+   * Called when the associated channel is closed.
+   *
+   * @throws Exception if an exception occurs while posting the close event to the channel handler.
+   */
+  void handleClose() throws Exception {
+    this.closed = true;
+    this.queryPacketManager.close();
+    this.handler().handleChannelClose(this);
   }
 }

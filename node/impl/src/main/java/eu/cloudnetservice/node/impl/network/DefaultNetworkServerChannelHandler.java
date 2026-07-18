@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.impl.network;
 
+import com.google.common.net.InetAddresses;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.network.ChannelType;
 import eu.cloudnetservice.driver.event.events.network.NetworkChannelCloseEvent;
@@ -30,7 +31,7 @@ import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.network.listener.AuthorizationPacketListener;
 import eu.cloudnetservice.node.impl.service.InternalCloudService;
-import eu.cloudnetservice.node.impl.util.NetworkUtil;
+import eu.cloudnetservice.node.impl.util.IpAllowlist;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -49,6 +50,8 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   private final Configuration configuration;
   private final NodeServerProvider nodeServerProvider;
   private final CloudServiceManager cloudServiceManager;
+
+  private IpAllowlist ipAllowlist;
 
   @Inject
   public DefaultNetworkServerChannelHandler(
@@ -134,18 +137,29 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   }
 
   private boolean shouldDenyConnection(@NonNull NetworkChannel channel) {
-    var ipWhitelist = this.configuration.ipWhitelist();
-    var sourceClientAddress = NetworkUtil.removeAddressScope(channel.clientAddress().host());
+    var clientHostAddr = channel.clientAddress().host();
+    try {
+      var configuredAllowlist = this.configuration.ipWhitelist();
+      var ipAllowlist = this.ipAllowlist = switch (this.ipAllowlist) {
+        case IpAllowlist allowlist -> allowlist.updateIfNecessary(configuredAllowlist);
+        case null -> IpAllowlist.parse(configuredAllowlist);
+      };
 
-    // check if any address added to the ip whitelist matches the source client address
-    for (var allowedIpAddress : ipWhitelist) {
-      var allowedAddressWithoutScope = NetworkUtil.removeAddressScope(allowedIpAddress);
-      if (allowedAddressWithoutScope.equals(sourceClientAddress)) {
-        return false;
+      var parsedAddress = InetAddresses.forString(clientHostAddr);
+      var connectionIsAllowed = ipAllowlist.allows(parsedAddress);
+      if (connectionIsAllowed) {
+        return false; // don't deny connection
       }
-    }
 
-    // no allowed ip found that matches the given client address
-    return true;
+      LOGGER.warn(this.i18n.translate(
+        "server-network-connection-denied",
+        channel.clientAddress(), channel.serverAddress()));
+      return true; // deny connection
+    } catch (IllegalArgumentException exception) {
+      LOGGER.warn(
+        "Denying incoming connection, unable to parse channel address: '{}': {}",
+        clientHostAddr, exception.getMessage());
+      return true;
+    }
   }
 }

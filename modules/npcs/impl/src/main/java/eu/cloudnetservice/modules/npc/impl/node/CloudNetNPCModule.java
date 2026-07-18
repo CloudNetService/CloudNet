@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,11 @@ import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
-import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.modules.npc.NPC;
 import eu.cloudnetservice.modules.npc.NPCManagement;
 import eu.cloudnetservice.modules.npc.configuration.InventoryConfiguration;
 import eu.cloudnetservice.modules.npc.configuration.ItemLayout;
 import eu.cloudnetservice.modules.npc.configuration.LabyModEmoteConfiguration;
-import eu.cloudnetservice.modules.npc.configuration.NPCPoolOptions;
 import eu.cloudnetservice.modules.npc.impl._deprecated.CloudNPC;
 import eu.cloudnetservice.modules.npc.impl._deprecated.NPCConstants;
 import eu.cloudnetservice.modules.npc.impl._deprecated.configuration.NPCConfiguration;
@@ -87,11 +85,6 @@ public class CloudNetNPCModule extends DriverModule {
                 .map(mapEntry -> new Tuple2<>(mapEntry.getKey(), this.convertItemLayout(mapEntry.getValue())))
                 .collect(Collectors.toMap(Tuple2::_1, Tuple2::_2)))
               .inventorySize(entry.inventorySize())
-              .build())
-            .npcPoolOptions(NPCPoolOptions.builder()
-              .tabListRemoveTicks(entry.npcTabListRemoveTicks() > Integer.MAX_VALUE
-                ? Integer.MAX_VALUE
-                : (int) entry.npcTabListRemoveTicks())
               .build())
             .build())
           .collect(Collectors.toSet());
@@ -202,7 +195,7 @@ public class CloudNetNPCModule extends DriverModule {
   }
 
   @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
-  public void handleReload(@Nullable @Service NPCManagement management) {
+  public void handleReload(@Nullable NPCManagement management) {
     if (management != null) {
       management.npcConfiguration(this.loadConfig());
     }

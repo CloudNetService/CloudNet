@@ -22,8 +22,6 @@ import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.modules.dns.config.DnsModuleConfigEntry;
 import eu.cloudnetservice.modules.dns.config.DnsModuleGroupEntry;
 import eu.cloudnetservice.modules.dns.impl.CloudNetDnsModule;
-import eu.cloudnetservice.modules.dns.provider.DnsProvider;
-import eu.cloudnetservice.modules.dns.provider.record.SrvDnsRecordData;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.service.CloudServicePostLifecycleEvent;
 import eu.cloudnetservice.node.service.CloudService;
@@ -49,31 +47,38 @@ public final class DnsServiceListener {
     @NonNull ServiceRegistry registry
   ) {
     if (event.newLifeCycle() == ServiceLifeCycle.RUNNING) {
-      this.handleWithConfiguration(event.service(), (config, group) -> {
-        var hostAddressV4 = this.module.resolveHostAddress(group.hostAddressV4(), configuration);
-        if (hostAddressV4 == null) {
-          hostAddressV4 = this.module.resolveHostAddress(config.hostAddressV4(), configuration);
-        }
+      this.syncService(event.service(), configuration, registry);
+    } else {
+      this.deleteServiceRecords(event.service(), configuration, registry);
+    }
+  }
 
-        if (hostAddressV4 != null) {
-          // TODO das ist doch yek
-          var zoneProvider = registry.instance(
-            DnsProvider.class,
-            config.providerConfig().name()
-          ).zoneProvider(config.providerConfig().toProviderZoneConfig());
-
-          for (var record : group.records()) {
-            zoneProvider.createDnsRecord(new SrvDnsRecordData(
-              record.subdomain(),
-              record.ttl(),
-              "wtf-was-für-ziel-ja",
-              event.service().serviceConfiguration().port(),
-              record.priority(),
-              record.weight()));
-          }
+  public void syncService(
+    @NonNull CloudService service,
+    @NonNull Configuration configuration,
+    @NonNull ServiceRegistry registry
+  ) {
+    if (service.lifeCycle() == ServiceLifeCycle.RUNNING) {
+      this.handleWithConfiguration(service, (config, group) -> {
+        var zoneProvider = this.module.zoneProvider(registry, config);
+        if (zoneProvider != null) {
+          this.module.syncServiceRecords(zoneProvider, config, group, service, configuration);
         }
       });
     }
+  }
+
+  public void deleteServiceRecords(
+    @NonNull CloudService service,
+    @NonNull Configuration configuration,
+    @NonNull ServiceRegistry registry
+  ) {
+    this.handleWithConfiguration(service, (config, group) -> {
+      var zoneProvider = this.module.zoneProvider(registry, config);
+      if (zoneProvider != null) {
+        this.module.deleteServiceRecords(zoneProvider, config, group, service, configuration);
+      }
+    });
   }
 
   private void handleWithConfiguration(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import eu.cloudnetservice.driver.network.object.ObjectMapper;
 import lombok.NonNull;
 
 /**
- * The blueprint of the internally generated class to serialize & deserialize the fields of an object into a buffer.
+ * The blueprint of the internally generated class to serialize and deserialize the fields of an object into a buffer.
  *
  * @since 4.0
  */

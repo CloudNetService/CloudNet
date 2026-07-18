@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -230,7 +230,7 @@ public class DefaultDataSyncRegistry implements DataSyncRegistry {
       // wait for an input
       var input = TaskUtil.getOrDefault(console.readLine(), null);
       // check if an input was supplied
-      if (input == null) {
+      if (input == null || input.isBlank()) {
         continue;
       }
       // get the int from the input & validate

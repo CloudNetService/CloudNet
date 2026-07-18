@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.dns.impl;
 
 import eu.cloudnetservice.driver.document.DocumentFactory;
+import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -28,19 +29,25 @@ import eu.cloudnetservice.modules.dns.config.DnsModuleGroupRecord;
 import eu.cloudnetservice.modules.dns.config.DnsModuleProviderConfig;
 import eu.cloudnetservice.modules.dns.impl._depreacted.CloudflareConfiguration;
 import eu.cloudnetservice.modules.dns.impl._depreacted.CloudflareConfigurationEntry;
+import eu.cloudnetservice.modules.dns.impl.listener.DnsServiceListener;
 import eu.cloudnetservice.modules.dns.provider.DnsProvider;
 import eu.cloudnetservice.modules.dns.provider.DnsZoneProvider;
 import eu.cloudnetservice.modules.dns.provider.info.DnsRecordInfo;
 import eu.cloudnetservice.modules.dns.provider.record.AAAADnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.ADnsRecordData;
 import eu.cloudnetservice.modules.dns.provider.record.DnsRecordData;
+import eu.cloudnetservice.modules.dns.provider.record.SrvDnsRecordData;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.util.NetworkUtil;
+import eu.cloudnetservice.node.service.CloudService;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Singleton;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -237,50 +244,190 @@ public final class CloudNetDnsModule extends DriverModule {
   public void registerDnsProvider(@NonNull ServiceRegistry registry, @NonNull Configuration configuration) {
     for (var entry : this.configuration.entries()) {
       if (entry.enabled()) {
-        var providerConfig = entry.providerConfig();
-        var provider = registry.instance(DnsProvider.class, providerConfig.name());
-        var zoneProvider = provider.zoneProvider(providerConfig.toProviderZoneConfig());
-
-        var resolvedV4Host = this.resolveHostAddress(entry.hostAddressV4(), configuration);
-        var resolvedV6Host = this.resolveHostAddress(entry.hostAddressV6(), configuration);
-        if (resolvedV4Host == null && resolvedV6Host == null) {
-          LOGGER.warn("Unable to resolve host address for entry {}: both host addresses are not valid", entry.domain());
-          continue;
+        var zoneProvider = this.zoneProvider(registry, entry);
+        if (zoneProvider != null) {
+          this.syncAddressRecords(zoneProvider, entry, configuration);
         }
-
-        var nodeId = configuration.identity().uniqueId();
-        var expectedName = "%s.%s".formatted(nodeId, entry.domain());
-        zoneProvider.listRecords().andThen(records -> {
-          if (resolvedV4Host != null) {
-            this.processNodeRecords(
-              zoneProvider,
-              records,
-              expectedName,
-              "A",
-              resolvedV4Host,
-              name -> new ADnsRecordData(name, 0, resolvedV4Host));
-          }
-
-          if (resolvedV6Host != null) {
-            this.processNodeRecords(
-              zoneProvider,
-              records,
-              expectedName,
-              "AAAA",
-              resolvedV6Host,
-              name -> new AAAADnsRecordData(name, 0, resolvedV6Host));
-          }
-        }).andThen(records -> {
-          // store records
-          })
-          .onFailure(throwable -> LOGGER.warn("Could read initial records for zone {}: {}", entry.domain(),
-          throwable.getMessage()));
       }
+    }
+  }
+
+  @ModuleTask(order = 105, lifecycle = ModuleLifeCycle.STARTED)
+  public void registerListeners(@NonNull EventManager eventManager, @NonNull DnsServiceListener listener) {
+    eventManager.registerListener(listener);
+  }
+
+  @ModuleTask(order = 100, lifecycle = ModuleLifeCycle.STARTED)
+  public void syncRunningServices(
+    @NonNull DnsServiceListener listener,
+    @NonNull CloudServiceManager serviceManager,
+    @NonNull Configuration configuration,
+    @NonNull ServiceRegistry registry
+  ) {
+    for (var service : serviceManager.localCloudServices()) {
+      listener.syncService(service, configuration, registry);
     }
   }
 
   public @NonNull DnsModuleConfig configuration() {
     return this.configuration;
+  }
+
+  public @Nullable DnsZoneProvider zoneProvider(
+    @NonNull ServiceRegistry registry,
+    @NonNull DnsModuleConfigEntry entry
+  ) {
+    var providerConfig = entry.providerConfig();
+    var provider = registry.instance(DnsProvider.class, providerConfig.name());
+    if (provider == null) {
+      LOGGER.warn("Unable to sync DNS records for zone {}: provider {} is not registered", entry.domain(),
+        providerConfig.name());
+      return null;
+    }
+
+    return provider.zoneProvider(providerConfig.toProviderZoneConfig());
+  }
+
+  public void syncAddressRecords(
+    @NonNull DnsZoneProvider zoneProvider,
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull Configuration configuration
+  ) {
+    zoneProvider.listRecords()
+      .onSuccess(records -> {
+        var nodeRecordName = this.nodeRecordName(entry, configuration);
+        var hostAddressV4 = this.resolveHostAddress(entry.hostAddressV4(), configuration);
+        if (hostAddressV4 != null) {
+          this.syncAddressRecord(zoneProvider, records, new ADnsRecordData(nodeRecordName, 0, hostAddressV4));
+        }
+
+        var hostAddressV6 = this.resolveHostAddress(entry.hostAddressV6(), configuration);
+        if (hostAddressV6 != null) {
+          this.syncAddressRecord(zoneProvider, records, new AAAADnsRecordData(nodeRecordName, 0, hostAddressV6));
+        }
+
+        for (var group : entry.groups()) {
+          for (var target : this.groupSpecificTargets(entry, group, configuration)) {
+            this.syncAddressRecord(zoneProvider, records, target.toAddressRecord(0));
+          }
+        }
+      })
+      .onFailure(throwable -> LOGGER.warn(
+        "Could not read records for zone {}: {}",
+        entry.domain(),
+        throwable.getMessage()));
+  }
+
+  public @NonNull List<DnsTarget> serviceTargets(
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull DnsModuleGroupEntry group,
+    @NonNull CloudService service,
+    @NonNull Configuration configuration
+  ) {
+    var groupTargets = this.groupSpecificTargets(entry, group, configuration);
+    if (!groupTargets.isEmpty() || this.hasCustomGroupTarget(group)) {
+      return groupTargets;
+    }
+
+    var nodeTargets = new ArrayList<DnsTarget>();
+    var nodeRecordName = this.nodeRecordName(entry, configuration);
+    var entryHostV4 = this.resolveHostAddress(entry.hostAddressV4(), configuration);
+    var entryHostV6 = this.resolveHostAddress(entry.hostAddressV6(), configuration);
+    if (entryHostV4 != null) {
+      nodeTargets.add(new DnsTarget(nodeRecordName, "A", entryHostV4));
+    }
+    if (entryHostV6 != null) {
+      nodeTargets.add(new DnsTarget(nodeRecordName, "AAAA", entryHostV6));
+    }
+
+    if (!nodeTargets.isEmpty()) {
+      return nodeTargets;
+    }
+
+    var serviceHost = this.resolveHostAddress(service.serviceConfiguration().hostAddress(), configuration);
+    if (serviceHost == null) {
+      serviceHost = this.resolveHostAddress(configuration.hostAddress(), configuration);
+    }
+
+    if (serviceHost == null) {
+      return List.of();
+    }
+
+    var targetType = serviceHost.indexOf(':') == -1 ? "A" : "AAAA";
+    var targetName = this.hashedRecordName(entry, configuration, group.targetGroup(), serviceHost);
+    return List.of(new DnsTarget(targetName, targetType, serviceHost));
+  }
+
+  public void syncServiceRecords(
+    @NonNull DnsZoneProvider zoneProvider,
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull DnsModuleGroupEntry group,
+    @NonNull CloudService service,
+    @NonNull Configuration configuration
+  ) {
+    zoneProvider.listRecords()
+      .onSuccess(records -> {
+        var targets = this.serviceTargets(entry, group, service, configuration);
+        if (targets.isEmpty()) {
+          LOGGER.warn(
+            "Unable to create DNS records for service {} in group {}: no valid target host address",
+            service.serviceId().name(),
+            group.targetGroup());
+          return;
+        }
+
+        for (var target : targets) {
+          this.syncAddressRecord(zoneProvider, records, target.toAddressRecord(0));
+        }
+
+        for (var record : group.records()) {
+          for (var target : targets) {
+            var srvRecord = new SrvDnsRecordData(
+              this.serviceRecordName(entry, record),
+              record.ttl(),
+              target.name(),
+              service.serviceConfiguration().port(),
+              record.priority(),
+              record.weight());
+            this.syncSrvRecord(zoneProvider, records, srvRecord);
+          }
+        }
+      })
+      .onFailure(throwable -> LOGGER.warn(
+        "Could not sync DNS records for service {}: {}",
+        service.serviceId().name(),
+        throwable.getMessage()));
+  }
+
+  public void deleteServiceRecords(
+    @NonNull DnsZoneProvider zoneProvider,
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull DnsModuleGroupEntry group,
+    @NonNull CloudService service,
+    @NonNull Configuration configuration
+  ) {
+    zoneProvider.listRecords()
+      .onSuccess(records -> {
+        var targets = this.serviceTargets(entry, group, service, configuration);
+        for (var record : group.records()) {
+          for (var target : targets) {
+            var expectedRecord = new SrvDnsRecordData(
+              this.serviceRecordName(entry, record),
+              record.ttl(),
+              target.name(),
+              service.serviceConfiguration().port(),
+              record.priority(),
+              record.weight());
+            records.stream()
+              .filter(recordInfo -> this.isSameSrvEndpoint(recordInfo.data(), expectedRecord))
+              .forEach(recordInfo -> this.deleteDnsRecord(zoneProvider, recordInfo));
+          }
+        }
+      })
+      .onFailure(throwable -> LOGGER.warn(
+        "Could not delete DNS records for service {}: {}",
+        service.serviceId().name(),
+        throwable.getMessage()));
   }
 
   // TODO consider if this should be public and maybe also might go into a different class at all
@@ -305,31 +452,206 @@ public final class CloudNetDnsModule extends DriverModule {
     return null;
   }
 
-  private void processNodeRecords(
+  private @NonNull List<DnsTarget> groupSpecificTargets(
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull DnsModuleGroupEntry group,
+    @NonNull Configuration configuration
+  ) {
+    var targets = new ArrayList<DnsTarget>();
+    var hostAddressV4 = this.resolveHostAddress(group.hostAddressV4(), configuration);
+    if (hostAddressV4 != null) {
+      targets.add(new DnsTarget(
+        this.hashedRecordName(entry, configuration, group.targetGroup(), hostAddressV4),
+        "A",
+        hostAddressV4));
+    }
+
+    var hostAddressV6 = this.resolveHostAddress(group.hostAddressV6(), configuration);
+    if (hostAddressV6 != null) {
+      targets.add(new DnsTarget(
+        this.hashedRecordName(entry, configuration, group.targetGroup(), hostAddressV6),
+        "AAAA",
+        hostAddressV6));
+    }
+
+    return targets;
+  }
+
+  private boolean hasCustomGroupTarget(@NonNull DnsModuleGroupEntry group) {
+    return this.hasConfiguredHostAddress(group.hostAddressV4()) || this.hasConfiguredHostAddress(group.hostAddressV6());
+  }
+
+  private boolean hasConfiguredHostAddress(@Nullable String hostAddress) {
+    return hostAddress != null && !hostAddress.isEmpty();
+  }
+
+  private @NonNull String nodeRecordName(
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull Configuration configuration
+  ) {
+    return this.fullRecordName(configuration.identity().uniqueId(), entry);
+  }
+
+  private @NonNull String hashedRecordName(
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull Configuration configuration,
+    @NonNull String group,
+    @NonNull String hostAddress
+  ) {
+    var hashSource = "%s-%s-%s".formatted(configuration.identity().uniqueId(), group, hostAddress);
+    return this.fullRecordName(this.md5Hex(hashSource), entry);
+  }
+
+  private @NonNull String serviceRecordName(
+    @NonNull DnsModuleConfigEntry entry,
+    @NonNull DnsModuleGroupRecord record
+  ) {
+    return this.fullRecordName(record.subdomain(), entry.domain());
+  }
+
+  private @NonNull String fullRecordName(@NonNull String name, @NonNull DnsModuleConfigEntry entry) {
+    var namespace = entry.domainNamespace();
+    if (namespace == null || namespace.isEmpty()) {
+      return this.fullRecordName(name, entry.domain());
+    } else {
+      return this.fullRecordName("%s.%s".formatted(name, namespace), entry.domain());
+    }
+  }
+
+  private @NonNull String fullRecordName(@NonNull String name, @NonNull String domain) {
+    if (name.isEmpty() || name.equals("@")) {
+      return domain;
+    } else if (name.endsWith("." + domain) || name.equals(domain)) {
+      return name;
+    } else {
+      return "%s.%s".formatted(name, domain);
+    }
+  }
+
+  private @NonNull String md5Hex(@NonNull String input) {
+    try {
+      var digest = MessageDigest.getInstance("MD5");
+      var hashedInput = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+      var builder = new StringBuilder(hashedInput.length * 2);
+      for (var hashedByte : hashedInput) {
+        builder.append(Character.forDigit((hashedByte >> 4) & 0xF, 16));
+        builder.append(Character.forDigit(hashedByte & 0xF, 16));
+      }
+
+      return builder.toString();
+    } catch (NoSuchAlgorithmException exception) {
+      throw new IllegalStateException("MD5 digest is not available", exception);
+    }
+  }
+
+  private void syncAddressRecord(
     @NonNull DnsZoneProvider zoneProvider,
     @NonNull List<DnsRecordInfo> records,
-    @NonNull String expectedName,
-    @NonNull String type,
-    @NonNull String resolvedHost,
-    @NonNull Function<String, DnsRecordData> recordFactory
+    @NonNull DnsRecordData desiredRecord
   ) {
     var existingRecord = records.stream()
-      .filter(record -> record.data().name().equalsIgnoreCase(expectedName))
-      .filter(record -> record.data().type().equalsIgnoreCase(type))
+      .filter(record -> this.isSameRecord(record.data(), desiredRecord))
       .findFirst()
       .orElse(null);
 
     if (existingRecord == null) {
-      LOGGER.debug("Creating new DNS record for {} with type {} and content {}", expectedName, type, resolvedHost);
-      zoneProvider.createDnsRecord(recordFactory.apply(expectedName));
+      LOGGER.debug("Creating new DNS record {}", desiredRecord);
+      zoneProvider.createDnsRecord(desiredRecord).onFailure(throwable -> LOGGER.warn(
+        "Could not create DNS record {}: {}",
+        desiredRecord,
+        throwable.getMessage()));
     } else {
-      var data = existingRecord.data();
-      if (!data.content().equals(resolvedHost)) {
-        LOGGER.debug("Updating DNS record for {} with type {} and content {}", expectedName, type, resolvedHost);
-        zoneProvider.updateDnsRecord(existingRecord, recordFactory.apply(expectedName));
+      if (this.needsUpdate(existingRecord.data(), desiredRecord)) {
+        LOGGER.debug("Updating DNS record {} with {}", existingRecord.id(), desiredRecord);
+        zoneProvider.updateDnsRecord(existingRecord, desiredRecord).onFailure(throwable -> LOGGER.warn(
+          "Could not update DNS record {} with {}: {}",
+          existingRecord.id(),
+          desiredRecord,
+          throwable.getMessage()));
       } else {
-        LOGGER.debug("DNS record for {} with type {} and content {} already exists", expectedName, type, resolvedHost);
+        LOGGER.debug("DNS record {} already exists", desiredRecord);
       }
+    }
+  }
+
+  private void syncSrvRecord(
+    @NonNull DnsZoneProvider zoneProvider,
+    @NonNull List<DnsRecordInfo> records,
+    @NonNull SrvDnsRecordData desiredRecord
+  ) {
+    var existingRecord = records.stream()
+      .filter(record -> this.isSameSrvEndpoint(record.data(), desiredRecord))
+      .findFirst()
+      .orElse(null);
+
+    if (existingRecord == null) {
+      LOGGER.debug("Creating new DNS record {}", desiredRecord);
+      zoneProvider.createDnsRecord(desiredRecord).onFailure(throwable -> LOGGER.warn(
+        "Could not create DNS record {}: {}",
+        desiredRecord,
+        throwable.getMessage()));
+    } else if (this.needsUpdate(existingRecord.data(), desiredRecord)) {
+      LOGGER.debug("Updating DNS record {} with {}", existingRecord.id(), desiredRecord);
+      zoneProvider.updateDnsRecord(existingRecord, desiredRecord).onFailure(throwable -> LOGGER.warn(
+        "Could not update DNS record {} with {}: {}",
+        existingRecord.id(),
+        desiredRecord,
+        throwable.getMessage()));
+    } else {
+      LOGGER.debug("DNS record {} already exists", desiredRecord);
+    }
+  }
+
+  private void deleteDnsRecord(@NonNull DnsZoneProvider zoneProvider, @NonNull DnsRecordInfo recordInfo) {
+    LOGGER.debug("Deleting DNS record {}", recordInfo.data());
+    zoneProvider.deleteDnsRecord(recordInfo).onFailure(throwable -> LOGGER.warn(
+      "Could not delete DNS record {}: {}",
+      recordInfo.data(),
+      throwable.getMessage()));
+  }
+
+  private boolean isSameRecord(@NonNull DnsRecordData currentRecord, @NonNull DnsRecordData desiredRecord) {
+    return currentRecord.name().equalsIgnoreCase(desiredRecord.name())
+      && currentRecord.type().equalsIgnoreCase(desiredRecord.type());
+  }
+
+  private boolean isSameSrvEndpoint(@NonNull DnsRecordData currentRecord, @NonNull SrvDnsRecordData desiredRecord) {
+    if (currentRecord instanceof SrvDnsRecordData srvRecord) {
+      return srvRecord.name().equalsIgnoreCase(desiredRecord.name())
+        && srvRecord.target().equalsIgnoreCase(desiredRecord.target())
+        && srvRecord.port() == desiredRecord.port();
+    }
+
+    return false;
+  }
+
+  private boolean needsUpdate(@NonNull DnsRecordData currentRecord, @NonNull DnsRecordData desiredRecord) {
+    if (!currentRecord.content().equalsIgnoreCase(desiredRecord.content())) {
+      return true;
+    }
+
+    if (currentRecord.ttl() > 0 && currentRecord.ttl() != desiredRecord.ttl()) {
+      return true;
+    }
+
+    if (currentRecord instanceof SrvDnsRecordData currentSrvRecord
+      && desiredRecord instanceof SrvDnsRecordData desiredSrvRecord) {
+      return currentSrvRecord.port() != desiredSrvRecord.port()
+        || currentSrvRecord.priority() != desiredSrvRecord.priority()
+        || currentSrvRecord.weight() != desiredSrvRecord.weight();
+    }
+
+    return false;
+  }
+
+  public record DnsTarget(@NonNull String name, @NonNull String type, @NonNull String hostAddress) {
+
+    private @NonNull DnsRecordData toAddressRecord(int ttl) {
+      return switch (this.type) {
+        case "A" -> new ADnsRecordData(this.name, ttl, this.hostAddress);
+        case "AAAA" -> new AAAADnsRecordData(this.name, ttl, this.hostAddress);
+        default -> throw new IllegalArgumentException("Unsupported address record type " + this.type);
+      };
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,30 +46,36 @@ public final class ServiceSyncAckPacketListener implements PacketListener {
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) throws Exception {
-    // read the cluster node snapshot
-    var snapshot = packet.content().readObject(NodeInfoSnapshot.class);
-    var syncData = packet.content().readDataBuf();
-    // select the node server and validate that it is in the right state for the packet
-    var server = this.nodeServerProvider.node(snapshot.node().uniqueId());
-    if (server != null && server.state() == NodeServerState.SYNCING) {
-      // remove this listener
-      channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL);
-      // sync the data between the nodes
-      this.dataSyncRegistry.handle(syncData, syncData.readBoolean());
-      if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
-        queuedChannel.drainPacketQueue(channel);
-      }
+    try {
+      var packetContent = packet.content();
+      var snapshot = packetContent.readObject(NodeInfoSnapshot.class);
+      var server = this.nodeServerProvider.node(snapshot.node().uniqueId());
+      if (server != null && server.state() == NodeServerState.SYNCING) {
+        try (var syncData = packet.content().readDataBuf()) {
+          var forceApply = syncData.readBoolean();
+          this.dataSyncRegistry.handle(syncData, forceApply);
+        }
 
-      // close the old channel
-      // little hack to prevent some disconnect handling firring in the channel if the state was not set before
-      server.state(NodeServerState.DISCONNECTED);
-      server.channel().close();
-      // mark the node as ready
-      server.channel(channel);
-      server.updateNodeInfoSnapshot(snapshot);
-      server.state(NodeServerState.READY);
-      // re-select the head node
-      this.nodeServerProvider.selectHeadNode();
+        // flush the packets that were queued for the node that reconnected
+        if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
+          queuedChannel.drainPacketQueue(channel);
+        }
+
+        // closes the old channel, preventing disconnection handling by setting the state
+        // of the channel to 'disconnected' before actually closing the channel
+        server.state(NodeServerState.DISCONNECTED);
+        server.channel().close();
+
+        // mark the node as ready and re-select the head node. this ensures that the
+        // current node uses the same node as the head node as all other nodes in the cluster
+        server.channel(channel);
+        server.updateNodeInfoSnapshot(snapshot);
+        server.state(NodeServerState.READY);
+        this.nodeServerProvider.selectHeadNode();
+      }
+    } finally {
+      // the packet is only sent once, this listener can be removed
+      channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_SERVICE_SYNC_ACK_CHANNEL);
     }
   }
 }

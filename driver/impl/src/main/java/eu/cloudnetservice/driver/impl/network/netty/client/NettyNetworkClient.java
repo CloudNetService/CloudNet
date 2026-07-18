@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import io.netty5.channel.WriteBufferWaterMark;
 import io.netty5.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty5.handler.ssl.SslContext;
 import io.netty5.handler.ssl.SslContextBuilder;
-import io.netty5.handler.ssl.util.InsecureTrustManagerFactory;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -128,16 +127,9 @@ public class NettyNetworkClient implements NetworkClient {
             .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
             .build();
         }
-      } else {
-        // no trust certificate path provided or file does not exist, fall back
-        // to just accepting all server certificates
-        return SslContextBuilder.forClient()
-          .applicationProtocolConfig(null)
-          .sslProvider(NettyUtil.selectedSslProvider())
-          .trustManager(InsecureTrustManagerFactory.INSTANCE)
-          .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
-          .build();
       }
+
+      return null;
     } catch (SSLException exception) {
       var errorMessage = String.format("Unable to build client ssl provider from configuration %s", sslConfig);
       throw new IllegalStateException(errorMessage, exception);

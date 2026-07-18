@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginManager<I, T> {
 
   protected static final InjectionLayer<Injector> BASE_INJECTION_LAYER = InjectionLayer.ext();
-  protected static final StackWalker RETAINING_STACK_WALKER = StackWalker.getInstance(
-    StackWalker.Option.RETAIN_CLASS_REFERENCE);
+  protected static final StackWalker RETAINING_STACK_WALKER =
+    StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
   private final Function<T, I> idExtractor;
   private final Function<T, Object> mainClassExtractor;
@@ -77,9 +77,13 @@ public abstract class BasePlatformPluginManager<I, T> implements PlatformPluginM
 
     // configure the injection layer
     var callerClass = RETAINING_STACK_WALKER.walk(stream -> stream
-      .skip(2)
-      .map(StackWalker.StackFrame::getDeclaringClass)
+      .dropWhile(stackFrame -> {
+        var className = stackFrame.getClassName();
+        var isEntrypointClass = className.contains(".Generated") && className.endsWith("Entrypoint");
+        return !isEntrypointClass;
+      })
       .findFirst()
+      .map(StackWalker.StackFrame::getDeclaringClass)
       .orElseThrow(() -> new IllegalStateException("Unable to resolve calling platform main class")));
     this.configureInjectionLayer(pluginLayer, callerClass);
 

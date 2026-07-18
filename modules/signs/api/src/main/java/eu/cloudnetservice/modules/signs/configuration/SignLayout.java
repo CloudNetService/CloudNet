@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ public record SignLayout(
   @NonNull List<String> lines,
   @NonNull String blockMaterial,
   int blockSubId,
-  @Nullable String glowingColor
+  @Nullable String textColor,
+  boolean textGlowing
 ) {
 
   public static @NonNull Builder builder() {
@@ -39,7 +40,8 @@ public record SignLayout(
       .lines(new ArrayList<>(signLayout.lines()))
       .blockMaterial(signLayout.blockMaterial())
       .blockSubId(signLayout.blockSubId())
-      .glowingColor(signLayout.glowingColor());
+      .textColor(signLayout.textColor())
+      .textGlowing(signLayout.textGlowing());
   }
 
   public static class Builder {
@@ -47,7 +49,8 @@ public record SignLayout(
     private List<String> lines;
     private String blockMaterial;
     private int blockSubId = -1;
-    private String glowingColor;
+    private String textColor;
+    private boolean textGlowing;
 
     public @NonNull Builder lines(@NonNull Collection<String> lines) {
       this.lines = new ArrayList<>(lines);
@@ -68,8 +71,13 @@ public record SignLayout(
       return this;
     }
 
-    public @NonNull Builder glowingColor(@Nullable String glowingColor) {
-      this.glowingColor = glowingColor;
+    public @NonNull Builder textColor(@Nullable String textColor) {
+      this.textColor = textColor;
+      return this;
+    }
+
+    public @NonNull Builder textGlowing(boolean textGlowing) {
+      this.textGlowing = textGlowing;
       return this;
     }
 
@@ -77,8 +85,7 @@ public record SignLayout(
       Preconditions.checkNotNull(this.lines, "Missing lines");
       Preconditions.checkNotNull(this.blockMaterial, "Missing block material");
 
-      return new SignLayout(this.lines, this.blockMaterial, this.blockSubId, this.glowingColor);
+      return new SignLayout(this.lines, this.blockMaterial, this.blockSubId, this.textColor, this.textGlowing);
     }
   }
-
 }

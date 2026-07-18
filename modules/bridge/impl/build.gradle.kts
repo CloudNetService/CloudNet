@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,70 +14,96 @@
  * limitations under the License.
  */
 
-import net.fabricmc.loom.task.RemapJarTask
+import eu.cloudnetservice.cloudnet.gradle.tasks.IncludeNestedModJarsTask
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 
 plugins {
-  alias(libs.plugins.fabricLoom)
+  id("cloudnet-modules")
+  id("cloudnet-publish")
+  alias(libs.plugins.shadow)
 }
 
-configurations {
-  // custom configuration for later dependency resolution
-  create("runtimeImpl") {
-    configurations.getByName("api").extendsFrom(this)
-  }
+val shaded = configurations.register("shaded")
+configurations.named("compileOnlyApi") {
+  extendsFrom(shaded.get())
+}
+
+repositories {
+  maven("https://repo.waterdog.dev/releases/")
+  maven("https://repo.waterdog.dev/snapshots/")
+  maven("https://repo.loohpjames.com/repository")
+  maven("https://repo.md-5.net/repository/releases/")
+  maven("https://repo.md-5.net/repository/snapshots/")
+  maven("https://repo.opencollab.dev/maven-releases/")
+  maven("https://repo.opencollab.dev/maven-snapshots/")
+  maven("https://repo.papermc.io/repository/maven-public/")
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+}
+
+dependencies {
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  compileOnlyApi(projects.driver.driverImpl)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
+
+  compileOnly(libs.guava)
+  compileOnly(libs.reflexion)
+  compileOnly(libs.fabricLoader)
+  compileOnly(libs.bundles.proxyPlatform)
+  compileOnly(libs.bundles.serverPlatform)
+
+  shaded(projects.ext.adventureHelper)
+  shaded(projects.ext.platformScheduler)
+  shaded(projects.modules.bridge.bridgeApi)
+  shaded(libs.bundles.adventure)
+  shaded(libs.adventureSerializerBungee)
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.driver.driverAp)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
 }
 
 tasks.withType<JavaCompile> {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/bridge.aero")
 }
 
-dependencies {
-  "api"(projects.modules.bridge.bridgeApi)
+val zipFileName = "cloudnet_fabric_version_bridge_all.zip"
+val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
+val includeNestedModJars by tasks.registering(IncludeNestedModJarsTask::class) {
+  dependsOn(tasks.compileJava)
 
-  "compileOnly"(libs.reflexion)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(projects.driver.driverImpl)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(libs.bundles.proxyPlatform)
-  "compileOnly"(libs.bundles.serverPlatform)
-
-  "runtimeImpl"(libs.bundles.adventure)
-  "runtimeImpl"(projects.ext.adventureHelper)
-  "runtimeImpl"(libs.adventureSerializerBungee)
-  "runtimeImpl"(projects.modules.bridge.bridgeApi)
-
-  // processing
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
-
-  "minecraft"(libs.minecraft)
-  "modCompileOnly"(libs.fabricLoader)
-  "mappings"(loom.officialMojangMappings())
+  nestedZipDownloadUrl.set(downloadUrl)
+  outputModJson.set(layout.buildDirectory.file("generated/fabric.mod.json"))
+  nestedZipDownloadTarget.set(layout.buildDirectory.file("download/$zipFileName"))
+  nestedModsDirectory.set(layout.buildDirectory.dir("generated/fabric_mods_nested"))
+  baseModJson.set(layout.buildDirectory.file("classes/java/main/fabric.mod.json.temp"))
 }
 
-tasks.withType<Jar> {
+tasks.shadowJar {
+  archiveFileName = Files.bridge
+  configurations = setOf(project.configurations["shaded"])
+
+  // pulled in by adventure but is present on the classpath anyway
+  dependencies {
+    exclude(dependency("com.google.code.gson:gson"))
+  }
+
+  // exclude our template plugin manifest template files from the final jar
+  exclude("**/*.template")
+  exclude("fabric.mod.json.temp")
+
+  // depend on nested jar download, copy the nested jars into the final jar
+  dependsOn(includeNestedModJars)
+  from(includeNestedModJars.map { it.nestedModsDirectory }) {
+    into("bridge_mods_nested")
+  }
+  from(includeNestedModJars.map { it.outputModJson })
+
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest {
     attributes["paperweight-mappings-namespace"] = "mojang"
   }
-
-  // depend on adventure helper jar task
-  dependsOn(":ext:adventure-helper:jar")
-  dependsOn(":modules:bridge:bridge-api:jar")
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-  // includes all dependencies of runtimeImpl but excludes gson because we don't need it
-  from(configurations.getByName("runtimeImpl").map { if (it.isDirectory) it else zipTree(it) })
-  exclude {
-    it.file.absolutePath.contains(setOf("com", "google", "gson").joinToString(separator = File.separator))
-  }
-}
-
-tasks.withType<RemapJarTask> {
-  archiveFileName.set(Files.bridge)
-}
-
-loom {
-  accessWidenerPath.set(project.file("src/main/resources/cloudnet_bridge.accesswidener"))
 }
 
 moduleJson {

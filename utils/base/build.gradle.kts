@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
+}
+
 dependencies {
-  "api"(libs.vavr)
-  "implementation"(libs.guava)
+  api(libs.vavr)
+  implementation(libs.guava)
   // todo(derklaro): well this dependency is here now but i'm not really happy with that - util classes
   //                 should not be responsible for logging, any they should especially not just log
   //                 all exceptions instead of passing them to the caller (see primarily FileUtil)
-  "implementation"(libs.slf4jApi)
+  implementation(libs.slf4jApi)
 }

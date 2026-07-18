@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,25 +137,20 @@ public final class NodePlayerChannelMessageListener {
 
         // proxy player server switch
         case "proxy_player_service_switch" -> {
-          // read the information
           var uniqueId = event.content().readUniqueId();
           var target = event.content().readObject(NetworkServiceInfo.class);
-          // get the associated player
+
           var player = playerManager.onlinePlayer(uniqueId);
-          // check if we know the player
           if (player != null) {
-            // the previous service
             var prev = player.connectedService();
-            // set the current connected service and fire the event
             player.connectedService(target);
+
             eventManager.callEvent(new BridgeProxyPlayerServerSwitchEvent(player, prev));
-            // redirect to the cluster
             ChannelMessage.builder()
               .targetAll()
               .message("cloud_player_service_switch")
               .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-              .buffer(DataBuf.empty().writeObject(player).writeObject(prev))
-              .build()
+              .build(buffer -> buffer.writeObject(player).writeObject(prev))
               .send();
           }
         }
@@ -179,43 +174,35 @@ public final class NodePlayerChannelMessageListener {
 
         // server player login
         case "server_player_login" -> {
-          // read the information
           var playerUniqueId = event.content().readUniqueId();
           var info = event.content().readObject(NetworkPlayerServerInfo.class);
-          // get the cloud player if known
+
           var player = playerManager.onlinePlayer(playerUniqueId);
           if (player != null) {
-            // update the player locally & call the event
             player.networkPlayerServerInfo(info);
             eventManager.callEvent(new BridgeServerPlayerLoginEvent(player, info));
-            // redirect to the cluster
             ChannelMessage.builder()
               .targetAll()
               .message("cloud_player_server_login")
               .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-              .buffer(DataBuf.empty().writeObject(player).writeObject(info))
-              .build()
+              .build(buffer -> buffer.writeObject(player).writeObject(info))
               .send();
           }
         }
 
         // server player disconnect
         case "server_player_disconnect" -> {
-          // read the information
           var playerUniqueId = event.content().readUniqueId();
           var info = event.content().readObject(NetworkServiceInfo.class);
-          // get the cloud player if known
+
           var player = playerManager.onlinePlayer(playerUniqueId);
           if (player != null) {
-            // call the event
             eventManager.callEvent(new BridgeServerPlayerDisconnectEvent(player, info));
-            // redirect to the cluster
             ChannelMessage.builder()
               .targetAll()
               .message("cloud_player_server_disconnect")
               .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-              .buffer(DataBuf.empty().writeObject(player).writeObject(info))
-              .build()
+              .build(buffer -> buffer.writeObject(player).writeObject(info))
               .send();
           }
         }

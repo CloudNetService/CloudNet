@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
     RPCImplementationGenerator.generateObjectArgumentStore(codeBuilder, targetMethod.methodType());
 
     // construct the base rpc for the method & store it
-    var chainBaseStoreSlot = codeBuilder.allocateLocal(TypeKind.ReferenceType);
+    var chainBaseStoreSlot = codeBuilder.allocateLocal(TypeKind.REFERENCE);
     codeBuilder
       .invokevirtual(
         generatingClass,
@@ -136,7 +136,7 @@ final class ChainedRPCMethodGenerator implements RPCMethodGenerator {
   ) {
     // allocate the array
     var mappingCount = paramMapping.length / 2;
-    var extraArgsArrayStoreSlot = codeBuilder.allocateLocal(TypeKind.ReferenceType);
+    var extraArgsArrayStoreSlot = codeBuilder.allocateLocal(TypeKind.REFERENCE);
     codeBuilder
       .ldc(mappingCount)
       .anewarray(ConstantDescs.CD_Object)

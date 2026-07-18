@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.impl.module.ModuleHelper;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.PlatformPlugin;
+import eu.cloudnetservice.ext.scheduler.BukkitPlatformScheduler;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
@@ -62,12 +63,9 @@ public final class BukkitBridgePlugin implements PlatformEntrypoint {
 
   @Override
   public void onLoad() {
-    // init the bridge management
     this.bridgeManagement.registerServices(this.serviceRegistry);
-
-    this.plugin.getServer().getScheduler().runTask(this.plugin, this.bridgeManagement::postInit);
-    // register the bukkit listener
     this.pluginManager.registerEvents(this.playerListener, this.plugin);
+    BukkitPlatformScheduler.bukkitScheduler().globalRun(this.plugin, this.bridgeManagement::postInit);
   }
 
   @Override

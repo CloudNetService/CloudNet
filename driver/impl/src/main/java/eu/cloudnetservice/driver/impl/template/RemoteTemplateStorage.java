@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Predicate;
 import java.util.zip.ZipInputStream;
 import lombok.NonNull;
@@ -102,6 +103,14 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
    * {@inheritDoc}
    */
   @Override
+  public boolean pull(@NonNull ServiceTemplate template, @NonNull Path directory) {
+    return TaskUtil.getOrDefault(this.pullAsync(template, directory), false);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull CompletableFuture<Boolean> deployAsync(
     @NonNull ServiceTemplate target,
     @NonNull InputStream inputStream
@@ -114,6 +123,22 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
       .build()
       .transferChunkedData()
       .thenApply(status -> status == TransferStatus.SUCCESS);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull CompletableFuture<Boolean> pullAsync(@NonNull ServiceTemplate template, @NonNull Path directory) {
+    return this.zipTemplateAsync(template).thenApply(stream -> {
+      var zipInputStream = stream instanceof ZipInputStream zis ? zis : new ZipInputStream(stream);
+      try (zipInputStream) {
+        var destinationPath = ZipUtil.extractZipStream(zipInputStream, directory);
+        return destinationPath != null;
+      } catch (IOException exception) {
+        throw new CompletionException(exception);
+      }
+    });
   }
 
   /**
@@ -157,6 +182,9 @@ public abstract class RemoteTemplateStorage implements TemplateStorage {
     return TaskUtil.getOrDefault(this.newInputStreamAsync(template, path), null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public @NonNull CompletableFuture<InputStream> zipTemplateAsync(@NonNull ServiceTemplate template) {
     return ChunkedFileQueryBuilder.create()

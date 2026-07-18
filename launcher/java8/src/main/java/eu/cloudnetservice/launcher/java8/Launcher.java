@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,22 @@
 
 package eu.cloudnetservice.launcher.java8;
 
+import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
+
 public final class Launcher {
 
   public static void main(String[] args) throws Exception {
-    // check if we're at least on java 23
-    if (detectJavaVersion() == 23) {
-      Class.forName("eu.cloudnetservice.launcher.java22.CloudNetLauncher")
-        .getConstructor(String[].class)
-        .newInstance((Object) args);
+    int javaVersion = detectJavaVersion();
+    if (javaVersion == 25) {
+      Class<?> theLauncherClass = Class.forName("eu.cloudnetservice.launcher.java22.CloudNetLauncher");
+      Constructor<?> launcherEntrypoint = theLauncherClass.getConstructor(String[].class);
+      launcherEntrypoint.newInstance((Object) args);
     } else {
       // CHECKSTYLE.OFF: Launcher has no proper logger
-      System.err.println("CloudNet requires exactly Java 23. Download it from https://adoptium.net/");
+      System.err.println("Cannot start CloudNet: Java 25 is required, but Java " + javaVersion + " was detected");
+      System.err.println("Please install a Java 25 JRE or JDK (e.g. from OpenJDK, Azul, Adoptium, or another vendor)");
+      TimeUnit.SECONDS.sleep(7L);
       System.exit(1);
       // CHECKSTYLE.ON
     }
@@ -34,11 +39,10 @@ public final class Launcher {
 
   private static int detectJavaVersion() {
     String specificationVersion = System.getProperty("java.specification.version");
-    // java versions < 9 used 1.X - check that
     if (specificationVersion.startsWith("1.")) {
       specificationVersion = specificationVersion.replaceFirst("1\\.", "");
     }
-    // we should be able to just parse to an int
+
     try {
       return Integer.parseInt(specificationVersion);
     } catch (NumberFormatException exception) {

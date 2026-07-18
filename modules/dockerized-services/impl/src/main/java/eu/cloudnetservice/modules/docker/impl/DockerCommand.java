@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.docker.impl;
 
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceTask;
@@ -72,6 +73,31 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   ) {
     this.updateTaskDockerConfig(task, (_, builder) -> builder.javaImage(null));
     source.sendMessage(i18n.translate("command-tasks-set-property-success", "javaImage", task.name(), "null"));
+  }
+
+  @Command("docker task <task> nodeHostOverride <host>")
+  public void setNodeHostOverride(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @Argument("task") @NonNull ServiceTask task,
+    @Argument(value = "host", parserName = "anyHostAndPort") @NonNull HostAndPort hostOverride
+  ) {
+    this.updateTaskDockerConfig(task, (_, builder) -> builder.nodeHostOverride(hostOverride));
+    source.sendMessage(i18n.translate(
+      "command-tasks-set-property-success",
+      "nodeHostOverride",
+      task.name(),
+      hostOverride));
+  }
+
+  @Command("docker task <task> remove nodeHostOverride")
+  public void removeNodeHostOverride(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @Argument("task") @NonNull ServiceTask task
+  ) {
+    this.updateTaskDockerConfig(task, (_, builder) -> builder.nodeHostOverride(null));
+    source.sendMessage(i18n.translate("command-tasks-set-property-success", "nodeHostOverride", task.name(), "null"));
   }
 
   @Command("docker task <task> add bind <bind>")
@@ -249,6 +275,22 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
     source.sendMessage(i18n.translate("module-docker-command-remove-success", "user"));
   }
 
+  @Command("docker config nodeHostOverride <host>")
+  public void setNodeHostOverride(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @Argument(value = "host", parserName = "anyHostAndPort") @NonNull HostAndPort hostOverride
+  ) {
+    this.updateDockerConfig((_, builder) -> builder.nodeHostOverride(hostOverride));
+    source.sendMessage(i18n.translate("module-docker-command-set-success", "nodeHostOverride", hostOverride));
+  }
+
+  @Command("docker config remove nodeHostOverride")
+  public void removeNodeHostOverride(@NonNull @Service I18n i18n, @NonNull CommandSource source) {
+    this.updateDockerConfig((_, builder) -> builder.nodeHostOverride(null));
+    source.sendMessage(i18n.translate("module-docker-command-remove-success", "nodeHostOverride"));
+  }
+
   @Command("docker config add bind <bind>")
   public void addBind(
     @NonNull @Service I18n i18n,
@@ -290,7 +332,11 @@ public record DockerCommand(@NonNull DockerizedServicesModule module, @NonNull S
   }
 
   @Command("docker config remove volume <volume>")
-  public void removeVolumes(@NonNull @Service I18n i18n, @NonNull CommandSource source, @Argument("volume") String volume) {
+  public void removeVolumes(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @Argument("volume") String volume
+  ) {
     this.updateDockerConfig((config, builder) -> builder.volumes(config.volumes().stream()
       .filter(entry -> !entry.equals(volume))
       .collect(Collectors.toSet())));

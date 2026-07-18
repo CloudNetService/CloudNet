@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,7 @@ public final class ServiceChannelMessageListener {
           var configuration = event.content().readObject(ServiceConfiguration.class);
           event.queryResponse(cloudServiceFactory.createCloudServiceAsync(configuration)
             .thenApply(service -> ChannelMessage.buildResponseFor(event.channelMessage())
-              .buffer(DataBuf.empty().writeObject(service))
-              .build()));
+              .build(buffer -> buffer.writeObject(service))));
         }
 
         // feedback from a node that a service which should have been moved to accepted
@@ -96,8 +95,7 @@ public final class ServiceChannelMessageListener {
                 .target(event.sender().toTarget())
                 .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
                 .message("node_to_head_node_unaccepted_service_ttl_exceeded")
-                .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
-                .build()
+                .build(buffer -> buffer.writeUniqueId(serviceUniqueId))
                 .send();
             }
           }
@@ -148,7 +146,10 @@ public final class ServiceChannelMessageListener {
   }
 
   @EventListener
-  public void handleRemoteLifecycleChanges(@NonNull CloudServiceLifecycleChangeEvent event, @NonNull @Service I18n i18n) {
+  public void handleRemoteLifecycleChanges(
+    @NonNull CloudServiceLifecycleChangeEvent event,
+    @NonNull @Service I18n i18n
+  ) {
     var id = event.serviceInfo().serviceId();
     var replacements = new Object[]{id.uniqueId(), id.taskName(), id.name(), id.nodeUniqueId()};
 

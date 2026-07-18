@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.report)
+dependencies {
+  moduleLibrary(libs.oshi)
+  compileOnly(libs.guava)
+  compileOnly(libs.unirest)
+  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.utils.utilsBase)
+  api(projects.modules.report.reportApi)
+
+  annotationProcessor(projects.driver.driverAp)
 }
 
-dependencies {
-  "moduleLibrary"(libs.oshi)
-  "compileOnly"(libs.unirest)
-  "compileOnly"(projects.utils.utilsBase)
-  "implementation"(projects.modules.report.reportApi)
-
-  "annotationProcessor"(projects.driver.driverAp)
+tasks.shadowJar.configure {
+  archiveFileName = Files.report
 }
 
 moduleJson {

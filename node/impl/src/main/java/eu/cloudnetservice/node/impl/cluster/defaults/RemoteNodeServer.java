@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import eu.cloudnetservice.driver.cluster.NodeInfoSnapshot;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCImplementationBuilder;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -134,8 +133,7 @@ public class RemoteNodeServer implements NodeServer {
       .message("change_draining_state")
       .targetNode(this.info.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeBoolean(doDrain))
-      .build()
+      .build(buffer -> buffer.writeBoolean(doDrain))
       .send();
   }
 
@@ -145,8 +143,7 @@ public class RemoteNodeServer implements NodeServer {
       .message("sync_cluster_data")
       .targetNode(this.info.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(this.dataSyncRegistry.prepareClusterData(force))
-      .build()
+      .build(this.dataSyncRegistry.prepareClusterData(force))
       .send();
   }
 
@@ -237,11 +234,14 @@ public class RemoteNodeServer implements NodeServer {
       .message("send_command_line")
       .targetNode(this.info.uniqueId())
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeString(commandLine))
-      .build()
+      .build(buffer -> buffer.writeString(commandLine))
       .sendSingleQueryAsync()
-      .thenApply(message -> message.content().<Collection<String>>readObject(COLLECTION_STRING))
-      .exceptionally($ -> Set.of())
+      .thenApply(response -> {
+        try (response) {
+          return response.content().<Collection<String>>readObject(COLLECTION_STRING);
+        }
+      })
+      .exceptionally(_ -> Set.of())
       .join();
   }
 

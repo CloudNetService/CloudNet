@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2019-2024 CloudNetService team & contributors
+  ~ Copyright 2019-present CloudNetService team & contributors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,8 +23,12 @@
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
   <!-- variables used in the logback configuration. Can be set using system properties. -->
-  <variable name="cloudnet.log.path" value="local/logs"/>
-  <variable name="cloudnet.log.level" value="DEBUG"/>
+  <variable name="cloudnet.log.path" value="${cloudnet.log.path:-local/logs}"/>
+  <variable name="cloudnet.log.level" value="${cloudnet.log.level:-DEBUG}"/>
+  <variable name="cloudnet.log.properties.file" value="${cloudnet.log.properties.file:-logback.properties}"/>
+
+  <!-- allow configuring log levels using properties file -->
+  <propertiesConfigurator optional="true" file="${cloudnet.log.properties.file}"/>
 
   <conversionRule conversionWord="levelColor"
     class="eu.cloudnetservice.node.impl.console.log.ConsoleLevelConversion"/>

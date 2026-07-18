@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class ChunkedPacketSenderTest {
   @Timeout(20)
   void testChunkPacketSender() throws Exception {
     var packetSplits = new AtomicInteger();
-    var chunkData = this.generateRandomChunkData();
+    var chunkData = this.generateRandomChunkData(false);
 
     var sessionId = UUID.randomUUID();
     DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
@@ -74,7 +74,7 @@ public class ChunkedPacketSenderTest {
   @Timeout(20)
   void testNetworkChannelSplitter() throws Exception {
     var packetSplits = new AtomicInteger();
-    var chunkData = this.generateRandomChunkData();
+    var chunkData = this.generateRandomChunkData(true);
 
     var sessionId = UUID.randomUUID();
     DataBuf dataBuf = DataBuf.empty().writeString("hello").writeInt(10).writeString("world");
@@ -98,8 +98,8 @@ public class ChunkedPacketSenderTest {
       .get());
   }
 
-  private byte[] generateRandomChunkData() {
-    var data = new byte[4096];
+  private byte[] generateRandomChunkData(boolean exactMultiply) {
+    var data = new byte[16 * 256 + (exactMultiply ? 0 : 69)];
     ThreadLocalRandom.current().nextBytes(data);
     return data;
   }
@@ -108,11 +108,13 @@ public class ChunkedPacketSenderTest {
     var info = packet.content().readObject(ChunkSessionInformation.class);
     var chunkIndex = packet.content().readInt();
     var finalChunk = packet.content().readBoolean();
+    var chunkDataSize = packet.content().readInt();
 
     Assertions.assertEquals(256, info.chunkSize());
     Assertions.assertEquals(sessionId, info.sessionUniqueId());
     Assertions.assertEquals("hello_world", info.transferChannel());
     Assertions.assertEquals(splits.get(), chunkIndex);
+    Assertions.assertTrue(finalChunk || chunkDataSize == 256);
 
     Assertions.assertEquals("hello", info.transferInformation().readString());
     Assertions.assertEquals(10, info.transferInformation().readInt());
@@ -123,17 +125,9 @@ public class ChunkedPacketSenderTest {
       Assertions.assertEquals(data.length / 256, chunkIndex);
     }
 
-    // this prevents a weird bug happening. When copying an array beginning at the length of the array (in this case
-    // 4096) it will not throw an exception as expected but give you back an array with the expected 256 size full
-    // of zeros which will cause this test to fail.
     var sourcePosition = splits.get() * 256;
-    var contentAtPosition = sourcePosition == data.length
-      ? new byte[0]
-      : Arrays.copyOfRange(data, sourcePosition, (splits.get() + 1) * 256);
-
-    Assertions.assertArrayEquals(
-      contentAtPosition,
-      packet.content().readByteArray());
+    var contentAtPosition = Arrays.copyOfRange(data, sourcePosition, sourcePosition + chunkDataSize);
+    Assertions.assertArrayEquals(contentAtPosition, packet.content().toByteArray());
   }
 
   private NetworkChannel mockNetworkChannel(Consumer<Packet> packetSyncSendHandler) {

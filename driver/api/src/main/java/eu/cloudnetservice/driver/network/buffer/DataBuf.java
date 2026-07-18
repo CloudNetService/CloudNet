@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,41 +18,39 @@ package eu.cloudnetservice.driver.network.buffer;
 
 import eu.cloudnetservice.driver.network.object.ObjectMapper;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents an immutable buffer which is essentially a wrapper around some kind of readable buffer. By default,
- * CloudNet wraps the netty ByteBuf meaning that read operations are deferred to an underlying byte array of nio byte
- * buffer.
+ * Represents an immutable buffer, which is essentially a wrapper around some kind of readable buffer. By default,
+ * CloudNet wraps netty buffer instances and delegates each method call to them.
  * <p>
- * However, a data buf does not allow (in comparison to other wrappers) the random access to bytes at specific positions
- * (for example using a netty ByteBuf {@code buf.getByte(index)} would be possible, but isn't in this buffer). But it
- * must be possible for a reader to store the current position of the buffer and return to it (for example after
- * reading). This is done by starting a transaction using {@link #startTransaction()}, reading or writing to the buffer
- * and restoring the previous position by using {@link #redoTransaction()}. Note: This will not remove bytes written to
- * the buffer, other write operations will however start from the original index and override the written bytes.
+ * However, a data buf does not allow (in comparison to other wrappers) the random access to bytes at specific
+ * positions. But it must be possible for a reader to store the current position of the buffer and return to it (for
+ * example, after reading). This is done by starting a transaction using {@link #startTransaction()}, reading or writing
+ * to the buffer and restoring the previous position by using {@link #redoTransaction()}. Note: This will not remove
+ * bytes written to the buffer, other writes will, however, start from the original index and override the written
+ * bytes.
  * <p>
  * Other operations should work as expected on a buffer, reading should always start from the head of the buffer,
  * reflecting the operation over all other readers. If one reader reads a byte from the buffer, the next one will start
  * at the second byte in the buffer, not the first one.
  * <p>
- * Buffers are not required to be thread safe, they can but should be treated specially in these cases. Concurrent read
- * and/or write operations will therefore produce (by default) different results when spread over threads.
- * <p>
- * Buffers should avoid memory leaks by ensuring to release their content after the last byte of the buffer was read.
- * The behaviour can be influenced by acquiring them using {@link #acquire()}. The buffer will only be released if every
- * place that acquired the buffer has released it using {@link #release()} or {@link #close()}. In rare cases it might
- * be necessary to release a buffer even if it's acquired, use {@link #forceRelease()} in that case.
+ * Buffers are not required to be thread safe, they should be treated specially in these cases. Concurrent read and/or
+ * write operations might therefore produce (by default) unspecified results when data buffers are accessed
+ * concurrently.
  * <p>
  * To prevent exceptions during reading, it's worth noting that using {@code readableBytes() > 0} it is possible to
  * verify that there are still bytes left in the buffer to read.
  * <p>
- * It is not recommended using any constructor to create an instance of a data buf - you should obtain a factory for
- * them and create your instance using the given factory methods.
+ * It is not recommended using any constructor to create an instance of a data buf - you should get a factory instance
+ * for them and create your instance using the given factory methods.
  *
  * @see DataBufFactory
  * @see Mutable
@@ -262,11 +260,59 @@ public interface DataBuf extends AutoCloseable {
   // utility for reading
 
   /**
-   * Get the number of remaining bytes in the buffer until the buffer gets released (when enabled).
+   * Get the remaining number of bytes that are filled with readable content.
    *
-   * @return the number of remaining bytes in the buffer.
+   * @return the remaining number of bytes that are filled with readable content.
    */
   int readableBytes();
+
+  /**
+   * Get the current reader offset. The next read to this buffer will happen at the returned offset.
+   *
+   * @return the current reader offset.
+   */
+  int readerOffset();
+
+  /**
+   * Sets the current reader offset of this buffer. The next read will happen from the given offset.
+   *
+   * @param offset the new reader offset to use.
+   * @return this buffer, for chaining.
+   * @throws IllegalStateException     if this buffer was released.
+   * @throws IndexOutOfBoundsException if the given offset is beyond the end of this buffer.
+   */
+  @NonNull
+  @Contract("_ -> this")
+  DataBuf readerOffset(int offset);
+
+  /**
+   * Advances the current reader offset of this buffer by the given delta. The next read to this buffer happens at the
+   * current reader index plus the given delta. Note: the given delta cannot be negative.
+   *
+   * @param delta the number of bytes to move the reader index by.
+   * @return this buffer, for chaining.
+   * @throws IllegalArgumentException  if the given delta is negative.
+   * @throws IllegalStateException     if this buffer was released.
+   * @throws IndexOutOfBoundsException if advancing by the given delta would move beyond the end of this buffer.
+   */
+  @NonNull
+  @Contract("_ -> this")
+  DataBuf advanceReaderOffset(int delta);
+
+  /**
+   * Get a new byte buffer instance that shares the memory region of this buffer. The returned buffer is marked as
+   * read-only which prevents write operations to it. The initial byte buffer offset is the current reader offset, and
+   * it's limited to the number of readable bytes beyond the current reader offset.
+   * <p>
+   * Note: this api is marked as experimental as the lifecycle of the returned buffer cannot be controlled. This means
+   * that a returned byte buffer instance can still refer to memory already released by this buffer.
+   *
+   * @return a read-only byte buffer sharing the memory region of this buffer, but with a separate position.
+   * @throws IllegalStateException if this buffer was released.
+   */
+  @NonNull
+  @ApiStatus.Experimental
+  ByteBuffer readableNioBuffer();
 
   /**
    * Starts a transaction to the buffer. Starting a transaction while another transaction is active will override the
@@ -282,21 +328,23 @@ public interface DataBuf extends AutoCloseable {
    * index will go back to 0.
    *
    * @return the same instance as used to call the method, for chaining.
+   * @throws IllegalStateException     if this buffer was released.
    * @throws IndexOutOfBoundsException if an illegal action was made to buffer moving the reader or writer index.
    */
   @NonNull
   DataBuf redoTransaction();
 
   /**
-   * Converts this immutable buffer to a mutable one. There is no need to copy the underlying byte tracker, meaning that
-   * all writes will be reflected into this buffer and vise-versa.
+   * Converts this immutable buffer to a mutable one. The underlying memory is not shared between this buffer and the
+   * newly constructed mutable one. The returned buffer range starts at the current reader position of this buffer.
    *
    * @return a mutable variant of this buffer.
+   * @throws IllegalStateException if this buffer was released.
    */
   @NonNull
   DataBuf.Mutable asMutable();
 
-  // direct memory access
+  // lifecycle management
 
   /**
    * Get if the current buffer is still accessible or if it was released already.
@@ -306,9 +354,11 @@ public interface DataBuf extends AutoCloseable {
   boolean accessible();
 
   /**
-   * Get the amount of acquires that this data buf has. Initially a data buf is acquired once.
+   * Get the amount of times this buffer was acquired. A number greater than zero indicates that this buffer is
+   * accessible and not released, a number equal or less than zero indicates that this buffer was released and is
+   * inaccessible.
    *
-   * @return the amount of acquires. A value smaller or equal to zero means that the buffer was released.
+   * @return the amount of times this buffer was acquired.
    */
   int acquires();
 
@@ -317,25 +367,28 @@ public interface DataBuf extends AutoCloseable {
    * but only release the buffer if there were more release than acquire calls.
    *
    * @return the same instance as used to call the method, for chaining.
+   * @throws IllegalStateException if this buffer was released or was acquired too many times.
    */
   @NonNull
   DataBuf acquire();
 
   /**
-   * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method only
-   * decreases the acquire count of the buffer in case it was acquired at least once.
+   * Closes this buffer. In case the acquire count is exactly {@code 1}, the buffer content will be released and this
+   * buffer becomes inaccessible. If the acquire count is greater than {@code 1}, the acquire count is decreased by one
+   * and the buffer stays accessible. If the buffer was already released, this method does nothing.
    */
   void release();
 
   /**
-   * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method does
-   * not check if anyone acquired the buffer, it will be released in any case.
+   * Forcibly closes the buffer, ignoring the current acquire count. The buffer will always be inaccessible after this
+   * method was invoked.
    */
   void forceRelease();
 
   /**
-   * Explicitly releases all data associated with this buffer making it unavailable for further reads. This method does
-   * nothing if releasing was disables before calling this method.
+   * Closes this buffer. In case the acquire count is exactly {@code 1}, the buffer content will be released and this
+   * buffer becomes inaccessible. If the acquire count is greater than {@code 1}, the acquire count is decreased by one
+   * and the buffer stays accessible. If the buffer was already released, this method does nothing.
    */
   @Override
   void close();
@@ -352,6 +405,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param b the boolean to write.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeBoolean(boolean b);
@@ -361,6 +415,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param integer the integer to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeInt(int integer);
@@ -370,6 +425,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param b the byte to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeByte(byte b);
@@ -379,6 +435,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param s the short to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeShort(short s);
@@ -388,6 +445,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param l the long to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeLong(long l);
@@ -397,6 +455,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param f the float to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeFloat(float f);
@@ -406,6 +465,7 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param d the double to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeDouble(double d);
@@ -415,62 +475,67 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param c the char to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeChar(char c);
 
     /**
-     * Writes the given byte array into the buffer, prefixed by an integer containing the amount of bytes following in
+     * Writes the given byte array into the buffer, prefixed by an integer containing the number of bytes following in
      * the array.
      * <p>
      * This method call is equivalent to {@code writeByteArray(b, b.length)}.
      *
      * @param b the byte array to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeByteArray(byte[] b);
 
     /**
-     * Writes the given byte array into the buffer, prefixed by an integer containing the amount of bytes following in
+     * Writes the given byte array into the buffer, prefixed by an integer containing the number of bytes following in
      * the array.
      *
      * @param b      the byte array to write into the buffer.
-     * @param amount the amount of bytes of the array to write into the buffer.
+     * @param amount the number of bytes to copy from the given byte array into this buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeByteArray(byte[] b, int amount);
 
     /**
-     * Writes the unique id into the buffer by first writing the most significant bits of the id followed by the last
-     * significant bits of the id.
+     * Writes the unique id into the buffer.
      *
      * @param uuid the id to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeUniqueId(@NonNull UUID uuid);
 
     /**
-     * Writes the string into the buffer. This method does the same thing as {@link #writeByteArray(byte[])}. The string
-     * gets converted into it's byte array representation and then written into the buffer like that.
+     * Writes the string into the buffer.
      *
      * @param string the string to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable writeString(@NonNull String string);
 
     /**
      * Writes all data of the given data buffer into this data buffer starting at the current reader index of the given
-     * buffer.
+     * buffer. The reader and writer index of the given buffer are not modified by this method. The given buffer is
+     * released after being written into this buffer.
      * <p>
      * Buffers are not expected to be cross-implementation-compatible. For instance, a netty buffer can only be written
      * to netty buffers.
      *
      * @param buf the buffer to write into this buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if either this or the given buffer were released.
      */
     @NonNull
     DataBuf.Mutable writeDataBuf(@NonNull DataBuf buf);
@@ -480,45 +545,103 @@ public interface DataBuf extends AutoCloseable {
      *
      * @param obj the object to write into the buffer.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      * @see ObjectMapper#writeObject(Mutable, Object)
      */
     @NonNull
     DataBuf.Mutable writeObject(@Nullable Object obj);
 
     /**
-     * Writes the given object null-safe into this buffer. It appends a boolean before the actual object data (if the
-     * object is present) whether the data is present. The writer consumer is only called when the data is present and
-     * can then safely proceed to write all the required data into the buffer. The supplied buffer is the same buffer
-     * used for calling the method.
+     * Writes the given object null-safe into this buffer. It appends a boolean before the actual object data to
+     * indicate if the object is non-null. The writer consumer is only called when the data is present and can then
+     * safely proceed to write all the required data into the buffer. The supplied buffer is the same buffer used for
+     * calling the method.
      *
      * @param object             the object which should be safely written into this buffer.
      * @param handlerWhenNonNull the writer of the object when it's non-null.
      * @param <T>                the generic type of the object being written.
      * @return the same buffer used to call the method, for chaining.
+     * @throws IllegalStateException if this buffer was released.
      */
     @NonNull
     <T> DataBuf.Mutable writeNullable(
       @Nullable T object,
       @NonNull BiConsumer<Mutable, T> handlerWhenNonNull);
 
+    // utility for writing
+
     /**
-     * Ensures that this buffer has at least the given amount of bytes unused for writing data. If the buffer already
-     * has the amount of bytes present, this method returns immediately.
+     * Ensures that this buffer has at least the given number of bytes available for writing data. If the buffer already
+     * has the number of bytes present, this method returns immediately.
      *
-     * @param bytes the bytes that must be available in the buffer.
+     * @param bytes the number of bytes that should be available for writing.
      * @return this buffer, for chaining.
      * @throws IllegalArgumentException if the given byte count is negative.
+     * @throws IllegalStateException    if this buffer was released.
      */
     @NonNull
     DataBuf.Mutable ensureWriteable(int bytes);
 
-    // utility for reading
+    /**
+     * Get the remaining number of bytes available for write operations.
+     *
+     * @return the remaining number of bytes available for write operations.
+     */
+    int writeableBytes();
 
     /**
-     * Converts this buffer into an immutable version of it. The underlying buffer is not expected to be clones, that
-     * means that writes to this buffer are still reflected into the immutable version of it and vise-versa.
+     * Get the current writer offset. The next write operation to this buffer will happen at the returned offset.
      *
-     * @return an immutable version of this buffer.
+     * @return the current writer offset.
+     */
+    int writerOffset();
+
+    /**
+     * Sets the current writer offset of this buffer. The next write operation will happen from the given offset.
+     *
+     * @param offset the new writer offset to use.
+     * @return this buffer, for chaining.
+     * @throws IllegalStateException     if this buffer was released.
+     * @throws IndexOutOfBoundsException if the given offset is beyond the end of this buffer.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    DataBuf writerOffset(int offset);
+
+    /**
+     * Advances the current writer offset of this buffer by the given delta. The next write operation to this buffer
+     * happens at the current writer index plus the given delta. Note: the given delta cannot be negative.
+     *
+     * @param delta the number of bytes to move the writer index by.
+     * @return this buffer, for chaining.
+     * @throws IllegalArgumentException  if the given delta is negative.
+     * @throws IllegalStateException     if this buffer was released.
+     * @throws IndexOutOfBoundsException if advancing by the given delta would move beyond the end of this buffer.
+     */
+    @NonNull
+    @Contract("_ -> this")
+    DataBuf advanceWriterOffset(int delta);
+
+    /**
+     * Get a new byte buffer instance that shares the memory region of this buffer. The returned buffer can be used to
+     * read and write data to this buffer. The initial byte buffer offset is the current writer offset, and it's limited
+     * to the number of writable bytes beyond the current writer offset.
+     * <p>
+     * Note: this api is marked as experimental as the lifecycle of the returned buffer cannot be controlled. This means
+     * that a returned byte buffer instance can still refer to memory already released by this buffer.
+     *
+     * @return a byte buffer sharing the memory region of this buffer, but with a separate position.
+     * @throws IllegalStateException if this buffer was released.
+     */
+    @NonNull
+    @ApiStatus.Experimental
+    ByteBuffer writeableNioBuffer();
+
+    /**
+     * Wraps the underlying buffer into a read-only variant. The underlying memory, lifetime and reader/writer positions
+     * are shared between this buffer and the read-only variant.
+     *
+     * @return an immutable wrap of this buffer.
      */
     @NonNull
     DataBuf asImmutable();

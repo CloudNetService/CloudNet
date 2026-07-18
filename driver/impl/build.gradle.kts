@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,31 @@
  * limitations under the License.
  */
 
-dependencies {
-  "implementation"(projects.utils.utilsBase)
-  "implementation"(projects.driver.driverApi)
-  "implementation"(projects.ext.updater)
-
-  "implementation"(libs.gson)
-  "implementation"(libs.guava)
-  "implementation"(libs.caffeine)
-  "implementation"(libs.reflexion)
-  "implementation"(libs.bundles.unirest)
-
-  "implementation"(libs.bundles.netty)
-  "implementation"(libs.nettyNativeKqueue)
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
-  "implementation"(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
-
-  "annotationProcessor"(libs.aerogelAuto)
-  "annotationProcessor"(projects.driver.driverAp)
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
-tasks.withType<JavaCompile> {
+dependencies {
+  api(projects.utils.utilsBase)
+  api(projects.driver.driverApi)
+  implementation(projects.ext.updater)
+
+  implementation(libs.gson)
+  implementation(libs.guava)
+  implementation(libs.caffeine)
+  implementation(libs.reflexion)
+  implementation(libs.bundles.unirest)
+
+  implementation(libs.bundles.netty)
+  implementation(libs.nettyNativeKqueue)
+  implementation(variantOf(libs.nettyNativeEpoll) { classifier("linux-x86_64") })
+  implementation(variantOf(libs.nettyNativeEpoll) { classifier("linux-aarch_64") })
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.driver.driverAp)
+}
+
+tasks.withType<JavaCompile>().configureEach {
   options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/driver.aero")
 }

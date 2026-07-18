@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,38 +17,38 @@
 package eu.cloudnetservice.driver.channel;
 
 import com.google.common.base.Preconditions;
-import eu.cloudnetservice.driver.DriverEnvironment;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudMessenger;
-import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a message object which can be sent over the network with specific targets in mind. Unlike direct packet
- * communication, channel messages are not bound to a specific messaging channels but can rather get sent to all
- * components which are somewhere connected in the network. This means that it is possible to send a channel message to
- * a service which is running on another node than the current service which is sending the channel message.
+ * Represents a message object that can be sent over the network with specific targets in mind. Unlike direct packet
+ * communication, channel messages are not bound to specific messaging channels but can rather get sent to all
+ * components that are somewhere connected in the network. This means that it is possible to send a channel message to a
+ * service which is running on another node than the service which is sending the channel message.
  * <p>
  * A channel message has two main identification points. One is the channel to which the message gets sent. The channel
- * is a string object which is generally used to collect multiple types of channel message to a collection of message
- * types. On the other hand a channel message contains a message object which should be unique within in the network and
- * is used to identify a channel message in a group messages sent to the same channel.
+ * is a string generally used to group channel messages together. This is, for example, useful to identify all channel
+ * messages that are sent by a specific module. Further narrowing of the message type is done by using the message key,
+ * which should uniquely identify the specific message. Each channel message must be composed of a unique channel and
+ * message to distinguish it from other messages being sent in the cluster.
  * <p>
  * The message contains a {@link DataBuf} containing the actual content of the message. There is no real way to identify
- * which types are in the buffer or not, therefore it is crucial that a channel message gets identified via its channel
- * and/or message.
+ * which types are in the buffer or not, therefore, it is crucial that a channel message gets identified via its channel
+ * and message keys.
  * <p>
- * If targets were given that are not locatable in the network they will get ignored silently. On the other hand this
- * means that if you try to send a channel message to a non-existing target, the send method will block until the future
- * wait timeout (30 seconds by default) expired before returning.
+ * If targets were given that are not locatable in the network, they will get ignored silently.
  * <p>
  * Note: there is no guarantee that the sender of a channel message is the actual component sending the message, as the
  * message can be modified on its way to the receiver.
@@ -75,7 +75,7 @@ public record ChannelMessage(
   @NonNull DataBuf content,
   @NonNull ChannelMessageSender sender,
   @NonNull Collection<ChannelMessageTarget> targets
-) {
+) implements AutoCloseable {
 
   /**
    * Constructs a new, empty builder for a ChannelMessage.
@@ -88,7 +88,7 @@ public record ChannelMessage(
   }
 
   /**
-   * Constructs a new builder which contains all needed data to respond to a channel message. As the channel message
+   * Constructs a new builder which contains all necessary data to respond to a channel message. As the channel message
    * will get directly handled by the waiting future, there is no need to actually set the channel and message of the
    * returned builder. The new builder will target the sender of the given input and has no data set.
    *
@@ -98,13 +98,16 @@ public record ChannelMessage(
    */
   @Contract("_ -> new")
   public static @NonNull Builder buildResponseFor(@NonNull ChannelMessage input) {
-    return builder().channel("").message("").target(input.sender.type(), input.sender.name());
+    return builder().channel("").message("").target(input.sender.toTarget());
   }
 
   /**
-   * Sends this channel message using the current messenger of the environment. This is in fact just a shortcut method
-   * for {@link CloudMessenger#sendChannelMessage(ChannelMessage)}. This method will not wait for the target component
-   * to respond (it doesn't even expect a response) but for the handling component to send the message.
+   * Sends this channel message using the current messenger of the environment. This is a shortcut method for
+   * {@link CloudMessenger#sendChannelMessage(ChannelMessage)}. This method will not wait for the target component to
+   * respond (it doesn't even expect a response) but for the handling component to send the message.
+   * <p>
+   * Note: once the channel message was sent, the backing buffer gets released. Therefore, the caller must acquire the
+   * content buffer if this channel message is sent multiple times.
    */
   public void send() {
     this.messenger().sendChannelMessage(this);
@@ -113,9 +116,24 @@ public record ChannelMessage(
   /**
    * Sends this channel message as a query and returns a future which waits for target component(s) to respond. This
    * method is a shortcut for {@link CloudMessenger#sendChannelMessageQueryAsync(ChannelMessage)}. The future will be
-   * completed when the target component responds or the query future times out (after 30 seconds).
+   * completed when the target component responds or the query future times out.
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the responses to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * message.sendQueryAsync().thenAccept(responses -> {
+   *   for (var response : responses) {
+   *     try (response) {
+   *       // do something with the response
+   *     }
+   *   }
+   * }
+   * }
+   * </pre>
    *
-   * @return a future completed with all responses of all target components of this channel message.
+   * @return a future completed with all responses of all components targeted by this channel message.
    */
   public @NonNull CompletableFuture<Collection<ChannelMessage>> sendQueryAsync() {
     return this.messenger().sendChannelMessageQueryAsync(this);
@@ -124,34 +142,81 @@ public record ChannelMessage(
   /**
    * Sends this channel message as a query and returns a future which waits for target component(s) to respond. Only the
    * first response of any target will get sent back to this component. This is in particular useful if there is only
-   * one target, or you are only expecting one component of the target components to respond. This is in fact just a
-   * shortcut method for {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}. The future will be
-   * completed when one target component responds or the query future times out (after 30 seconds).
+   * one target, or you are only expecting one of the target components to respond. This is a shortcut method for
+   * {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}. The future will be completed with the
+   * first received response of any target component (possibly null if no target responded).
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the response to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * message.sendSingleQueryAsync().thenAccept(response -> {
+   *   if (response != null) {
+   *     try (response) {
+   *       // do something with the response
+   *     }
+   *   }
+   * }
+   * }
+   * </pre>
    *
-   * @return a future completed with the first response of any target of this channel message.
+   * @return a future completed with the first received response of any target component or null if no target responded.
    */
   public @NonNull CompletableFuture<ChannelMessage> sendSingleQueryAsync() {
     return this.messenger().sendSingleChannelMessageQueryAsync(this);
   }
 
   /**
-   * Sends this channel message as a query and suspends the calling thread until all responses is available or the query
-   * timeout of 30 seconds is exceeded. This method is a shortcut for
-   * {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
+   * Sends this channel message as a query and blocks until all target components have responded to the query or the
+   * timeout of {@link CloudMessenger#SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS} is exceeded. If more control over the
+   * timeout is required, an async method with a custom timeout applied must be used instead. This method is a shortcut
+   * for {@link CloudMessenger#sendChannelMessageQuery(ChannelMessage)}.
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the responses to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * Collection<ChannelMessage> responses = message.sendQuery();
+   * for (var response : responses) {
+   *   try (response) {
+   *     // do something with the response
+   *   }
+   * }
+   * }
+   * </pre>
    *
    * @return all responses of all components this channel message is targeting.
+   * @throws CompletionException if an exception occurred while waiting for the query responses.
    */
   public @NonNull Collection<ChannelMessage> sendQuery() {
     return this.messenger().sendChannelMessageQuery(this);
   }
 
   /**
-   * Sends this channel message as a query and returns and blocks until one of the target component responded to this
-   * message or the query timeout of 30 seconds is exceeded. This is in particular useful if there is only one target,
-   * or you are only expecting one component of the target components to respond. This is in fact just a shortcut method
-   * for {@link CloudMessenger#sendSingleChannelMessageQueryAsync(ChannelMessage)}.
+   * Sends this channel message as a query and blocks until one of the target component responded to this message or the
+   * timeout of {@link CloudMessenger#SYNC_CHANNEL_MESSAGE_QUERY_TIMEOUT_MS} is exceeded. If more control over the
+   * timeout is required, an async method with a custom timeout applied must be used instead. This is in particular
+   * useful if there is only one target, or you are only expecting one of the target components to respond. This is a
+   * shortcut method for {@link CloudMessenger#sendSingleChannelMessageQuery(ChannelMessage)}.
+   * <p>
+   * Note: it is not possible for CloudNet to detect when a channel message query response was consumed. Therefore, it
+   * is crucial that the caller closes the response to prevent memory leaks. Example:
+   * <pre>
+   * {@code
+   * ChannelMessage message = ...;
+   * ChannelMessage response = message.sendSingleQuery();
+   * if (response != null) {
+   *   try (response) {
+   *     // do something with the response
+   *   }
+   * }
+   * }
+   * </pre>
    *
-   * @return the first response of any component this message is targeting.
+   * @return the first response of any component this message is targeting, null if no target responded.
+   * @throws CompletionException if an exception occurred while waiting for the query response.
    */
   public @Nullable ChannelMessage sendSingleQuery() {
     return this.messenger().sendSingleChannelMessageQuery(this);
@@ -162,8 +227,17 @@ public record ChannelMessage(
    *
    * @return the current messenger of the environment.
    */
+  @ApiStatus.Internal
   private @NonNull CloudMessenger messenger() {
     return InjectionLayer.boot().instance(CloudMessenger.class);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() {
+    this.content.close();
   }
 
   /**
@@ -175,11 +249,14 @@ public record ChannelMessage(
    *   <li>at least one target for the message
    * </ul>
    * <p>
-   * If no sender of the message is given the current network component will be used as the sender of the message.
+   * If no sender for the message is given, the current network component will be used as the sender of the message.
+   * The {@link #build()} method can only be called once for a channel message builder instance.
+   *
+   * @since 4.0
    */
   public static final class Builder {
 
-    private final Collection<ChannelMessageTarget> targets = new ArrayList<>();
+    private final Collection<ChannelMessageTarget> targets = new HashSet<>();
 
     private String channel;
     private String message;
@@ -187,43 +264,51 @@ public record ChannelMessage(
     private boolean sendSync;
     private boolean prioritized;
 
-    private DataBuf content;
     private ChannelMessageSender sender;
 
     /**
-     * Sets the sender of this message. If no sender is given the current component will be used as the sender. Note
-     * that if you change the sender and try to receive a query response it will send the response to the given sender,
-     * not this component.
+     * Constructs a new builder instance. Use {@link ChannelMessage#builder()} instead.
+     */
+    private Builder() {
+    }
+
+    /**
+     * Sets the sender of this message. If no sender is given, the current component will be used as the sender.
      *
      * @param sender the sender of this message.
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given sender is null.
-     * @see ChannelMessageSender#self()
      */
+    @Contract("_ -> this")
     public @NonNull Builder sender(@NonNull ChannelMessageSender sender) {
       this.sender = sender;
       return this;
     }
 
     /**
-     * Sets the channel of this message. Might be empty but should be unique to identify within the network.
+     * Sets the channel of this message. The channel is primarily intended to group channel message of, for example, the
+     * same module. This makes it much easier for receivers to assess whether a message should get handled by them. It
+     * can be empty but should be unique to identify for the receiver.
      *
-     * @param channel the channel.
+     * @param channel the channel of this message.
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given channel is null.
      */
+    @Contract("_ -> this")
     public @NonNull Builder channel(@NonNull String channel) {
       this.channel = channel;
       return this;
     }
 
     /**
-     * Sets the message key of this message. Might be empty but should be unique to identify within the network.
+     * Sets the message key of this message. The key is primarily intended to uniquely identify one specific message to
+     * the receiver. It can be empty but should be unique to identify for the receiver.
      *
      * @param message the message key.
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given message is null.
      */
+    @Contract("_ -> this")
     public @NonNull Builder message(@NonNull String message) {
       this.message = message;
       return this;
@@ -236,21 +321,23 @@ public record ChannelMessage(
      * @param sync if the message should get send sync.
      * @return the same builder as used to call the method, for chaining.
      */
+    @Contract("_ -> this")
     public @NonNull Builder sendSync(boolean sync) {
       this.sendSync = sync;
       return this;
     }
 
     /**
-     * Sets if the channel message should be prioritized over other channel messages.
+     * Sets if the channel message should get prioritized processing on the receiving components.
      * <p>
-     * <strong>USE WITH CAUTION!</strong> This can cause other packet to get read and handled delayed. Use this option
-     * only if you know what you're doing and are absolutely sure that the packet is urgent for CloudNet to work for as
-     * expected. Otherwise, don't touch this method.
+     * <strong>USE WITH CAUTION!</strong> This can cause other lags and delays in the network handling of the
+     * receivers. Use this option only if you know what you're doing and are sure that the packet is urgent for CloudNet
+     * to work for as expected. Otherwise, don't touch this method.
      *
-     * @param prioritized if the channel message is prioritized
+     * @param prioritized if the channel message should get prioritized processing on the receiving components.
      * @return the same builder as used to call the method, for chaining.
      */
+    @Contract("_ -> this")
     @ApiStatus.Experimental
     public @NonNull Builder prioritized(boolean prioritized) {
       this.prioritized = prioritized;
@@ -258,121 +345,26 @@ public record ChannelMessage(
     }
 
     /**
-     * Sets the content of this message. If no content was given an empty buffer will be used.
-     *
-     * @param dataBuf the content.
-     * @return the same builder as used to call the method, for chaining.
-     */
-    public @NonNull Builder buffer(@Nullable DataBuf dataBuf) {
-      this.content = dataBuf;
-      return this;
-    }
-
-    /**
-     * Adds the given target as a target of this message.
+     * Adds the given channel message target as a target of this message.
      *
      * @param target the target to add.
      * @return the same builder as used to call the method, for chaining.
      * @throws NullPointerException if the given target is null.
      */
+    @Contract("_ -> this")
     public @NonNull Builder target(@NonNull ChannelMessageTarget target) {
       this.targets.add(target);
       return this;
     }
 
     /**
-     * Adds a channel message target to this message. You may not target an environment using this method.
-     *
-     * @param type the type of the receiver.
-     * @param name the name of the receiver.
-     * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
-     * @throws NullPointerException     if the given target type is null.
-     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
-     */
-    public @NonNull Builder target(@NonNull ChannelMessageTarget.Type type, @Nullable String name) {
-      return this.target(ChannelMessageTarget.of(type, name));
-    }
-
-    /**
-     * Adds a channel message target to this message. You may not target an environment using this method.
-     *
-     * @param environment the driver environment to target.
-     * @param name        the name of the target, might be null to target all components with the given environment.
-     * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
-     * @throws NullPointerException     if the given environment is null.
-     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
-     */
-    public @NonNull Builder target(@NonNull DriverEnvironment environment, @Nullable String name) {
-      return this.target(environment == DriverEnvironment.NODE
-        ? ChannelMessageTarget.Type.NODE
-        : ChannelMessageTarget.Type.SERVICE, name);
-    }
-
-    /**
-     * Targets all components with the given type. You may not target an environment using this method.
-     *
-     * @param type the type of the receivers to target.
-     * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
-     * @throws NullPointerException     if the given target type is null.
-     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
-     */
-    public @NonNull Builder targetAll(@NonNull ChannelMessageTarget.Type type) {
-      return this.target(type, null);
-    }
-
-    /**
      * Targets all components within the network.
      *
      * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
-     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
      */
+    @Contract(" -> this")
     public @NonNull Builder targetAll() {
-      return this.target(ChannelMessageTarget.Type.ALL, null);
-    }
-
-    /**
-     * Targets all services within the network.
-     *
-     * @return the same builder as used to call the method, for chaining.
-     * @throws IllegalArgumentException if type is {@link ChannelMessageTarget.Type#ENVIRONMENT}
-     * @see ChannelMessageTarget#of(ChannelMessageTarget.Type, String)
-     */
-    public @NonNull Builder targetServices() {
-      return this.targetAll(ChannelMessageTarget.Type.SERVICE);
-    }
-
-    /**
-     * Targets a specific service in the network.
-     *
-     * @param name the name of the service to target.
-     * @return the same builder as used to call the method, for chaining.
-     */
-    public @NonNull Builder targetService(@Nullable String name) {
-      return this.target(ChannelMessageTarget.Type.SERVICE, name);
-    }
-
-    /**
-     * Targets all services of the given task within the network.
-     *
-     * @param name the name of the task to target.
-     * @return the same builder as used to call the method, for chaining.
-     */
-    public @NonNull Builder targetTask(@Nullable String name) {
-      return this.target(ChannelMessageTarget.Type.TASK, name);
-    }
-
-    /**
-     * Targets a specific node within the network.
-     *
-     * @param name the name of the node to target.
-     * @return the same builder as used to call the method, for chaining.
-     */
-    public @NonNull Builder targetNode(@Nullable String name) {
-      return this.target(ChannelMessageTarget.Type.NODE, name);
+      return this.target(ChannelMessageTarget.all());
     }
 
     /**
@@ -380,42 +372,151 @@ public record ChannelMessage(
      *
      * @return the same builder as used to call the method, for chaining.
      */
+    @Contract(" -> this")
     public @NonNull Builder targetNodes() {
-      return this.targetAll(ChannelMessageTarget.Type.NODE);
+      return this.target(ChannelMessageTarget.allNodes());
+    }
+
+    /**
+     * Targets all services within the network.
+     *
+     * @return the same builder as used to call the method, for chaining.
+     */
+    @Contract(" -> this")
+    public @NonNull Builder targetServices() {
+      return this.target(ChannelMessageTarget.allServices());
+    }
+
+    /**
+     * Targets a specific node within the network.
+     *
+     * @param nodeId the id of the node to target.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given node id is null.
+     */
+    @Contract("_ -> this")
+    public @NonNull Builder targetNode(@NonNull String nodeId) {
+      return this.target(ChannelMessageTarget.node(nodeId));
+    }
+
+    /**
+     * Targets a specific service in the network.
+     *
+     * @param serviceName the name of the service to target.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given service name is null.
+     */
+    @Contract("_ -> this")
+    public @NonNull Builder targetService(@NonNull String serviceName) {
+      return this.target(ChannelMessageTarget.service(serviceName));
+    }
+
+    /**
+     * Targets all services of the given task within the network.
+     *
+     * @param taskName the name of the task to target.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given task name is null.
+     */
+    @Contract("_ -> this")
+    public @NonNull Builder targetServicesOfTask(@NonNull String taskName) {
+      return this.target(ChannelMessageTarget.servicesByTask(taskName));
+    }
+
+    /**
+     * Targets all services of the given group within the network.
+     *
+     * @param groupName the name of the group to target.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given group name is null.
+     */
+    @Contract("_ -> this")
+    public @NonNull Builder targetServicesOfGroup(@NonNull String groupName) {
+      return this.target(ChannelMessageTarget.servicesByGroup(groupName));
     }
 
     /**
      * Targets all services with the given environment within the network.
      *
-     * @param environment the environment to target.
+     * @param environmentName the name of the environment to target.
      * @return the same builder as used to call the method, for chaining.
-     * @throws NullPointerException if the given environment is null.
+     * @throws NullPointerException if the given environment name is null.
      */
-    public @NonNull Builder targetEnvironment(@NonNull ServiceEnvironmentType environment) {
-      return this.target(ChannelMessageTarget.environment(environment));
+    @Contract("_ -> this")
+    public @NonNull Builder targetServicesOfEnvironment(@NonNull String environmentName) {
+      return this.target(ChannelMessageTarget.servicesByEnvironment(environmentName));
     }
 
     /**
-     * Builds a channel message from this builder within the contract given in the Builder class java docs.
+     * Targets all services that have the given property key associated with any value within the network.
+     *
+     * @param propertyKey the key of the property that must be associated on target services.
+     * @return the same builder as used to call the method, for chaining.
+     * @throws NullPointerException if the given property key is null.
+     */
+    @Contract("_ -> this")
+    public @NonNull Builder targetServicesWithProperty(@NonNull String propertyKey) {
+      return this.target(ChannelMessageTarget.servicesWithProperty(propertyKey));
+    }
+
+    /**
+     * Builds a channel message from this builder, using an empty buffer as the content.
      *
      * @return the created channel message from this builder.
      * @throws NullPointerException     if no message or channel is provided.
      * @throws IllegalArgumentException if no target was specified.
+     * @throws IllegalStateException    if this method was called previously.
      */
     @Contract(" -> new")
     public @NonNull ChannelMessage build() {
+      return this.build(DataBuf.empty());
+    }
+
+    /**
+     * Builds a channel message from this builder, using the given buffer as the content of it.
+     *
+     * @param content the buffer containing the content of the channel message.
+     * @return the created channel message from this builder.
+     * @throws NullPointerException     if the given content buffer is null, or no channel/message was provided.
+     * @throws IllegalArgumentException if an invalid argument was provided to this builder.
+     */
+    @Contract("_ -> new")
+    public @NonNull ChannelMessage build(@NonNull DataBuf content) {
       Preconditions.checkNotNull(this.channel, "No channel provided");
       Preconditions.checkNotNull(this.message, "No message provided");
       Preconditions.checkArgument(!this.targets.isEmpty(), "No targets provided");
+      Preconditions.checkArgument(content.accessible(), "content buffer is closed");
 
+      var sender = Objects.requireNonNullElseGet(this.sender, ChannelMessageSender::self);
       return new ChannelMessage(
         this.sendSync,
         this.prioritized,
         this.channel,
         this.message,
-        this.content == null ? DataBuf.empty() : this.content,
-        this.sender == null ? ChannelMessageSender.self() : this.sender,
+        content,
+        sender,
         this.targets);
+    }
+
+    /**
+     * Builds a channel message from this builder, using the given decorator function to write the content of the
+     * channel message into the buffer before building.
+     * <p>
+     * Note: the decorator function is <strong>NOT</strong> allowed to return a different buffer instance than the one
+     * passed to it. This is only a function, as it makes it easier to use compared to a consumer.
+     *
+     * @param contentDecorator decorator function that writes the content of the channel message into the buffer.
+     * @return the created channel message from this builder.
+     * @throws NullPointerException  if the given decorator function is null.
+     * @throws IllegalStateException if the decorator returns a different buffer or releases the given buffer.
+     */
+    @Contract("_ -> new")
+    public @NonNull ChannelMessage build(@NonNull UnaryOperator<DataBuf.Mutable> contentDecorator) {
+      var contentBuffer = DataBuf.empty();
+      var returnedBuffer = contentDecorator.apply(contentBuffer);
+      Preconditions.checkState(contentBuffer == returnedBuffer, "decorator returned different buffer");
+      Preconditions.checkState(contentBuffer.accessible(), "buffer was released by decorator");
+      return this.build(contentBuffer);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,39 +63,33 @@ public final class RPCPacketListener implements PacketListener {
     var content = packet.content();
     var resultExpected = packet.uniqueId() != null;
 
-    try {
-      var rpcDepth = content.readInt();
-      if (rpcDepth <= 0) {
-        // depth must be at least one (single call) or more (chained call)
-        if (resultExpected) {
-          var resultContent = DataBufFactory.defaultFactory()
-            .createWithExpectedSize(1)
-            .writeByte(RPCInvocationResult.STATUS_BAD_REQUEST)
-            .writeString("invalid chain length");
-          this.sendResponseData(channel, packet, resultContent);
-        }
-        return;
+    var rpcDepth = content.readInt();
+    if (rpcDepth <= 0) {
+      // depth must be at least one (single call) or more (chained call)
+      if (resultExpected) {
+        var resultContent = DataBufFactory.defaultFactory()
+          .createWithExpectedSize(1)
+          .writeByte(RPCInvocationResult.STATUS_BAD_REQUEST)
+          .writeString("invalid chain length");
+        this.sendResponseData(channel, packet, resultContent);
       }
+      return;
+    }
 
-      if (rpcDepth > 1) {
-        // RPC chain, start executing the first step
-        this.executeRPCChainStep(rpcDepth, 1, resultExpected, content, packet, channel, null);
-      } else {
-        // single method rpc, execute & respond if requested
-        var targetClassName = content.readString();
-        var invocationContext = this.buildContext(content, null);
-        var handlingTask = this.postRPCRequestToHandler(targetClassName, invocationContext);
-        if (resultExpected) {
-          this.waitForInvocationCompletion(handlingTask, result -> {
-            var resultContent = this.serializeHandlingResult(result);
-            this.sendResponseData(channel, packet, resultContent);
-          });
-        }
+    if (rpcDepth > 1) {
+      // RPC chain, start executing the first step
+      this.executeRPCChainStep(rpcDepth, 1, resultExpected, content, packet, channel, null);
+    } else {
+      // single method rpc, execute & respond if requested
+      var targetClassName = content.readString();
+      var invocationContext = this.buildContext(content, null);
+      var handlingTask = this.postRPCRequestToHandler(targetClassName, invocationContext);
+      if (resultExpected) {
+        this.waitForInvocationCompletion(handlingTask, result -> {
+          var resultContent = this.serializeHandlingResult(result);
+          this.sendResponseData(channel, packet, resultContent);
+        });
       }
-    } finally {
-      // specifically release the buffer here to prevent memory leaks, especially if we didn't consume
-      // the whole buffer content (for example due to an exception during handling)
-      content.forceRelease();
     }
   }
 
@@ -112,10 +106,8 @@ public final class RPCPacketListener implements PacketListener {
     @NonNull Consumer<RPCInvocationResult> callback
   ) {
     if (invocationTask == null) {
-      // nothing to wait for
       callback.accept(null);
     } else {
-      // wait for the completion of the method
       invocationTask.whenComplete((result, _) -> callback.accept(result));
     }
   }
@@ -239,7 +231,7 @@ public final class RPCPacketListener implements PacketListener {
    * @return the result of the method invocation, or null if no handler for the given class is registered.
    * @throws NullPointerException if either the given class name or invocation context is null.
    */
-  // note: do not change this method name, it's used by RPCExceptionUtil.serializeHandlingException
+  // impl note: do not change this method name, it's used by RPCExceptionUtil.serializeHandlingException
   // to determine where the internal handling frame cutoff should be
   private @Nullable CompletableFuture<RPCInvocationResult> postRPCRequestToHandler(
     @NonNull String targetClassName,

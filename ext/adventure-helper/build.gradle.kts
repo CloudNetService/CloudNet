@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-dependencies {
-  "compileOnly"(libs.adventureApi)
-  "compileOnly"(libs.adventureSerializerLegacy)
-  "compileOnly"(libs.bungeecordChat)
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
 }
 
-configurations {
-  named("testImplementation").get().extendsFrom(named("compileOnly").get())
+dependencies {
+  compileOnly(libs.adventureApi)
+  compileOnly(libs.adventureSerializerLegacy)
+  compileOnly(libs.bungeecordChat)
 }

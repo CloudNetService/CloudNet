@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.SignManagement;
@@ -73,10 +72,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.database.insert(this.documentKey(sign.location()), Document.newJsonDocument().appendTree(sign));
     this.signs.put(sign.location(), sign);
 
-    this.channelMessage(SIGN_CREATED)
-      .buffer(DataBuf.empty().writeObject(sign))
-      .targetAll()
-      .build().send();
+    this.channelMessage(SIGN_CREATED).targetAll().build(buffer -> buffer.writeObject(sign)).send();
   }
 
   @Override
@@ -85,9 +81,8 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     this.signs.remove(position);
 
     this.channelMessage(SIGN_DELETED)
-      .buffer(DataBuf.empty().writeObject(position))
       .targetAll()
-      .build().send();
+      .build(buffer -> buffer.writeObject(position)).send();
   }
 
   @Override
@@ -103,10 +98,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
       this.signs.remove(position);
     }
 
-    this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(DataBuf.empty().writeObject(positions))
-      .targetAll()
-      .build().send();
+    this.channelMessage(SIGN_BULK_DELETE).targetAll().build(buffer -> buffer.writeObject(positions)).send();
     return positions.size();
   }
 
@@ -118,10 +110,7 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
       this.signs.remove(position);
     }
 
-    this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(DataBuf.empty().writeObject(positions))
-      .targetAll()
-      .build().send();
+    this.channelMessage(SIGN_BULK_DELETE).targetAll().build(buffer -> buffer.writeObject(positions)).send();
     return positions.size();
   }
 
@@ -137,9 +126,9 @@ public class NodeSignManagement extends AbstractSignManagement implements SignMa
     super.signsConfiguration(signsConfiguration);
 
     this.channelMessage(SIGN_CONFIGURATION_UPDATE)
-      .buffer(DataBuf.empty().writeObject(signsConfiguration))
       .targetAll()
-      .build().send();
+      .build(buffer -> buffer.writeObject(signsConfiguration))
+      .send();
     NodeSignsConfigurationHelper.write(signsConfiguration, this.configPath);
   }
 

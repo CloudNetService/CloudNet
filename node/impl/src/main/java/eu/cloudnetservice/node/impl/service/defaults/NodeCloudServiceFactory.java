@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@ package eu.cloudnetservice.node.impl.service.defaults;
 
 import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.CloudServiceFactory;
@@ -40,7 +38,6 @@ import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -207,9 +204,8 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
       ChannelMessage.builder()
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .message("head_node_to_node_finish_service_registration")
-        .buffer(DataBuf.empty().writeUniqueId(serviceUniqueId))
-        .target(ChannelMessageTarget.Type.NODE, associatedNode.info().uniqueId())
-        .build()
+        .targetNode(associatedNode.info().uniqueId())
+        .build(buffer -> buffer.writeUniqueId(serviceUniqueId))
         .send();
       return result;
     } else {
@@ -226,18 +222,23 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
   ) {
     // send a request to the node to start a service
     var future = ChannelMessage.builder()
-      .target(ChannelMessageTarget.Type.NODE, targetNode)
+      .targetNode(targetNode)
       .message(message)
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(configuration))
-      .build()
+      .build(buffer -> buffer.writeObject(configuration))
       .sendSingleQueryAsync();
     var result = TaskUtil.getOrDefault(future, Duration.ofSeconds(20), null);
 
-    // read the result service info from the buffer, if the there was no response then we need to fail (only the head
-    // node should queue start requests)
-    var createResult = result == null ? null : result.content().readObject(ServiceCreateResult.class);
-    return Objects.requireNonNullElse(createResult, ServiceCreateResult.FAILED);
+    // read the result service info from the buffer, if the there was no response then we need
+    // to fail (only the head node should queue start requests)
+    return switch (result) {
+      case null -> ServiceCreateResult.FAILED;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(ServiceCreateResult.class);
+        }
+      }
+    };
   }
 
   protected @NonNull ServiceCreateResult scheduleCreateRetryIfEnabled(

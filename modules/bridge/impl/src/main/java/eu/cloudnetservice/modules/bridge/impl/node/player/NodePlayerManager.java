@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import dev.derklaro.aerogel.auto.annotation.Provides;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.event.EventManager;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
@@ -241,53 +240,41 @@ public class NodePlayerManager implements PlayerManager {
 
   @Override
   public void updateOfflinePlayer(@NonNull CloudOfflinePlayer player) {
-    // push the change to the cache
     this.pushOfflinePlayerCache(player.uniqueId(), player);
-    // update the database
     this.database().insert(player.uniqueId().toString(), Document.newJsonDocument().appendTree(player));
-    // notify the cluster
+
     ChannelMessage.builder()
       .targetAll()
       .message("update_offline_cloud_player")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(player))
-      .build()
+      .build(buffer -> buffer.writeObject(player))
       .send();
-    // call the update event locally
     this.eventManager.callEvent(new BridgeUpdateCloudOfflinePlayerEvent(player));
   }
 
   @Override
   public void updateOnlinePlayer(@NonNull CloudPlayer cloudPlayer) {
-    // push the change to the cache
     this.pushOnlinePlayerCache(cloudPlayer);
-    // notify the cluster
     ChannelMessage.builder()
       .targetAll()
       .message("update_online_cloud_player")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(cloudPlayer))
-      .build()
+      .build(buffer -> buffer.writeObject(cloudPlayer))
       .send();
-    // call the update event locally
     this.eventManager.callEvent(new BridgeUpdateCloudPlayerEvent(cloudPlayer));
   }
 
   @Override
   public void deleteCloudOfflinePlayer(@NonNull CloudOfflinePlayer cloudOfflinePlayer) {
-    // push the change to the cache
     this.pushOfflinePlayerCache(cloudOfflinePlayer.uniqueId(), null);
-    // delete from the database
     this.database().delete(cloudOfflinePlayer.uniqueId().toString());
-    // notify the cluster
+
     ChannelMessage.builder()
       .targetAll()
       .message("delete_offline_cloud_player")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(cloudOfflinePlayer))
-      .build()
+      .build(buffer -> buffer.writeObject(cloudOfflinePlayer))
       .send();
-    // call the update event locally
     this.eventManager.callEvent(new BridgeDeleteCloudOfflinePlayerEvent(cloudOfflinePlayer));
   }
 
@@ -302,7 +289,7 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   @Override
-  public @NonNull CompletableFuture<CloudPlayer> onlinePlayersAsync(@NonNull UUID uniqueId) {
+  public @NonNull CompletableFuture<CloudPlayer> onlinePlayerAsync(@NonNull UUID uniqueId) {
     return TaskUtil.supplyAsync(() -> this.onlinePlayer(uniqueId));
   }
 
@@ -317,7 +304,9 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   @Override
-  public @NonNull CompletableFuture<List<CloudPlayer>> environmentOnlinePlayersAsync(@NonNull ServiceEnvironmentType env) {
+  public @NonNull CompletableFuture<List<CloudPlayer>> environmentOnlinePlayersAsync(
+    @NonNull ServiceEnvironmentType env
+  ) {
     return TaskUtil.supplyAsync(() -> this.environmentOnlinePlayers(env));
   }
 
@@ -448,21 +437,17 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   protected void processLogin(@NonNull CloudPlayer cloudPlayer) {
-    // push the player into the cache
     this.pushOnlinePlayerCache(cloudPlayer);
-    // update the database
     this.database().insert(
       cloudPlayer.uniqueId().toString(),
       Document.newJsonDocument().appendTree(CloudOfflinePlayer.offlineCopy(cloudPlayer)));
-    // notify the other nodes that we received the login
+
     ChannelMessage.builder()
       .targetAll()
       .message("process_cloud_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(cloudPlayer))
-      .build()
+      .build(buffer -> buffer.writeObject(cloudPlayer))
       .send();
-    // call the update event locally
     this.eventManager.callEvent(new BridgeProxyPlayerLoginEvent(cloudPlayer));
   }
 
@@ -536,24 +521,19 @@ public class NodePlayerManager implements PlayerManager {
   }
 
   private void logoutPlayer0(@NonNull CloudPlayer cloudPlayer) {
-    // remove the player from the cache
     this.onlinePlayers.remove(cloudPlayer.uniqueId());
     cloudPlayer.lastNetworkPlayerProxyInfo(cloudPlayer.networkPlayerProxyInfo());
-    // copy to an offline version
+
     var offlinePlayer = CloudOfflinePlayer.offlineCopy(cloudPlayer);
-    // update the offline version of the player into the cache
     this.pushOfflinePlayerCache(cloudPlayer.uniqueId(), offlinePlayer);
-    // push the change to the database
     this.database().insert(offlinePlayer.uniqueId().toString(), Document.newJsonDocument().appendTree(offlinePlayer));
-    // notify the cluster
+
     ChannelMessage.builder()
       .targetAll()
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
       .message("process_cloud_player_logout")
-      .buffer(DataBuf.empty().writeObject(cloudPlayer))
-      .build()
+      .build(buffer -> buffer.writeObject(cloudPlayer))
       .send();
-    // call the update event locally
     this.eventManager.callEvent(new BridgeProxyPlayerDisconnectEvent(cloudPlayer));
   }
 

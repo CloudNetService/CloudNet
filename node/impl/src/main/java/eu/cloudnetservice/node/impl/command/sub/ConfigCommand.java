@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.node.impl.command.sub;
 
+import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.base.JavaVersion;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.HostAndPort;
@@ -28,6 +30,7 @@ import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.config.JsonConfiguration;
+import eu.cloudnetservice.node.impl.util.NetworkUtil;
 import io.vavr.Tuple2;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -72,6 +75,39 @@ public final class ConfigCommand {
     return alias;
   }
 
+  @Parser(name = "subnet")
+  public @NonNull String subnetParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
+    var subnetAddress = input.readString();
+    var subnetAddressParts = subnetAddress.split("/", 2);
+    var subnetHostAndPort = NetworkUtil.parseHostAndPort(subnetAddressParts[0], false);
+    if (subnetHostAndPort == null) {
+      // invalid host provided
+      throw new ArgumentNotAvailableException(i18n.translate("command-config-subnet-host-invalid", subnetAddress));
+    }
+
+    if (subnetAddressParts.length == 2) {
+      var prefixLength = Ints.tryParse(subnetAddressParts[1]);
+      if (prefixLength == null) {
+        // invalid prefix length (input not a number)
+        throw new ArgumentNotAvailableException(
+          i18n.translate("command-config-subnet-prefix-length-nan", subnetAddressParts[1]));
+      }
+
+      var parsedSubnetAddress = InetAddresses.forString(subnetHostAndPort.host());
+      var maxValidPrefixLength = parsedSubnetAddress.getAddress().length * Byte.SIZE; // 32 for IPv4, 128 for IPv6
+      if (prefixLength < 0 || prefixLength > maxValidPrefixLength) {
+        // the prefix length is negative or too big for the address type
+        throw new ArgumentNotAvailableException(i18n.translate(
+          "command-config-subnet-prefix-length-invalid",
+          prefixLength, maxValidPrefixLength, subnetAddress));
+      }
+
+      return subnetHostAndPort.host() + '/' + prefixLength;
+    }
+
+    return subnetHostAndPort.host();
+  }
+
   @Suggestions("ipAlias")
   public @NonNull List<String> ipAliasSuggestions() {
     return List.copyOf(this.configuration.ipAliases().keySet());
@@ -96,33 +132,31 @@ public final class ConfigCommand {
     source.sendMessage(i18n.translate("command-config-node-reload-config"));
   }
 
-  @Command("config|cfg node add ip <ip>")
+  @Command("config|cfg node add allowedIp <ip>")
   public void addIpWhitelist(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "ip", parserName = "anyHost") String ip
+    @NonNull @Argument(value = "ip", parserName = "subnet") String ip
   ) {
     var ipWhitelist = this.configuration.ipWhitelist();
-    // check if the collection changes after we add the ip
     if (ipWhitelist.add(ip)) {
-      // update the config as we have a change
       this.configuration.save();
     }
+
     source.sendMessage(i18n.translate("command-config-node-add-ip-whitelist", ip));
   }
 
-  @Command("config|cfg node remove ip <ip>")
+  @Command("config|cfg node remove allowedIp <ip>")
   public void removeIpWhitelist(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
     @NonNull @Argument(value = "ip", suggestions = "whitelistedIps") String ip
   ) {
     var ipWhitelist = this.configuration.ipWhitelist();
-    // check if the collection changes after we remove the given ip
     if (ipWhitelist.remove(ip)) {
-      // update the config as we have a change
       this.configuration.save();
     }
+
     source.sendMessage(i18n.translate("command-config-node-remove-ip-whitelist", ip));
   }
 

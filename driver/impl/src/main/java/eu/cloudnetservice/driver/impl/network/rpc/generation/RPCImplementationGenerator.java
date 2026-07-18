@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,7 +240,7 @@ final class RPCImplementationGenerator {
       RPCGenerationConstants.MTD_BRIDGE_RPC_INVOKE,
       ClassFile.ACC_PRIVATE,
       code -> {
-        var baseRPCStoreSlot = code.allocateLocal(TypeKind.ReferenceType);
+        var baseRPCStoreSlot = code.allocateLocal(TypeKind.REFERENCE);
         code
           // construct the base RPC
           .aload(0)

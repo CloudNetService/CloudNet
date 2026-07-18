@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
@@ -146,8 +145,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       .targetAll()
       .message("add_service_task")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTaskAddEvent.task()))
-      .build()
+      .build(buffer -> buffer.writeObject(serviceTaskAddEvent.task()))
       .send();
     return true;
   }
@@ -171,8 +169,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
       .targetAll()
       .message("remove_service_task")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(serviceTask))
-      .build()
+      .build(buffer -> buffer.writeObject(serviceTask))
       .send();
   }
 
@@ -276,9 +273,9 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
           task = ServiceTask.builder(task).javaCommand(command).build();
         }
 
-        // remove all custom java paths that do not support Java 23
+        // remove all custom java paths that do not support Java 25
         var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
-        if (javaVersion != JavaVersion.JAVA_23) {
+        if (javaVersion != JavaVersion.JAVA_25) {
           task = ServiceTask.builder(task).javaCommand(null).build();
           LOGGER.warn(this.i18n.translate("cloudnet-load-task-unsupported-java-version", taskName));
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 package eu.cloudnetservice.wrapper.impl.transform.spark;
 
 import eu.cloudnetservice.utils.base.StringUtil;
-import eu.cloudnetservice.wrapper.transform.ClassTransformer;
+import eu.cloudnetservice.wrapper.impl.transform.ClassTransformer;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.ClassElement;
+import java.lang.classfile.ClassModel;
 import java.lang.classfile.ClassTransform;
 import java.lang.classfile.MethodModel;
 import java.lang.constant.ClassDesc;
@@ -56,8 +57,8 @@ public final class OldAsyncProfilerDisableTransformer implements ClassTransforme
    * {@inheritDoc}
    */
   @Override
-  public @NonNull ClassTransform provideClassTransform() {
-    return new AsyncProfilerAccessClassTransform();
+  public @NonNull ClassTransform provideClassTransform(@NonNull ClassModel original) {
+    return new AsyncProfilerAccessClassTransform(original);
   }
 
   /**
@@ -80,17 +81,18 @@ public final class OldAsyncProfilerDisableTransformer implements ClassTransforme
 
     // holds if the "isLinuxMusl" method exists in AsyncProfilerAccess - the method was removed
     // alongside the async profiler 3 support which added the required java 23 support
-    private boolean isLinuxMuslExists = false;
+    private final boolean isLinuxMuslExists;
     // the bug only happens on amd64 systems, so on aarch system we can leave the profiler
     // enabled even when running on the old version of it
-    private boolean isLinuxAarch64 = false;
+    private final boolean isLinuxAarch64;
 
     /**
-     * {@inheritDoc}
+     * Constructs a new async profiler class transform instance.
+     *
+     * @param classModel the model of the original class that is being transformed.
+     * @throws NullPointerException if the given original class model is null.
      */
-    @Override
-    public void atStart(@NonNull ClassBuilder builder) {
-      var classModel = builder.original().orElseThrow(() -> new IllegalStateException("original not preset on remap"));
+    public AsyncProfilerAccessClassTransform(@NonNull ClassModel classModel) {
       this.isLinuxMuslExists = classModel.methods().stream().anyMatch(methodModel -> {
         var isStatic = methodModel.flags().has(AccessFlag.STATIC);
         return isStatic && methodModel.methodName().equalsString(MN_IS_LINUX_MUSL);

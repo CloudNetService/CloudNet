@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,33 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Data
+import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta.Type
+import eu.cloudnetservice.cloudnet.gradle.util.applyJarMetadata
+
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-updater")
+}
+
+tasks.jar.configure {
   archiveFileName.set(Files.launcherPatcher)
 }
 
-tasks.withType<JavaCompile> {
+tasks.prepareUpdaterData {
+  val archiveName = fromArchive(tasks.jar)
+  meta.set(archiveName.map { UpdaterMeta(Type.LAUNCHER_PATCHER, Data.Node(it)) })
+}
+
+tasks.withType<JavaCompile>().configureEach {
   sourceCompatibility = JavaVersion.VERSION_17.toString()
   targetCompatibility = JavaVersion.VERSION_17.toString()
 }
 
-applyJarMetadata("eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher", "eu.cloudnetservice.launcher")
+tasks.jar.applyJarMetadata(
+  indraGit,
+  mainClass = "eu.cloudnetservice.launcher.patcher.CloudNetLauncherPatcher",
+  automaticModuleName = "eu.cloudnetservice.launcher",
+)

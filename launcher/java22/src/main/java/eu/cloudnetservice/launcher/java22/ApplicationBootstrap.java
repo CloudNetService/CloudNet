@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import lombok.NonNull;
 final class ApplicationBootstrap {
 
   private static final List<String> DEFAULT_PROCESS_ARGUMENTS = Arrays.asList(
+    // no need to use unsafe in netty5, usees memory segments instead
+    "-Dio.netty5.noUnsafe=true",
     // Enables the usage of native access for all unnamed modules, which allows us to use the JLine FFM terminal.
     // While enabling native access for modules is not a strict requirement yet (see JEP 472 for initial work),
     // JLine has a check that specifically ensures that native access is enabled before allowing to use the impl.

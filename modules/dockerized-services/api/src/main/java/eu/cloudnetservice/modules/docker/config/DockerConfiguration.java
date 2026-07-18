@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.docker.config;
 
 import com.google.common.base.Preconditions;
+import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +37,8 @@ public record DockerConfiguration(
   @Nullable String registryEmail,
   @Nullable String registryPassword,
   @Nullable String registryUrl,
-  @Nullable String user
+  @Nullable String user,
+  @Nullable HostAndPort nodeHostOverride
 ) {
 
   public static @NonNull Builder builder() {
@@ -77,7 +79,9 @@ public record DockerConfiguration(
     private String registryEmail;
     private String registryPassword;
     private String registryUrl;
+
     private String user;
+    private HostAndPort nodeHostOverride;
 
     public @NonNull Builder javaImage(@NonNull DockerImage javaImage) {
       this.javaImage = javaImage;
@@ -159,6 +163,11 @@ public record DockerConfiguration(
       return this;
     }
 
+    public @NonNull Builder nodeHostOverride(@Nullable HostAndPort nodeHostOverride) {
+      this.nodeHostOverride = nodeHostOverride;
+      return this;
+    }
+
     public @NonNull DockerConfiguration build() {
       Preconditions.checkNotNull(this.javaImage, "Java docker image must be given");
       return new DockerConfiguration(
@@ -174,7 +183,8 @@ public record DockerConfiguration(
         this.registryEmail,
         this.registryPassword,
         this.registryUrl,
-        this.user);
+        this.user,
+        this.nodeHostOverride);
     }
   }
 }

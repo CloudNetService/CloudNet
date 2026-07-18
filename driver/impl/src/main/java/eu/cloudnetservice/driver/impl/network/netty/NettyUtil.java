@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import eu.cloudnetservice.driver.DriverEnvironment;
-import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyNioBufferReleasingAllocator;
 import eu.cloudnetservice.driver.impl.network.scheduler.NetworkTaskScheduler;
 import eu.cloudnetservice.driver.impl.network.scheduler.ScalingNetworkTaskScheduler;
 import io.netty5.buffer.Buffer;
@@ -28,13 +26,15 @@ import io.netty5.buffer.DefaultBufferAllocators;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;
+import io.netty5.channel.MultithreadEventLoopGroup;
 import io.netty5.channel.ServerChannel;
 import io.netty5.channel.ServerChannelFactory;
 import io.netty5.handler.codec.DecoderException;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
 import io.netty5.util.ResourceLeakDetector;
-import java.util.concurrent.Executors;
+import io.netty5.util.concurrent.DefaultThreadFactory;
+import java.util.concurrent.ThreadFactory;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,16 +52,22 @@ public final class NettyUtil {
   private static final NettyTransport SELECTED_NETTY_TRANSPORT;
   private static final BufferAllocator SELECTED_BUFFER_ALLOCATOR;
 
+  // system property name is defined in io.netty5.buffer.internal.MemoryManagerOverride
+  private static final String NETTY_MEMORY_MANAGER_SYS_PROP_NAME = "io.netty5.buffer.MemoryManager";
+
   static {
     // check if resource leak detection should be enabled for debugging purposes
     // if that is not the case leak detection will be disabled completely
-    var enableLeakDetection = Boolean.getBoolean("cloudnet.net.leak-detection-enabled");
-    if (enableLeakDetection) {
+    var devMode = Boolean.getBoolean("cloudnet.dev");
+    var leakDetectionEnabledValue = System.getProperty("cloudnet.net.leak-detection-enabled");
+    if ("true".equals(leakDetectionEnabledValue) || (devMode && leakDetectionEnabledValue == null)) {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
       System.setProperty("io.netty5.buffer.leakDetectionEnabled", "true");
+      System.setProperty("io.netty5.buffer.lifecycleTracingEnabled", "true");
     } else {
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
       System.setProperty("io.netty5.buffer.leakDetectionEnabled", "false");
+      System.setProperty("io.netty5.buffer.lifecycleTracingEnabled", "false");
     }
 
     // select the ssl provider to use for netty. this uses the jdk provider in case it was explicitly selected
@@ -73,15 +79,13 @@ public final class NettyUtil {
       SELECTED_SSL_PROVIDER = SslProvider.OPENSSL;
     }
 
-    // select the buffer allocator to use. our internal allocator will free all buffers provided to it directly
-    // which significantly reduces the native memory usage. however, this might not be the designated behaviour for
-    // some users, therefore we leave it to their choice which allocator should be used.
-    var preferredBufferAllocator = System.getProperty("cloudnet.net.preferred-buffer-allocator");
-    if ("netty-default".equals(preferredBufferAllocator) || NettyNioBufferReleasingAllocator.notAbleToFreeBuffers()) {
-      SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
-    } else {
-      SELECTED_BUFFER_ALLOCATOR = new NettyNioBufferReleasingAllocator();
+    // select buffer allocator to use. default to memory-segment-based buffer
+    // allocation, unless the user explicitly configures a different implementation.
+    var configuredMemoryManager = System.getProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME);
+    if (configuredMemoryManager == null || configuredMemoryManager.isBlank()) {
+      System.setProperty(NETTY_MEMORY_MANAGER_SYS_PROP_NAME, "CloudNet_MemorySegment");
     }
+    SELECTED_BUFFER_ALLOCATOR = DefaultBufferAllocators.offHeapAllocator();
 
     // select the transport type to use for netty
     var disableNativeTransport = Boolean.getBoolean("cloudnet.net.no-native");
@@ -122,10 +126,12 @@ public final class NettyUtil {
     var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 12 : 4;
     var maximumPoolSize = overriddenCountOrDefault(PACKET_DISPATCH_THREADS, defaultEnvThreadCount);
 
-    var threadFactory = new ThreadFactoryBuilder()
-      .setNameFormat("Packet-Dispatcher-%d")
-      .setThreadFactory(Executors.defaultThreadFactory())
-      .build();
+    var threadFactory = Thread.ofPlatform()
+      .daemon(true)
+      .priority(Thread.NORM_PRIORITY)
+      .inheritInheritableThreadLocals(true)
+      .name("CloudNet-Packet-Dispatcher-", 0L)
+      .factory();
     return new ScalingNetworkTaskScheduler(threadFactory, maximumPoolSize);
   }
 
@@ -136,7 +142,7 @@ public final class NettyUtil {
    * @return a newly created boss event loop group.
    */
   public static @NonNull EventLoopGroup createBossEventLoopGroup() {
-    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(1);
+    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(1, createEventLoopThreadFactory());
   }
 
   /**
@@ -154,7 +160,7 @@ public final class NettyUtil {
     // TODO: consider moving the default thread amount for an environment into the environment as a property
     var defaultEnvThreadCount = driverEnvironment.equals(DriverEnvironment.NODE) ? 6 : 2;
     var threadCount = overriddenCountOrDefault(NETTY_EVENT_LOOP_THREADS, defaultEnvThreadCount);
-    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(threadCount);
+    return SELECTED_NETTY_TRANSPORT.createEventLoopGroup(threadCount, createEventLoopThreadFactory());
   }
 
   /**
@@ -282,5 +288,15 @@ public final class NettyUtil {
    */
   public static @NonNull BufferAllocator selectedBufferAllocator() {
     return SELECTED_BUFFER_ALLOCATOR;
+  }
+
+  /**
+   * Creates a new thread factory for the netty event loop group but with daemon threads enabled.
+   *
+   * @return the newly constructed thread factory for event loops.
+   */
+  private static @NonNull ThreadFactory createEventLoopThreadFactory() {
+    // same as MultithreadEventLoopGroup.newDefaultThreadFactory() but with daemon threads enabled
+    return new DefaultThreadFactory(MultithreadEventLoopGroup.class, true, Thread.MAX_PRIORITY);
   }
 }

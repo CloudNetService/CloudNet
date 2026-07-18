@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.dockerizedServices)
+dependencies {
+  moduleLibrary(libs.bundles.dockerJava)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  api(projects.modules.dockerizedServices.dockerizedServicesApi)
 }
 
-dependencies {
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(projects.node.nodeImpl)
-  "moduleLibrary"(libs.bundles.dockerJava)
-  "api"(projects.modules.dockerizedServices.dockerizedServicesApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.dockerizedServices
 }
 
 moduleJson {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,13 +37,11 @@ import io.netty5.handler.ssl.ClientAuth;
 import io.netty5.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty5.handler.ssl.SslContext;
 import io.netty5.handler.ssl.SslContextBuilder;
-import io.netty5.handler.ssl.util.SelfSignedCertificate;
 import io.netty5.util.concurrent.Future;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -149,21 +147,11 @@ public class NettyNetworkServer implements NetworkServer {
             .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
             .build();
         }
-      } else {
-        // provided paths are not given or invalid, use a self-signed certificate instead
-        var selfSignedCertificate = new SelfSignedCertificate();
-        return SslContextBuilder.forServer(selfSignedCertificate.certificate(), selfSignedCertificate.privateKey())
-          .clientAuth(clientAuthMode)
-          .applicationProtocolConfig(null)
-          .sslProvider(NettyUtil.selectedSslProvider())
-          .ciphers(null, IdentityCipherSuiteFilter.INSTANCE)
-          .build();
       }
+
+      return null;
     } catch (SSLException exception) {
       var errorMessage = String.format("Unable to build server ssl provider from configuration %s", sslConfig);
-      throw new IllegalStateException(errorMessage, exception);
-    } catch (CertificateException exception) {
-      var errorMessage = String.format("Unable to generated self-signed certificate; ssl-config: %s", sslConfig);
       throw new IllegalStateException(errorMessage, exception);
     } catch (IOException exception) {
       var errorMessage = String.format("Unable to open cert chain or private key for server ssl config %s", sslConfig);

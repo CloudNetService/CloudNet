@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,12 @@ import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(VarInt32FrameDecoder.class);
 
   /**
    * {@inheritDoc}
@@ -34,31 +38,31 @@ public final class VarInt32FrameDecoder extends ByteToMessageDecoder {
       return;
     }
 
-    // try to read the full message length from the buffer, reset the buffer if we've read nothing
-    var readerIndex = in.readerOffset();
-    var length = NettyUtil.readVarIntOrNull(in);
-    if (length == null || readerIndex == in.readerOffset()) {
-      in.readerOffset(readerIndex);
+    // try to read the full message length from the buffer, continue cumulation if we've read nothing
+    var initialReaderOffset = in.readerOffset();
+    var packetLength = NettyUtil.readVarIntOrNull(in);
+    if (packetLength == null || initialReaderOffset == in.readerOffset()) {
+      in.readerOffset(initialReaderOffset);
       return;
     }
 
-    // skip empty packets silently
-    if (length <= 0) {
-      // check if there are bytes to skip
-      if (in.readableBytes() > 0) {
-        in.skipReadableBytes(in.readableBytes());
-      }
+    // check if the encoded packet length is valid, close the connection otherwise as there is no
+    // clear path how a valid state can be restored in this particular case
+    if (packetLength <= 0) {
+      ctx.channel().close();
+      LOGGER.warn(
+        "Received packet with invalid length {} from {}, closing connection",
+        packetLength, ctx.channel().remoteAddress());
       return;
     }
 
-    // check if the packet data supplied in the buffer is actually at least the transmitted size
-    if (in.readableBytes() >= length) {
-      // fire the channel read
-      ctx.fireChannelRead(in.copy(in.readerOffset(), length));
-      in.skipReadableBytes(length);
+    // check if we've cumulated the entire packet length already
+    if (in.readableBytes() >= packetLength) {
+      var packetBuffer = in.copy(in.readerOffset(), packetLength);
+      in.skipReadableBytes(packetLength);
+      ctx.fireChannelRead(packetBuffer);
     } else {
-      // reset the reader index, there is still data missing
-      in.readerOffset(readerIndex);
+      in.readerOffset(initialReaderOffset);
     }
   }
 }

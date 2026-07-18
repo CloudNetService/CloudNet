@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.docker.impl;
 import com.github.dockerjava.api.DockerClient;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.modules.docker.config.DockerConfiguration;
@@ -40,6 +41,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
   protected final DefaultTickLoop mainThread;
   protected final EventManager eventManager;
   protected final DockerClient dockerClient;
+  protected final ServiceTaskProvider serviceTaskProvider;
   protected final DockerConfiguration dockerConfiguration;
   protected final CloudServiceManager cloudServiceManager;
 
@@ -52,6 +54,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     @NonNull EventManager eventManager,
     @NonNull ServiceVersionProvider versionProvider,
     @NonNull DockerClient dockerClient,
+    @NonNull ServiceTaskProvider serviceTaskProvider,
     @NonNull DockerConfiguration configuration
   ) {
     super(nodeConfig, versionProvider);
@@ -60,6 +63,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
     this.eventManager = eventManager;
     this.cloudServiceManager = cloudServiceManager;
     this.dockerClient = dockerClient;
+    this.serviceTaskProvider = serviceTaskProvider;
     this.dockerConfiguration = configuration;
   }
 
@@ -82,6 +86,7 @@ public class DockerizedLocalCloudServiceFactory extends BaseLocalCloudServiceFac
       this.eventManager,
       this.versionProvider,
       preparer,
+      this.serviceTaskProvider,
       this.dockerClient,
       this.dockerConfiguration);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.syncproxy.config;
 
 import com.google.common.collect.ImmutableMap;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.modules.syncproxy.SyncProxyConstants;
@@ -92,9 +91,10 @@ public record SyncProxyConfiguration(
       .targetNode(nodeUniqueId)
       .build()
       .sendSingleQuery();
-
     if (response != null) {
-      return response.content().readObject(SyncProxyConfiguration.class);
+      try (response) {
+        return response.content().readObject(SyncProxyConfiguration.class);
+      }
     }
 
     return null;
@@ -114,8 +114,7 @@ public record SyncProxyConfiguration(
       .channel(SyncProxyConstants.SYNC_PROXY_CHANNEL)
       .message(SyncProxyConstants.SYNC_PROXY_UPDATE_CONFIG)
       .targetAll()
-      .buffer(DataBuf.empty().writeObject(this))
-      .build()
+      .build(buffer -> buffer.writeObject(SyncProxyConfiguration.this))
       .send();
   }
 

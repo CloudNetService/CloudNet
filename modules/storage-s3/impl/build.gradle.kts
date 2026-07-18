@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.storageS3)
+dependencies {
+  moduleLibrary(libs.awsSdk)
+  compileOnlyApi(projects.node.nodeApi)
+  compileOnlyApi(projects.utils.utilsBase)
+  api(projects.modules.storageS3.storageS3Api)
 }
 
-dependencies {
-  "moduleLibrary"(libs.awsSdk)
-  "compileOnly"(projects.utils.utilsBase)
-  "implementation"(projects.modules.storageS3.storageS3Api)
-
-  "testImplementation"(projects.utils.utilsBase)
+tasks.shadowJar.configure {
+  archiveFileName = Files.storageS3
 }
 
 moduleJson {

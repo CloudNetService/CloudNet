@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+plugins {
+  id("cloudnet-java")
+  id("cloudnet-publish")
+}
+
 repositories {
   maven("https://repo.spongepowered.org/maven/")
 }
 
 dependencies {
-  "compileOnly"(libs.modLauncher)
+  compileOnly(libs.modLauncher)
 }

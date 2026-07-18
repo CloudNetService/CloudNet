@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.codec;
 
+import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.netty.buffer.NettyImmutableDataBuf;
 import eu.cloudnetservice.driver.network.protocol.BasePacket;
@@ -50,13 +51,18 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
    */
   @Override
   protected void decode(@NonNull ChannelHandlerContext ctx, @NonNull Buffer in) {
-    // validates that the channel associated to this decoder call is still active and actually
-    // transferred data before beginning to read.
-    if (!ctx.channel().isActive() || in.readableBytes() <= 0) {
-      return;
-    }
-
     try {
+      // packet must be prefixed with our magic header to distinguish it from other, similar
+      // protocols (e.g., the minecraft protocol uses the same framing as we do)
+      var magic = in.readableBytes() > 3 ? in.readMedium() : 0;
+      if (magic != NetworkConstants.MAGIC_PACKET_HEADER) {
+        ctx.channel().close();
+        LOGGER.warn(
+          "Received invalid packet from {} (not prefixed by magic header), closing connection",
+          ctx.channel().remoteAddress());
+        return;
+      }
+
       // read the required base data from the buffer
       var channel = NettyUtil.readVarInt(in);
       var prioritized = in.readBoolean();
@@ -64,17 +70,26 @@ public final class NettyPacketDecoder extends ByteToMessageDecoder {
 
       // extract the body
       var bodyLength = NettyUtil.readVarInt(in);
-      var body = new NettyImmutableDataBuf(in.copy(in.readerOffset(), bodyLength));
+      var bodyBuffer = in.copy(in.readerOffset(), bodyLength);
+      var body = new NettyImmutableDataBuf(bodyBuffer);
       in.skipReadableBytes(bodyLength);
 
       // construct the packet
       var packet = new BasePacket(channel, prioritized, body);
       packet.uniqueId(queryUniqueId);
+      bodyBuffer.touch(packet.toString()); // hint to the constructed packet for leak debugging
 
-      // register the packet for further downstream handling
       ctx.fireChannelRead(packet);
     } catch (Exception exception) {
-      LOGGER.error("Exception while decoding packet", exception);
+      LOGGER.error("Exception decoding packet from {}", ctx.channel().localAddress(), exception);
+    } finally {
+      // ByteToMessageDecoder will start cumulating if there are remaining bytes in the buffer, we
+      // don't want that - just discard left-over bytes in the buffer (should only happen in case of
+      // a decoding failure as not everything was read in that case)
+      var remainingReadableBytes = in.readableBytes();
+      if (remainingReadableBytes > 0) {
+        in.skipReadableBytes(remainingReadableBytes);
+      }
     }
   }
 }

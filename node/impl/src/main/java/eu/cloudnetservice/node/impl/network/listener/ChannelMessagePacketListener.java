@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
-import eu.cloudnetservice.node.impl.provider.NodeMessenger;
+import eu.cloudnetservice.node.impl.provider.NodeCloudMessenger;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -39,13 +39,13 @@ public final class ChannelMessagePacketListener implements PacketListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ChannelMessagePacketListener.class);
 
-  private final NodeMessenger messenger;
+  private final NodeCloudMessenger messenger;
   private final EventManager eventManager;
   private final ComponentInfo componentInfo;
 
   @Inject
   public ChannelMessagePacketListener(
-    @NonNull NodeMessenger messenger,
+    @NonNull NodeCloudMessenger messenger,
     @NonNull EventManager eventManager,
     @NonNull ComponentInfo componentInfo
   ) {
@@ -56,104 +56,87 @@ public final class ChannelMessagePacketListener implements PacketListener {
 
   @Override
   public void handle(@NonNull NetworkChannel channel, @NonNull Packet packet) {
-    var comesFromWrapper = packet.content().readBoolean();
-    var message = packet.content().readObject(ChannelMessage.class);
+    // see content and order in ChannelMessagePacket
+    var isQuery = packet.uniqueId() != null;
+    var packetContent = packet.content();
+    var comesFromWrapper = packetContent.readBoolean();
+    var channelMessage = packetContent.readObject(ChannelMessage.class);
 
-    // check if we should handle the message locally
-    var handleLocally = message.targets().stream().anyMatch(target -> switch (target.type()) {
+    var handleLocally = channelMessage.targets().stream().anyMatch(target -> switch (target.type()) {
       case ALL -> true;
       case NODE -> target.name() == null || target.name().equals(this.componentInfo.componentName());
       default -> false;
     });
-
     if (handleLocally) {
-      // mark the index of the data buf & call the receive event
-      message.content().acquire().startTransaction();
-      // call the receive event
-      var responseTask = this.eventManager
-        .callEvent(new ChannelMessageReceiveEvent(message, channel, packet.uniqueId() != null))
-        .queryResponse();
-      // reset the index
-      message.content().redoTransaction();
+      // message should be handled locally with 2 possible outcomes:
+      //  1. a response future gets provided to the handler, we then need to wait until the handler finishes
+      //     whatever is required to provide a response and resume handling (redirecting) the message after
+      //  2. no response future gets provided, this happens when:
+      //      * no listener is registered locally for the message
+      //      * a listener is registered but has no response for the query
+      //      * the channel message is not a query
+      //     in these cases we just resume the message handling instantly
+      var messageContent = channelMessage.content();
+      messageContent.startTransaction(); // to reset after listeners were called
 
-      // wait for the response to become available if given before resuming
+      var event = this.eventManager.callEvent(new ChannelMessageReceiveEvent(channelMessage, channel, isQuery));
+      var responseTask = event.queryResponse();
       if (responseTask != null) {
-        responseTask.thenAccept(response -> this.resumeHandling(packet, channel, message, response, comesFromWrapper));
+        responseTask
+          .whenComplete((localResponse, _) -> {
+            messageContent.redoTransaction(); // redo after processing finished
+            this.resumeHandling(packet, channel, channelMessage, localResponse, comesFromWrapper);
+          })
+          .exceptionally((thrown) -> {
+            LOGGER.warn("Exception during async channel message processing of {}", channelMessage, thrown);
+            return null;
+          });
         return;
+      } else {
+        messageContent.redoTransaction();
       }
     }
 
-    // resume instantly
-    this.resumeHandling(packet, channel, message, null, comesFromWrapper);
+    this.resumeHandling(packet, channel, channelMessage, null, comesFromWrapper);
   }
 
+  /**
+   * Resumes the processing of a channel message, redirecting the message to other targets in the cluster and sending
+   * back a response in case the original request was a query.
+   *
+   * @param packet           the packet that contained the initially handled channel message.
+   * @param channel          the channel on which the initially handled channel message was received.
+   * @param message          the original channel message that was received.
+   * @param localResponse    the query response generated by listeners on the current node.
+   * @param comesFromWrapper if the handled channel message was sent by a wrapper.
+   * @throws NullPointerException if the given packet, channel or initial channel message is null.
+   */
   private void resumeHandling(
     @NonNull Packet packet,
     @NonNull NetworkChannel channel,
     @NonNull ChannelMessage message,
-    @Nullable ChannelMessage initialResponse,
+    @Nullable ChannelMessage localResponse,
     boolean comesFromWrapper
   ) {
-    // do not redirect the channel message to the cluster to prevent infinite loops
-    if (packet.uniqueId() != null) {
+    var isQuery = packet.uniqueId() != null;
+    if (isQuery) {
       this.messenger.sendChannelMessageQueryAsync(message, comesFromWrapper)
-        .orTimeout(20, TimeUnit.SECONDS)
-        .handle((result, exception) -> {
-          // check if the handling was successful
-          DataBuf responseContent;
-          if (exception == null) {
-            // respond with the result or just the single initial response if given
-            if (result == null) {
-              responseContent = initialResponse == null
-                ? DataBuf.empty().writeBoolean(false)
-                : DataBuf.empty().writeObject(Set.of(initialResponse));
-            } else {
-              // add the initial response if given before writing
-              if (initialResponse != null) {
-                result.add(initialResponse);
-              }
-
-              // serialize the response
-              if (result.isEmpty()) {
-                responseContent = DataBuf.empty().writeBoolean(false);
-              } else {
-                responseContent = DataBuf.empty().writeObject(result);
-              }
-            }
-          } else {
-            // just respond with nothing when an exception was thrown
-            responseContent = DataBuf.empty().writeBoolean(false);
-            LOGGER.error("Unable to relay channel message {} into cluster", message, exception);
+        .whenComplete((responses, _) -> {
+          responses = Objects.requireNonNullElseGet(responses, ArrayList::new);
+          if (localResponse != null) {
+            responses.add(localResponse);
           }
 
-          // send the results to the sender
-          channel.sendPacket(packet.constructResponse(responseContent));
+          var responseBuffer = DataBuf.empty().writeObject(responses);
+          var responsePacket = packet.constructResponse(responseBuffer);
+          channel.sendPacket(responsePacket);
+        })
+        .exceptionally(thrown -> {
+          LOGGER.debug("Exception while forwarding channel message {} into the cluster", message, thrown);
           return null;
-        }).whenComplete((_, exception) -> {
-          // log any internal errors
-          if (exception != null) {
-            LOGGER.error("Unable to encode/send response to channel message {}", message, exception);
-          }
-
-          if (initialResponse != null) {
-            initialResponse.content().release();
-          }
         });
     } else {
       this.messenger.sendChannelMessage(message, comesFromWrapper);
-      if (initialResponse != null) {
-        initialResponse.content().release();
-      }
-    }
-
-    // force release of the current message
-    // this is an edge case that should not happen, but basically the handlers did not read
-    // all the content from the buffer, or the buffer simply had no content
-    // checking if the buffer was acquired only once ensures that no-one acquired the buffer
-    // during the read process and wants to use the buffer later on
-    var messageContent = message.content();
-    if (messageContent.acquires() == 1) {
-      messageContent.release();
     }
   }
 }

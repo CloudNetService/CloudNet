@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ import eu.cloudnetservice.driver.network.NetworkChannel;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.registry.ServiceRegistry;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +58,7 @@ public interface ChunkedPacketSender extends ChunkedPacketProvider {
    */
   static @NonNull ChunkedPacketSender.Builder forFileTransfer(@NonNull Path filePath) {
     try {
-      var fileStream = Files.newInputStream(filePath, StandardOpenOption.READ);
+      var fileStream = new FileInputStream(filePath.toFile()); // FIS can be optimized during actual transfer
       return forStreamTransfer().source(fileStream);
     } catch (IOException exception) {
       throw new IllegalArgumentException("Unable to open file for reading: " + filePath, exception);

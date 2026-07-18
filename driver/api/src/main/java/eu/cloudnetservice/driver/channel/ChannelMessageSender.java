@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ import lombok.NonNull;
 
 /**
  * Represents a sender of a channel message. A channel message sender is not required to be the actual component sending
- * the message nor is there a requirement for the name to match the driver environment when creating a new target. But
+ * the message, nor is there a requirement for the name to match the driver environment when creating a new target. But
  * it is strongly recommended to not mismatch information as it may lead to confusing results on the receiver site.
  * <p>
- * Note: It is not recommended using the constructor directly. Consider using either {@link #self()} if you want a jvm
- * static sender representing the current network component or {@link  #of(String, DriverEnvironment)} if you want to
+ * Note: It is not recommended using the constructor directly. Consider using either {@link #self()} if you want a
+ * sender instance representing the current network component or {@link #of(String, DriverEnvironment)} if you want to
  * create a sender for another network component.
  *
  * @param name the name of the new sender.
@@ -68,7 +68,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    *
    * @param serviceInfoSnapshot the service to check.
    * @return true if this sender represents the given service, false otherwise.
-   * @throws NullPointerException if the given snapshot is null.
+   * @throws NullPointerException if the given service snapshot to compare to is null.
    */
   public boolean is(@NonNull ServiceInfoSnapshot serviceInfoSnapshot) {
     return this.type.equals(DriverEnvironment.WRAPPER) && this.name.equals(serviceInfoSnapshot.name());
@@ -79,7 +79,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    *
    * @param node the node to check.
    * @return true if this sender represents the given node, false otherwise.
-   * @throws NullPointerException if the given input is null.
+   * @throws NullPointerException if the given node to compare to is null.
    */
   public boolean is(@NonNull NetworkClusterNode node) {
     return this.type.equals(DriverEnvironment.NODE) && this.name.equals(node.uniqueId());
@@ -93,9 +93,7 @@ public record ChannelMessageSender(@NonNull String name, @NonNull DriverEnvironm
    * @return a new {@link ChannelMessageTarget} based on the information of this sender.
    */
   public @NonNull ChannelMessageTarget toTarget() {
-    var type = this.type.equals(DriverEnvironment.NODE)
-      ? ChannelMessageTarget.Type.NODE
-      : ChannelMessageTarget.Type.SERVICE;
-    return new ChannelMessageTarget(type, this.name);
+    var isNode = this.type.equals(DriverEnvironment.NODE);
+    return isNode ? ChannelMessageTarget.node(this.name) : ChannelMessageTarget.service(this.name);
   }
 }

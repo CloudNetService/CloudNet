@@ -64,8 +64,8 @@ To add the CloudNet dependency using maven (replace `%version%` with the latest 
 
 ## Snapshots
 
-Snapshots for CloudNet are build off the `nightly` branch and are available from the sonatype snapshot repository:
-`https://s01.oss.sonatype.org/content/repositories/snapshots/`. You can declare a dependency on CloudNet as shown above
+Snapshots for CloudNet are build off the `nightly` branch and are available from the central portal snapshot repository:
+`https://central.sonatype.com/repository/maven-snapshots/`. You can declare a dependency on CloudNet as shown above
 just append the `-SNAPSHOT` suffix to the version.
 
 ## Links
@@ -76,10 +76,11 @@ just append the `-SNAPSHOT` suffix to the version.
 - [General Discussion](https://github.com/CloudNetService/CloudNet-v3/discussions)
 - [Latest Release](https://github.com/CloudNetService/CloudNet-v3/releases/latest)
 - [SpigotMC](https://www.spigotmc.org/resources/42059)
+- [Dockerhub](https://hub.docker.com/r/cloudnetservice/cloudnet)
 
 ## Compile from source
 
-To compile CloudNet you need JDK 23 and an internet connection. Then clone this repository and run `./gradlew` inside
+To compile CloudNet you need JDK 25 and an internet connection. Then clone this repository and run `./gradlew` inside
 the cloned project.
 
 ## Warnings

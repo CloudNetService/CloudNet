@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.docker.config;
 
+import eu.cloudnetservice.driver.network.HostAndPort;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.NonNull;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 public record TaskDockerConfig(
   @Nullable DockerImage javaImage,
+  @Nullable HostAndPort nodeHostOverride,
   @NonNull Set<String> volumes,
   @NonNull Set<String> binds,
   @NonNull Set<DockerPortMapping> exposedPorts
@@ -43,12 +45,18 @@ public record TaskDockerConfig(
   public static class Builder {
 
     private DockerImage javaImage;
+    private HostAndPort nodeHostOverride;
     private Set<String> volumes = new HashSet<>();
     private Set<String> binds = new HashSet<>();
     private Set<DockerPortMapping> exposedPorts = new HashSet<>();
 
     public @NonNull Builder javaImage(@Nullable DockerImage javaImage) {
       this.javaImage = javaImage;
+      return this;
+    }
+
+    public @NonNull Builder nodeHostOverride(@Nullable HostAndPort nodeHostOverride) {
+      this.nodeHostOverride = nodeHostOverride;
       return this;
     }
 
@@ -85,6 +93,7 @@ public record TaskDockerConfig(
     public @NonNull TaskDockerConfig build() {
       return new TaskDockerConfig(
         this.javaImage,
+        this.nodeHostOverride,
         Set.copyOf(this.volumes),
         Set.copyOf(this.binds),
         Set.copyOf(this.exposedPorts));

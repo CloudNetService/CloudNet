@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.node.impl.service.defaults.log;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,11 +34,12 @@ public final class ProcessServiceLogReadScheduler {
   private final ScheduledThreadPoolExecutor executor;
 
   public ProcessServiceLogReadScheduler() {
-    var threadFactory = new ThreadFactoryBuilder()
-      .setDaemon(true)
-      .setPriority(Thread.NORM_PRIORITY)
-      .setNameFormat("process-log-reader-%d")
-      .build();
+    var threadFactory = Thread.ofPlatform()
+      .daemon(true)
+      .priority(Thread.NORM_PRIORITY)
+      .inheritInheritableThreadLocals(true)
+      .name("process-log-reader-", 0L)
+      .factory();
     this.executor = new ScheduledThreadPoolExecutor(1, threadFactory, new ThreadPoolExecutor.DiscardPolicy());
     this.runningReaderActions = new AtomicInteger(0);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,27 +44,31 @@ record RPCResultMapper<T>(
   @Override
   public @UnknownNullability T apply(@UnknownNullability Packet response) {
     var responseData = response.content();
-    var status = responseData.readByte();
-    return switch (status) {
-      case RPCInvocationResult.STATUS_OK -> this.objectMapper.readObject(responseData, this.expectedResultType);
-      case RPCInvocationResult.STATUS_ERROR -> {
-        RPCExceptionUtil.rethrowHandlingException(responseData);
-        yield null; // never reached, but must be there for the compiler to be happy
-      }
-      case RPCInvocationResult.STATUS_BAD_REQUEST -> {
-        var detailMessage = responseData.readString();
-        var exceptionMessage = String.format("RPC couldn't be processed due to bad input data: %s", detailMessage);
-        throw new RPCExecutionException(exceptionMessage);
-      }
-      case RPCInvocationResult.STATUS_SERVER_ERROR -> {
-        var detailMessage = responseData.readString();
-        var exceptionMessage = String.format("RPC couldn't be processed due to a server error: %s", detailMessage);
-        throw new RPCExecutionException(exceptionMessage);
-      }
-      default -> {
-        var exceptionMessage = String.format("Server responded with unknown status code: %d", status);
-        throw new RPCExecutionException(exceptionMessage);
-      }
-    };
+    try {
+      var status = responseData.readByte();
+      return switch (status) {
+        case RPCInvocationResult.STATUS_OK -> this.objectMapper.readObject(responseData, this.expectedResultType);
+        case RPCInvocationResult.STATUS_ERROR -> {
+          RPCExceptionUtil.rethrowHandlingException(responseData);
+          yield null; // never reached, but must be there for the compiler to be happy
+        }
+        case RPCInvocationResult.STATUS_BAD_REQUEST -> {
+          var detailMessage = responseData.readString();
+          var exceptionMessage = String.format("RPC couldn't be processed due to bad input data: %s", detailMessage);
+          throw new RPCExecutionException(exceptionMessage);
+        }
+        case RPCInvocationResult.STATUS_SERVER_ERROR -> {
+          var detailMessage = responseData.readString();
+          var exceptionMessage = String.format("RPC couldn't be processed due to a server error: %s", detailMessage);
+          throw new RPCExecutionException(exceptionMessage);
+        }
+        default -> {
+          var exceptionMessage = String.format("Server responded with unknown status code: %d", status);
+          throw new RPCExecutionException(exceptionMessage);
+        }
+      };
+    } finally {
+      responseData.forceRelease();
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,15 @@ public enum JavaVersion {
   /**
    * Java version 24.
    */
-  JAVA_24(24, 68D, "Java 24");
+  JAVA_24(24, 68D, "Java 24"),
+  /**
+   * Java version 25 (LTS).
+   */
+  JAVA_25(25, 69D, "Java 25"),
+  /**
+   * Java version 26.
+   */
+  JAVA_26(26, 70D, "Java 26");
 
   private static final JavaVersion[] JAVA_VERSIONS = resolveActualJavaVersions();
   private static final JavaVersion LATEST_VERSION = JAVA_VERSIONS[JAVA_VERSIONS.length - 1];

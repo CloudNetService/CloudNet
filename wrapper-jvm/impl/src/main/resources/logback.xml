@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2019-2024 CloudNetService team & contributors
+  ~ Copyright 2019-present CloudNetService team & contributors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 <configuration>
   <import class="ch.qos.logback.core.ConsoleAppender"/>
+  <import class="ch.qos.logback.classic.turbo.MarkerFilter"/>
   <import class="ch.qos.logback.classic.filter.LevelFilter"/>
   <import class="ch.qos.logback.classic.filter.ThresholdFilter"/>
   <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
@@ -23,14 +24,28 @@
   <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
 
   <!-- variables used in the logback configuration. Can be set using system properties. -->
-  <variable name="cloudnet.wrapper.log.path" value=".wrapper/logs"/>
-  <variable name="cloudnet.wrapper.log.level" value="DEBUG"/>
+  <variable name="cloudnet.log.path" value="${cloudnet.wrapper.log.path:-.wrapper/logs}"/>
+  <variable name="cloudnet.log.level" value="${cloudnet.wrapper.log.level:-DEBUG}"/>
+  <variable
+    name="cloudnet.log.properties.file"
+    value="${cloudnet.wrapper.log.properties.file:-.wrapper/logback.properties}"
+  />
+
+  <!-- allow configuring log levels using properties file -->
+  <propertiesConfigurator optional="true" file="${cloudnet.log.properties.file}"/>
+
+  <!-- discards mc related packets with NETWORK_PACKETS marker -->
+  <turboFilter class="MarkerFilter">
+    <Marker>${cloudnet.wrapper.log.packet-filter.marker:-NETWORK_PACKETS}</Marker>
+    <OnMatch>${cloudnet.wrapper.log.packet-filter.on-match:-DENY}</OnMatch>
+    <OnMismatch>NEUTRAL</OnMismatch>
+  </turboFilter>
 
   <property name="LOG_PATTERN" value="[%d{dd.MM HH:mm:ss.SSS}] %-5level: %msg%n"/>
   <appender name="Rolling" class="RollingFileAppender">
-    <file>${cloudnet.wrapper.log.path}/latest.log</file>
+    <file>${cloudnet.log.path}/latest.log</file>
     <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>${cloudnet.wrapper.log.path}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <fileNamePattern>${cloudnet.log.path}/cloudnet-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>15MB</maxFileSize>
       <maxHistory>3</maxHistory>
       <totalSizeCap>50MB</totalSizeCap>
@@ -60,7 +75,7 @@
     <target>System.err</target>
   </appender>
 
-  <root level="${cloudnet.wrapper.log.level}">
+  <root level="${cloudnet.log.level}">
     <appender-ref ref="Rolling"/>
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="STDERR"/>

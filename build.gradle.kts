@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,192 +14,69 @@
  * limitations under the License.
  */
 
-import com.diffplug.gradle.spotless.SpotlessExtension
+import eu.cloudnetservice.cloudnet.gradle.plugins.JAVA_CORE_COMPATIBILITY
+import eu.cloudnetservice.cloudnet.gradle.plugins.configureFor
+import eu.cloudnetservice.cloudnet.gradle.plugins.lenientView
+import eu.cloudnetservice.cloudnet.gradle.util.CustomConfigurations
+import eu.cloudnetservice.cloudnet.gradle.util.EXTERNAL_JAVADOC_LINKS
+import eu.cloudnetservice.cloudnet.gradle.util.applyJavadocOptions
 
 plugins {
-  id("cloudnet.parent-build-logic")
-  alias(libs.plugins.spotless)
+  id("cloudnet")
+  id("cloudnet-updater")
+  id("java-base")
   alias(libs.plugins.nexusPublish)
-  alias(libs.plugins.fabricLoom) apply false
+  alias(libs.plugins.indra) apply false
+  alias(libs.plugins.shadow) apply false // must be here to enforce the bundled asm version
+  alias(libs.plugins.spotless) apply false
 }
 
-defaultTasks("build", "test", "shadowJar")
+defaultTasks("build")
 
-allprojects {
-  version = Versions.cloudNet
-  group = "eu.cloudnetservice.cloudnet"
-  description = "A modern application that can dynamically and easily deliver Minecraft oriented software"
-
-  repositories {
-    releasesOnly(mavenCentral())
-
-    // old and new sonatype snapshot repository
-    snapshotsOnly(maven("https://oss.sonatype.org/content/repositories/snapshots/"))
-    snapshotsOnly(maven("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-
-    // must be after sonatype as sponge mirrors sonatype which leads to outdated dependencies
-    maven("https://repo.spongepowered.org/maven/")
-
-    // ensure that we use these repositories for snapshots/releases only (improves lookup times)
-    releasesOnly(maven("https://repository.derklaro.dev/releases/"))
-    snapshotsOnly(maven("https://repository.derklaro.dev/snapshots/"))
-  }
-}
-
-subprojects {
-  // these are top level projects which are configured separately
-  if (name == "modules" || name == "plugins" || name == "ext" || name == "launcher") {
-    return@subprojects
-  }
-
-  // these are the plugins which we need to apply to all projects
-  apply(plugin = "signing")
-  apply(plugin = "maven-publish")
-
-  // skip further applying to bom - this project is a bit special as we're not allowed to
-  // apply the java plugin to it (that's why we need to stop here, but we need to publish
-  // at well (that's why we're applying the publish plugin)
-  if (name == "bom") {
-    return@subprojects
-  }
-
-  apply(plugin = "checkstyle")
-  apply(plugin = "java-library")
-  apply(plugin = "com.diffplug.spotless")
-
-  dependencies {
-    // the 'rootProject.libs.' prefix is needed here - see https://github.com/gradle/gradle/issues/16634
-    // lombok
-    "compileOnly"(rootProject.libs.lombok)
-    "annotationProcessor"(rootProject.libs.lombok)
-    // annotations
-    "compileOnly"(rootProject.libs.annotations)
-    // testing
-    "testImplementation"(rootProject.libs.mockito)
-    "testRuntimeOnly"(rootProject.libs.junitLauncher)
-    "testImplementation"(rootProject.libs.bundles.junit)
-    "testImplementation"(rootProject.libs.bundles.testContainers)
-  }
-
-  configurations.all {
-    // unsure why but every project loves them, and they literally have an import for every letter I type - beware
-    exclude("org.checkerframework", "checker-qual")
-  }
-
-  tasks.withType<Jar> {
-    from(rootProject.file("LICENSE"))
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-  }
-
-  tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-      events("started", "passed", "skipped", "failed")
-    }
-
-    // allow dynamic agent loading for mockito
-    jvmArgs(
-      "--enable-preview",
-      "-XX:+EnableDynamicAgentLoading",
-      "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
-    )
-
-    // always pass down all given system properties
-    systemProperties(System.getProperties().mapKeys { it.key.toString() })
-  }
-
-  tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_23.toString()
-    targetCompatibility = JavaVersion.VERSION_23.toString()
-
-    options.encoding = "UTF-8"
-    options.isIncremental = true
-
-    if (project.path != ":launcher:java8" && project.path != ":launcher:patcher") {
-      options.compilerArgs.add("--enable-preview")
-      options.compilerArgs.add("-Xlint:-deprecation,-unchecked,-preview")
-      options.compilerArgs.add("-proc:full")
-    }
-  }
-
-  tasks.withType<Checkstyle> {
-    maxErrors = 0
-    maxWarnings = 0
-    configFile = rootProject.file("checkstyle.xml")
-  }
-
-  extensions.configure<CheckstyleExtension> {
-    toolVersion = rootProject.libs.versions.checkstyleTools.get()
-  }
-
-  extensions.configure<SpotlessExtension> {
-    java {
-      licenseHeaderFile(rootProject.file("LICENSE_HEADER"))
-    }
-  }
-
-  tasks.register<org.gradle.jvm.tasks.Jar>("javadocJar") {
-    archiveClassifier.set("javadoc")
-    from(tasks.getByName("javadoc"))
-  }
-
-  tasks.register<org.gradle.jvm.tasks.Jar>("sourcesJar") {
-    archiveClassifier.set("sources")
-    from(project.sourceSets()["main"].allJava)
-  }
-
-  tasks.withType<Javadoc> {
-    val options = options as? StandardJavadocDocletOptions ?: return@withType
-    applyDefaultJavadocOptions(options)
-  }
-
-  tasks.withType<JavaCompile> {
-    dependsOn(tasks.withType<ProcessResources>())
-  }
-
-  // all these projects are publishing their java artifacts
-  configurePublishing("java", true)
-}
+val globalJavadocSources = configurations.register("globalJavadocSources")
+val globalJavadocClasspath = configurations.register("globalJavadocClasspath")
 
 tasks.register("globalJavaDoc", Javadoc::class) {
   val options = options as? StandardJavadocDocletOptions ?: return@register
+  javadocTool = javaToolchains.javadocToolFor { configureFor(JAVA_CORE_COMPATIBILITY) }
 
   title = "CloudNet JavaDocs"
-  setDestinationDir(layout.buildDirectory.dir("javadocs").get().asFile)
-  // options
-  applyDefaultJavadocOptions(options)
+  destinationDir = layout.buildDirectory.dir("javadocs").get().asFile
+
+  applyJavadocOptions(options)
   options.windowTitle = "CloudNet JavaDocs"
-  // set the sources
-  val sources = subprojects.filter { it.plugins.hasPlugin("java") }.map { it.path }
-  source(files(sources.flatMap { project(it).sourceSets()["main"].allJava }))
-  classpath = files(sources.flatMap { project(it).sourceSets()["main"].compileClasspath })
+  options.source = JAVA_CORE_COMPATIBILITY.toString()
+  options.links(*EXTERNAL_JAVADOC_LINKS.keys.toTypedArray())
+
+  // set the sources. We are using lenientView to ignore subprojects that shouldn't be included
+  source(globalJavadocSources.map { it.lenientView.files })
+  classpath = globalJavadocClasspath.map { it.lenientView.files }.get()
 }
 
 nexusPublishing {
   repositories {
     sonatype {
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
 
-      username.set(System.getenv("SONATYPE_USER"))
-      password.set(System.getenv("SONATYPE_TOKEN"))
+      username.set(System.getenv("CENTRAL_USER"))
+      password.set(System.getenv("CENTRAL_PASSWORD"))
     }
   }
 
   useStaging.set(!project.version.toString().endsWith("-SNAPSHOT"))
 }
 
-gradle.projectsEvaluated {
-  tasks.register("genUpdaterInformation") {
-    subprojects.forEach {
-      // check if we need to depend on the plugin
-      if (!it.plugins.hasPlugin("java")) return@forEach
-      // depend this task on the build output of each subproject
-      dependsOn("${it.path}:build")
-    }
-    // generate the updater information
-    doLast {
-      generateUpdaterInformation()
-    }
+dependencies {
+  subprojects.map { it.isolated }.forEach { project ->
+    globalJavadocSources(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_SOURCES))
+    globalJavadocClasspath(this.project(project.path, CustomConfigurations.GLOBAL_JAVADOC_CLASSPATH))
+  }
+}
+
+// Adapted from https://stackoverflow.com/a/75923728 to fix running inside IDE
+gradle.taskGraph.whenReady {
+  allTasks.filterIsInstance<JavaExec>().forEach {
+    it.setExecutable(it.javaLauncher.get().executablePath.asFile.absolutePath)
   }
 }

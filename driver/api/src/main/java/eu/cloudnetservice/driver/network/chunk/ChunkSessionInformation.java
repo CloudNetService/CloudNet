@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.driver.network.chunk;
 
-import com.google.common.base.Utf8;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.buffer.DataBufable;
+import java.io.Closeable;
 import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public final class ChunkSessionInformation implements DataBufable {
+public final class ChunkSessionInformation implements DataBufable, Closeable {
 
   private int chunkSize;
   private UUID sessionUniqueId;
@@ -64,24 +64,6 @@ public final class ChunkSessionInformation implements DataBufable {
     this.sessionUniqueId = sessionUniqueId;
     this.transferChannel = transferChannel;
     this.transferInformation = transferInformation;
-  }
-
-  /**
-   * Returns the bytes required to write this session information into a buffer.
-   *
-   * @return the bytes required to write this session information into a buffer.
-   */
-  @ApiStatus.Internal
-  public int packetSizeBytes() {
-    var channelBytes = Utf8.encodedLength(this.transferChannel);
-    var transferBytes = this.transferInformation.readableBytes();
-    return Byte.BYTES              // nullable
-      + Integer.BYTES              // chunk size
-      + (Long.BYTES * 2)           // session id
-      + 5                          // channel name (max length)
-      + channelBytes
-      + 5                          // extra transfer info (max length)
-      + transferBytes;
   }
 
   /**
@@ -140,6 +122,14 @@ public final class ChunkSessionInformation implements DataBufable {
    */
   public @NonNull DataBuf transferInformation() {
     return this.transferInformation;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() {
+    this.transferInformation.close();
   }
 
   /**

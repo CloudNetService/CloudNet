@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 package eu.cloudnetservice.driver.impl.network.netty;
 
 import eu.cloudnetservice.driver.DriverEnvironment;
-import io.netty5.buffer.BufferAllocator;
+import eu.cloudnetservice.driver.impl.network.netty.memory.MemorySegmentMemoryManager;
+import io.netty5.buffer.MemoryManager;
 import io.netty5.channel.MultithreadEventLoopGroup;
 import io.netty5.handler.ssl.OpenSsl;
 import io.netty5.handler.ssl.SslProvider;
@@ -61,6 +62,13 @@ public class NettyUtilTest {
   }
 
   @Test
+  void testMemoryManagerSelection() {
+    var _ = NettyUtil.selectedBufferAllocator(); // call to ensure memory manager init
+    var selectedMemoryManager = MemoryManager.instance();
+    Assertions.assertInstanceOf(MemorySegmentMemoryManager.class, selectedMemoryManager);
+  }
+
+  @Test
   void testVarIntBytes() {
     Assertions.assertEquals(1, NettyUtil.varIntBytes(0));
     Assertions.assertEquals(1, NettyUtil.varIntBytes(1));
@@ -71,7 +79,7 @@ public class NettyUtilTest {
 
   @Test
   void testVarIntBytesAndCodec() {
-    try (var buffer = BufferAllocator.onHeapUnpooled().allocate(5)) {
+    try (var buffer = NettyUtil.selectedBufferAllocator().allocate(5)) {
       for (var num = Integer.MIN_VALUE; num < Integer.MAX_VALUE; num += Byte.MAX_VALUE) {
         // write var int, validate written bytes were as expected, read var int
         NettyUtil.writeVarInt(buffer, num);

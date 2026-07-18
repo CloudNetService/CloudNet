@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package eu.cloudnetservice.modules.bridge.impl.platform.bukkit;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
+import eu.cloudnetservice.ext.scheduler.BukkitPlatformScheduler;
 import eu.cloudnetservice.modules.bridge.impl.platform.PlatformPlayerExecutorAdapter;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
 import java.util.Collection;
@@ -98,6 +99,8 @@ final class BukkitDirectPlayerExecutor extends PlatformPlayerExecutorAdapter<Pla
   @Override
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     var server = this.plugin.getServer();
-    server.getScheduler().runTask(this.plugin, () -> this.forEach(player -> server.dispatchCommand(player, command)));
+    BukkitPlatformScheduler.bukkitScheduler().globalRun(
+      this.plugin,
+      () -> this.forEach(player -> server.dispatchCommand(player, command)));
   }
 }

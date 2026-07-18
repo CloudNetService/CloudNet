@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,8 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    */
   @Override
   public void channelInactive(@NonNull ChannelHandlerContext ctx) throws Exception {
-    if (!ctx.channel().isActive() || !ctx.channel().isOpen() || !ctx.channel().isWritable()) {
-      this.channel.handler().handleChannelClose(this.channel);
-
-      ctx.channel().close();
-      this.channels().remove(this.channel);
-    }
+    this.channels().remove(this.channel);
+    this.channel.handleClose();
   }
 
   /**
@@ -76,9 +72,25 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
   protected void messageReceived(@NonNull ChannelHandlerContext ctx, @NonNull BasePacket msg) {
     // post directly if the packet has a high priority
     if (msg.prioritized()) {
-      this.doHandlePacket(msg);
+      this.handlePacket(msg);
     } else {
-      this.packetDispatcher().execute(() -> this.doHandlePacket(msg));
+      this.packetDispatcher().execute(() -> this.handlePacket(msg));
+    }
+  }
+
+  /**
+   * Handles the incoming packet and posts it either to the associated waiting query handler or directly into the packet
+   * registry, calling all associated handlers. This method applies exception handling which is not done by
+   * {@link #doHandlePacket(BasePacket)}.
+   *
+   * @param packet the packet hto handle.
+   * @throws NullPointerException if the given packet is null.
+   */
+  private void handlePacket(@NonNull BasePacket packet) {
+    try {
+      this.doHandlePacket(packet);
+    } catch (Exception exception) {
+      LOGGER.error("Exception whilst handling packet {}", packet, exception);
     }
   }
 
@@ -88,32 +100,34 @@ public abstract class NettyNetworkHandler extends SimpleChannelInboundHandler<Ba
    *
    * @param packet the packet to handle.
    * @throws NullPointerException if the given packet is null.
+   * @throws Exception            if an exception occurs while handling the given packet.
    */
-  protected void doHandlePacket(@NonNull BasePacket packet) {
-    try {
-      var uuid = packet.uniqueId();
-      if (uuid != null) {
-        var task = this.channel.queryPacketManager().waitingHandler(uuid);
-        if (task != null) {
-          // complete the waiting task
-          task.complete(packet);
-
-          // don't post a query response packet to another handler at all
-          // the packet might be inbound - we might be expected to respond
-          return;
+  protected void doHandlePacket(@NonNull BasePacket packet) throws Exception {
+    var queryId = packet.uniqueId();
+    if (queryId != null) {
+      // the received packet is a query packet, either a response or a request. this only
+      // handles if the received query message is a response. the packet content should
+      // not be released here, as the content might be processed async by the handler
+      var queryFuture = this.channel.queryPacketManager().waitingHandler(queryId);
+      if (queryFuture != null) {
+        var didComplete = queryFuture.complete(packet);
+        if (!didComplete) {
+          packet.content().release();
         }
-      }
 
-      // check if any handler can handle the incoming packet
-      if (this.channel.handler().handlePacketReceive(this.channel, packet)
-        && this.channel.packetRegistry().handlePacket(this.channel, packet)) {
         return;
       }
+    }
 
-      // release the packet content now, there are no handlers that are accepting the message
-      packet.content().forceRelease();
-    } catch (Exception exception) {
-      LOGGER.error("Exception whilst handling packet {}", packet, exception);
+    // post the packet to a packet handler and release the packet content after. a handler
+    // must acquire the packet content if async processing is being done
+    try {
+      var packetHandlingAllowed = this.channel.handler().handlePacketReceive(this.channel, packet);
+      if (packetHandlingAllowed) {
+        this.channel.packetRegistry().handlePacket(this.channel, packet);
+      }
+    } finally {
+      packet.content().release();
     }
   }
 

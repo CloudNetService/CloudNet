@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.exception.ExceptionManager;
 import net.minestom.server.extensions.Extension;
 import net.minestom.server.extensions.ExtensionManager;
-import net.minestom.server.gamedata.tags.TagManager;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.BlockManager;
 import net.minestom.server.listener.manager.PacketListenerManager;
@@ -57,7 +56,6 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
       var builder = layer.injector().createBindingBuilder();
       layer.install(builder.bind(ServerProcess.class).toInstance(MinecraftServer.process()));
       layer.install(builder.bind(ComponentLogger.class).toInstance(platformData.getLogger()));
-      layer.install(builder.bind(TagManager.class).toInstance(MinecraftServer.getTagManager()));
       layer.install(builder.bind(TeamManager.class).toInstance(MinecraftServer.getTeamManager()));
       layer.install(builder.bind(BlockManager.class).toInstance(MinecraftServer.getBlockManager()));
       layer.install(builder.bind(RecipeManager.class).toInstance(MinecraftServer.getRecipeManager()));

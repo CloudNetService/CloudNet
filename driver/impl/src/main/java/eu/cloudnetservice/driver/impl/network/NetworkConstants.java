@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package eu.cloudnetservice.driver.impl.network;
 
 /**
- * Holds some internal constants for network communication which are shared between wrappers and nodes. The class is
- * marked as internal, however developers are allowed to use this class. <strong>BUT</strong> there might be changes to
- * this class which are breaking, even when doing a patch release (for example a constant can get removed or changed).
- * This class should therefore be used with caution.
+ * Holds some internal constants for network communication that are shared between wrappers and nodes.
  *
  * @since 4.0
  */
@@ -35,6 +32,9 @@ public final class NetworkConstants {
 
   // channel message channels
   public static final String INTERNAL_MSG_CHANNEL = "cloudnet:internal";
+
+  // magic packet header added to all packets to identify them as sent by CloudNet
+  public static final int MAGIC_PACKET_HEADER = (0x43 << 16) | (0x4E << 8) | 0x53;
 
   private NetworkConstants() {
     throw new UnsupportedOperationException();

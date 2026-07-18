@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package eu.cloudnetservice.modules.dns.impl._depreacted;
 
-import eu.cloudnetservice.utils.base.StringUtil;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +37,7 @@ public record CloudflareConfigurationEntry(
   public CloudflareConfigurationEntry {
     // put in a random entry name if no name is given
     if (entryName == null) {
-      entryName = StringUtil.generateRandomString(7);
+      entryName = UUID.randomUUID().toString().split("-")[0];
     }
   }
 

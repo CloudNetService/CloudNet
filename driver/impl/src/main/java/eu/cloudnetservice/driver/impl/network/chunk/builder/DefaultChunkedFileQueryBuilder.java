@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
    */
   @Override
   public @NonNull ChunkedFileQueryBuilder requestFromNode(@NonNull String nodeId) {
-    this.dataSource = ChannelMessageTarget.of(ChannelMessageTarget.Type.NODE, nodeId);
+    this.dataSource = ChannelMessageTarget.node(nodeId);
     return this;
   }
 
@@ -93,7 +93,7 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
    */
   @Override
   public @NonNull ChunkedFileQueryBuilder requestFromService(@NonNull String serviceName) {
-    this.dataSource = ChannelMessageTarget.of(ChannelMessageTarget.Type.SERVICE, serviceName);
+    this.dataSource = ChannelMessageTarget.service(serviceName);
     return this;
   }
 
@@ -136,19 +136,20 @@ public class DefaultChunkedFileQueryBuilder implements ChunkedFileQueryBuilder {
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
       .message("chunked_query_file")
       .target(this.dataSource)
-      .buffer(queryBuffer)
-      .build();
+      .build(queryBuffer);
     return channelMessage
       .sendSingleQueryAsync()
       .thenCompose(response -> {
-        var responseData = response.content();
-        if (responseData.readBoolean()) {
-          // transfer started successfully
+        try (response) {
+          var transferStarted = response.content().readBoolean();
+          Preconditions.checkState(transferStarted, "chunked data transfer wasn't initiated");
           return responseFuture;
-        } else {
-          // transfer couldn't be started for some reason
+        }
+      })
+      .whenComplete((_, thrown) -> {
+        if (thrown != null) {
           sessionRegistry.completeSession(sessionId);
-          throw new IllegalStateException("unable to start chunked data transfer");
+          sessionInfo.close();
         }
       });
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import jakarta.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import lombok.NonNull;
-import oshi.SystemInfo;
+import oshi.SystemInfoFFM;
 import oshi.util.FormatUtil;
 
 @Singleton
 @AutoService(services = ReportDataEmitter.class, name = "SystemInfo")
 public final class SystemInfoDataEmitter implements ReportDataEmitter {
 
-  private static final SystemInfo SYSTEM_INFO = new SystemInfo();
+  private static final SystemInfoFFM SYSTEM_INFO = new SystemInfoFFM();
   private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 
   private static @NonNull String formatSeconds(long seconds) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.incendo.cloud.execution.postprocessor.CommandPostprocessingContext;
 import org.incendo.cloud.execution.postprocessor.CommandPostprocessor;
 
 /**
- * {@inheritDoc}
+ * Default command post processor implementation.
  */
 @Singleton
 final class DefaultCommandPostProcessor implements CommandPostprocessor<CommandSource> {

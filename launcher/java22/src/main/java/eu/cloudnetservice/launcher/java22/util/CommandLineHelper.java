@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.launcher.java22.util;
 
+import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -52,25 +53,25 @@ public final class CommandLineHelper {
     // get the property from the command line (if present)
     var value = properties.getProperty(key);
     if (value != null) {
-      // set the value as a system property to allow later reads of it
       System.setProperty("cloudnet." + key, value);
       return value;
     }
+
     // try to get the value from the environment
-    value = System.getenv("cloudnet." + key);
+    var envKey = key.replace('.', '_').toUpperCase(Locale.ROOT);
+    value = System.getenv("CLOUDNET_" + envKey);
     if (value != null) {
-      // set the value as a system property to allow later reads of it
       System.setProperty("cloudnet." + key, value);
       return value;
     }
+
     // try to get the value from a system property
     value = System.getProperty("cloudnet." + key);
     if (value == null) {
-      // set the fallback value as the value of the property
       System.setProperty("cloudnet." + key, def);
       return def;
     }
-    // value is present, use it
+
     return value;
   }
 

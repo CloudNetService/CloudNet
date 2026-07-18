@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +108,13 @@ public interface NetworkChannel extends PacketSender {
    * @return true if the channel is connected and active, false otherwise.
    */
   boolean active();
+
+  /**
+   * Get if this channel was marked as closed.
+   *
+   * @return if this channel was marked as closed.
+   */
+  boolean closed();
 
   /**
    * Requests the close of the channel, flushing all outbound i/o requests before. After a channel was closed it cannot

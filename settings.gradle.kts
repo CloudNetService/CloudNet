@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,90 +14,143 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("INTERNAL_BUILD_SERVICE_USAGE")
 
 pluginManagement {
   includeBuild("build-extensions")
   repositories {
     gradlePluginPortal()
     maven {
-      name = "Fabric"
-      url = uri("https://maven.fabricmc.net/")
+      name = "Paper-Snapshots"
+      url = uri("https://repo.papermc.io/repository/maven-snapshots/")
     }
   }
 }
 
-rootProject.name = "cloudnet-root"
-
-// top level projects
-include("bom")
-
-// external lib helpers
-initializeSubProjects("ext",
-  "modlauncher",
-  "adventure-helper",
-  "bukkit-command",
-  "updater",
-  "platform-inject-support")
-// inject support
-initializePrefixedSubProjects(
-  "ext:platform-inject-support",
-  "platform-inject",
-  "api", "loader", "processor", "runtime")
-// plugins
-initializeSubProjects("plugins", "papi-expansion", "luckperms")
-// modules
-initializeSubProjects("modules",
-  "bridge",
-  "report",
-  "cloudflare",
-  "database-mongodb",
-  "database-mysql",
-  "signs",
-  "storage-sftp",
-  "syncproxy",
-  "smart",
-  "labymod",
-  "npcs",
-  "storage-s3",
-  "dockerized-services",
-  "influx")
-// launcher
-initializeSubProjects("launcher", "java8", "java22", "patcher")
-
-// driver-api, driver-impl
-initializePrefixedSubProjects("utils", "utils", "base")
-initializePrefixedSubProjects("node", "node", "api", "impl")
-initializePrefixedSubProjects("driver", "driver", "api", "impl", "ap")
-initializePrefixedSubProjects("wrapper-jvm", "wrapper-jvm", "api", "impl")
-initializePrefixedSubProjects("modules:npcs", "npcs", "api", "impl")
-initializePrefixedSubProjects("modules:signs", "signs", "api", "impl")
-initializePrefixedSubProjects("modules:smart", "smart", "api", "impl")
-initializePrefixedSubProjects("modules:report", "report", "api", "impl")
-initializePrefixedSubProjects("modules:bridge", "bridge", "api", "impl")
-initializePrefixedSubProjects("modules:influx", "influx", "api", "impl")
-initializePrefixedSubProjects("modules:labymod", "labymod", "api", "impl")
-initializePrefixedSubProjects("modules:syncproxy", "syncproxy", "api", "impl")
-initializePrefixedSubProjects("modules:cloudflare", "cloudflare", "api", "impl")
-initializePrefixedSubProjects("modules:storage-s3", "storage-s3", "api", "impl")
-initializePrefixedSubProjects("modules:storage-sftp", "storage-sftp", "api", "impl")
-initializePrefixedSubProjects("modules:database-mysql", "database-mysql", "api", "impl")
-initializePrefixedSubProjects("modules:database-mongodb", "database-mongodb", "api", "impl")
-initializePrefixedSubProjects("modules:dockerized-services", "dockerized-services", "api", "impl")
-
-fun initializeSubProjects(rootProject: String, vararg names: String) {
-  names.forEach {
-    include("$rootProject:$it")
-    // update the project properties
-    project(":$rootProject:$it").name = it
-    project(":$rootProject:$it").projectDir = file(rootProject).resolve(it)
-  }
+plugins {
+  id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-fun initializePrefixedSubProjects(rootProject: String, prefix: String, vararg names: String) {
-  names.forEach {
-    include("$rootProject:$it")
-    project(":$rootProject:$it").name = "$prefix-$it"
+rootProject.name = "cloudnet-parent"
+
+registerSubProjects(
+  root = "ext",
+  subProjects = arrayOf("adventure-helper", "bukkit-command", "modlauncher", "updater", "platform-scheduler"),
+)
+registerSubProjects(
+  root = "ext:platform-inject-support",
+  prefix = "platform-inject",
+  subProjects = arrayOf("api", "loader", "processor", "runtime"),
+)
+registerSubProjects(
+  root = "utils",
+  prefix = "utils",
+  subProjects = arrayOf("base"),
+)
+
+registerSubProjects(
+  root = "driver",
+  prefix = "driver",
+  subProjects = arrayOf("ap", "api", "impl"),
+)
+registerSubProjects(
+  root = "wrapper-jvm",
+  prefix = "wrapper-jvm",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "node",
+  prefix = "node",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "launcher",
+  prefix = "launcher",
+  subProjects = arrayOf("java8", "java22", "patcher"),
+)
+
+registerSubProjects(
+  root = "modules:bridge",
+  prefix = "bridge",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:cloudflare",
+  prefix = "cloudflare",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:database-mongodb",
+  prefix = "database-mongodb",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:database-mysql",
+  prefix = "database-mysql",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:dockerized-services",
+  prefix = "dockerized-services",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:influx",
+  prefix = "influx",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:labymod",
+  prefix = "labymod",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:npcs",
+  prefix = "npcs",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:report",
+  prefix = "report",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:signs",
+  prefix = "signs",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:smart",
+  prefix = "smart",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:storage-s3",
+  prefix = "storage-s3",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:storage-sftp",
+  prefix = "storage-sftp",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
+  root = "modules:syncproxy",
+  prefix = "syncproxy",
+  subProjects = arrayOf("api", "impl"),
+)
+
+include("bom")
+include("plugins:luckperms")
+include("plugins:papi-expansion")
+
+//
+private fun registerSubProjects(root: String, prefix: String? = null, vararg subProjects: String) {
+  val subProjectNamePrefix = if (prefix.isNullOrBlank()) "" else "$prefix-"
+  subProjects.forEach {
+    val projectPath = "$root:$it"
+    include(projectPath)
+    project(":$projectPath").name = "$subProjectNamePrefix$it"
   }
 }

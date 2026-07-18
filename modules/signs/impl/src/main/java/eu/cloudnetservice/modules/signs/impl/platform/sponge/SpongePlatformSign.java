@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,8 +98,9 @@ final class SpongePlatformSign extends PlatformSign<ServerPlayer, Component> {
     // get the block at the given location
     var entity = location.blockEntity().orElse(null);
     if (entity instanceof org.spongepowered.api.block.entity.Sign sign) {
-      // set the glowing status if needed
-      sign.glowingText().set(layout.glowingColor() != null);
+      // set the glowing state
+      sign.glowingText().set(layout.textGlowing());
+      // TODO: support text color
 
       // set the sign lines
       List<Component> lines = new ArrayList<>(4);

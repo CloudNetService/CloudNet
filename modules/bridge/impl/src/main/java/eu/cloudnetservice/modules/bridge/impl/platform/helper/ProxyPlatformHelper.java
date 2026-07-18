@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package eu.cloudnetservice.modules.bridge.impl.platform.helper;
 
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.modules.bridge.BridgeManagement;
 import eu.cloudnetservice.modules.bridge.node.event.LocalPlayerPreLoginEvent;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerProxyInfo;
@@ -44,15 +43,19 @@ public final class ProxyPlatformHelper {
   public @NonNull LocalPlayerPreLoginEvent.Result sendChannelMessagePreLogin(
     @NonNull NetworkPlayerProxyInfo playerInfo
   ) {
-    var result = this.toCurrentNode()
+    var response = this.toCurrentNode()
       .message("proxy_player_pre_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(playerInfo))
-      .build()
+      .build(buffer -> buffer.writeObject(playerInfo))
       .sendSingleQuery();
-    return result == null
-      ? LocalPlayerPreLoginEvent.Result.allowed()
-      : result.content().readObject(LocalPlayerPreLoginEvent.Result.class);
+    return switch (response) {
+      case null -> LocalPlayerPreLoginEvent.Result.allowed();
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(LocalPlayerPreLoginEvent.Result.class);
+        }
+      }
+    };
   }
 
   public void sendChannelMessageLoginSuccess(
@@ -62,8 +65,7 @@ public final class ProxyPlatformHelper {
     this.toCurrentNode()
       .message("proxy_player_login")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeObject(proxyInfo).writeObject(joinServiceInfo))
-      .build()
+      .build(buffer -> buffer.writeObject(proxyInfo).writeObject(joinServiceInfo))
       .send();
   }
 
@@ -71,8 +73,7 @@ public final class ProxyPlatformHelper {
     this.toCurrentNode()
       .message("proxy_player_service_switch")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeUniqueId(playerId).writeObject(target))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(playerId).writeObject(target))
       .send();
   }
 
@@ -80,12 +81,12 @@ public final class ProxyPlatformHelper {
     this.toCurrentNode()
       .message("proxy_player_disconnect")
       .channel(BridgeManagement.BRIDGE_PLAYER_CHANNEL_NAME)
-      .buffer(DataBuf.empty().writeUniqueId(playerUniqueId))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(playerUniqueId))
       .send();
   }
 
-  @NonNull ChannelMessage.Builder toCurrentNode() {
+  @NonNull
+  ChannelMessage.Builder toCurrentNode() {
     return ChannelMessage.builder().targetNode(this.componentInfo.nodeUniqueId());
   }
 }

@@ -20,6 +20,11 @@
 # gradle
 .gradle/
 build/
+/.kotlin
+/build-extensions/.kotlin
+
+# gradle build scans
+/gradle.tos.agree
 
 # fleet
 .fleet/
@@ -71,4 +76,5 @@ atlassian-ide-plugin.xml
 */src/main/lombok
 
 # CloudNet
-.launchermeta/
+/temp/
+/.launchermeta/

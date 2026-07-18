@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.papiExpansion)
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
+plugins {
+  id("cloudnet-plugins")
 }
 
 repositories {
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
@@ -27,4 +30,8 @@ dependencies {
   compileOnly(libs.placeholderApi)
   compileOnly(projects.wrapperJvm.wrapperJvmApi)
   compileOnly(projects.modules.bridge.bridgeApi)
+}
+
+tasks.jar.configure {
+  archiveFileName = Files.papiExpansion
 }

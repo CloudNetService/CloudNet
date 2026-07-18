@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package eu.cloudnetservice.driver.impl.network.netty.buffer;
 
+import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.impl.network.netty.NettyUtil;
 import eu.cloudnetservice.driver.impl.network.object.DefaultObjectMapper;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferComponent;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -31,15 +34,17 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0
  */
-public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
+public final class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBuf.Mutable {
 
   /**
    * Constructs a new mutable data buf instance.
    *
    * @param buffer the netty buffer to wrap.
-   * @throws NullPointerException if the given buffer is null.
+   * @throws NullPointerException     if the given buffer is null.
+   * @throws IllegalArgumentException if the given buffer is read-only.
    */
   public NettyMutableDataBuf(@NonNull Buffer buffer) {
+    Preconditions.checkArgument(!buffer.readOnly(), "buffer must not be read-only");
     super(buffer);
   }
 
@@ -205,7 +210,58 @@ public class NettyMutableDataBuf extends NettyImmutableDataBuf implements DataBu
    * {@inheritDoc}
    */
   @Override
+  public int writeableBytes() {
+    return this.buffer.writableBytes();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int writerOffset() {
+    return this.buffer.writerOffset();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf writerOffset(int offset) {
+    this.buffer.writerOffset(offset);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull DataBuf advanceWriterOffset(int delta) {
+    this.buffer.skipWritableBytes(delta);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull ByteBuffer writeableNioBuffer() {
+    var bufferAsBufferComponent = (BufferComponent) this.buffer;
+    return bufferAsBufferComponent.writableBuffer();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @NonNull DataBuf asImmutable() {
     return new NettyImmutableDataBuf(this.buffer);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public @NonNull String toString() {
+    return "NettyMutableDataBuf[buffer=" + this.buffer + "]";
   }
 }

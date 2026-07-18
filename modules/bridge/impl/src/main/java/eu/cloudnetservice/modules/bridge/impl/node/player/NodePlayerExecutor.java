@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void connect(@NonNull String serviceName) {
     this.toProxy()
       .message("connect_to_service")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(serviceName))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeString(serviceName))
       .send();
   }
 
@@ -67,8 +66,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void connectSelecting(@NonNull ServerSelectorType selectorType) {
     this.toProxy()
       .message("connect_to_selector")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(selectorType))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeObject(selectorType))
       .send();
   }
 
@@ -76,8 +74,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void connectToFallback() {
     this.toProxy()
       .message("connect_to_fallback")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId))
       .send();
   }
 
@@ -85,8 +82,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void connectToGroup(@NonNull String group, @NonNull ServerSelectorType selectorType) {
     this.toProxy()
       .message("connect_to_group")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(group).writeObject(selectorType))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeString(group).writeObject(selectorType))
       .send();
   }
 
@@ -94,8 +90,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void connectToTask(@NonNull String task, @NonNull ServerSelectorType selectorType) {
     this.toProxy()
       .message("connect_to_task")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(task).writeObject(selectorType))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeString(task).writeObject(selectorType))
       .send();
   }
 
@@ -103,8 +98,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void kick(@NonNull Component message) {
     this.toProxy()
       .message("kick_player")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(message))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeObject(message))
       .send();
   }
 
@@ -112,8 +106,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void sendTitle(@NonNull Title title) {
     this.toProxy()
       .message("send_title")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeObject(title))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeObject(title))
       .send();
   }
 
@@ -121,11 +114,10 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void sendChatMessage(@NonNull Component message, @Nullable String permission) {
     this.toProxy()
       .message("send_chat_message")
-      .buffer(DataBuf.empty()
+      .build(buffer -> buffer
         .writeUniqueId(this.targetUniqueId)
         .writeObject(message)
         .writeNullable(permission, DataBuf.Mutable::writeString))
-      .build()
       .send();
   }
 
@@ -133,8 +125,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void sendPluginMessage(@NonNull String key, byte[] data) {
     this.toProxy()
       .message("send_plugin_message")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(key).writeByteArray(data))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeString(key).writeByteArray(data))
       .send();
   }
 
@@ -142,8 +133,7 @@ public class NodePlayerExecutor implements PlayerExecutor {
   public void spoofCommandExecution(@NonNull String command, boolean redirectToServer) {
     this.toProxy()
       .message("spoof_command_execution")
-      .buffer(DataBuf.empty().writeUniqueId(this.targetUniqueId).writeString(command).writeBoolean(redirectToServer))
-      .build()
+      .build(buffer -> buffer.writeUniqueId(this.targetUniqueId).writeString(command).writeBoolean(redirectToServer))
       .send();
   }
 
@@ -153,9 +143,9 @@ public class NodePlayerExecutor implements PlayerExecutor {
     if (this.targetUniqueId.equals(GLOBAL_UNIQUE_ID)) {
       // target all proxies if this is the global executor
       message = ChannelMessage.builder()
-        .targetEnvironment(ServiceEnvironmentType.VELOCITY)
-        .targetEnvironment(ServiceEnvironmentType.BUNGEECORD)
-        .targetEnvironment(ServiceEnvironmentType.WATERDOG_PE);
+        .targetServicesOfEnvironment(ServiceEnvironmentType.VELOCITY.name())
+        .targetServicesOfEnvironment(ServiceEnvironmentType.BUNGEECORD.name())
+        .targetServicesOfEnvironment(ServiceEnvironmentType.WATERDOG_PE.name());
     } else {
       // get the player associated with this provider
       //noinspection ConstantConditions - This can never be null here (only for the global unique id which is handeled already)

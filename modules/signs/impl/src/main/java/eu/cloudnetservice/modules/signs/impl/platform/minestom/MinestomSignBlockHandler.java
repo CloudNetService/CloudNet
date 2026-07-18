@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,36 @@ package eu.cloudnetservice.modules.signs.impl.platform.minestom;
 import java.util.Collection;
 import java.util.List;
 import lombok.NonNull;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.instance.block.BlockHandler;
 import net.minestom.server.tag.Tag;
-import net.minestom.server.utils.NamespaceID;
 
 final class MinestomSignBlockHandler implements BlockHandler {
 
   public static final MinestomSignBlockHandler SIGN_BLOCK_HANDLER = new MinestomSignBlockHandler();
-  private static final List<Tag<?>> ENTITY_TAGS = List.of(
-    Tag.Byte("GlowingText"),
-    Tag.String("Color"),
-    Tag.String("Text1"),
-    Tag.String("Text2"),
-    Tag.String("Text3"),
-    Tag.String("Text4"));
 
-  private static final NamespaceID SIGN_NAMESPACE = NamespaceID.from("minecraft:sign");
+  private static final Key SIGN_NAMESPACE = Key.key("minecraft", "sign");
+  private static final List<Tag<?>> SIGN_ENTITY_TAGS = List.of(
+    Tag.Byte("is_waxed"),
+    Tag.NBT("front_text"),
+    Tag.NBT("back_text"));
 
   private MinestomSignBlockHandler() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull Collection<Tag<?>> getBlockEntityTags() {
-    return ENTITY_TAGS;
+  public @NonNull Key getKey() {
+    return SIGN_NAMESPACE;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @NonNull NamespaceID getNamespaceId() {
-    return SIGN_NAMESPACE;
+  public @NonNull Collection<Tag<?>> getBlockEntityTags() {
+    return SIGN_ENTITY_TAGS;
   }
 }

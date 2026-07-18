@@ -1,86 +1,82 @@
 [versions]
 
 # plugins
-shadow = "8.3.6"
-juppiter = "0.4.0"
-spotless = "7.0.2"
-fabricLoom = "1.10.5"
+indra = "4.0.0"
+shadow = "9.3.1"
+juppiter = "0.5.0-beta.2"
+spotless = "8.1.0"
 nexusPublish = "2.0.0"
-checkstyleTools = "10.23.0"
+checkstyleTools = "13.0.0"
 
 # google libs
-gson = "2.12.1"
-guava = "33.4.0-jre"
+gson = "2.13.2"
+guava = "33.5.0-jre"
 
 # testing
-junit = "5.12.1"
-mockito = "5.17.0"
-junitLauncher = "1.12.1"
-testcontainers = "1.20.4"
+junit = "6.0.3"
+mockito = "5.21.0"
+testcontainers = "2.0.4"
 
 # compile time processing
-lombok = "1.18.36"
+lombok = "1.18.44"
 javapoet = "1.13.0"
 
 # console
-jline = "3.29.0"
+jline = "3.30.9"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
-cloudConfirmation = "1.0.0-rc.1"
 stringSimilarity = "2.0.0"
+cloudConfirmation = "1.0.0-rc.1"
 
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.4.0"
-hikariCp = "6.3.0"
-mysqlConnector = "9.2.0"
+mongodb = "5.6.5"
+hikariCp = "7.0.2"
+mysqlConnector = "9.5.0"
 
 # general
-oshi = "6.8.0"
-vavr = "0.10.6"
-sshj = "0.39.0"
-aerogel = "3.0.0-beta.1"
-awsSdk = "2.31.11"
-unirest = "4.4.5"
-caffeine = "3.2.0"
-reflexion = "1.8.0"
+oshi = "6.9.2"
+gulf = "0.0.1"
+vavr = "1.0.1"
+sshj = "0.40.0"
+aerogel = "3.1.0"
+awsSdk = "2.41.11"
+unirest = "4.7.4"
+caffeine = "3.2.3"
+reflexion = "2.0.0"
 geantyref = "2.0.1"
-dockerJava = "3.5.0"
-nightConfig = "3.8.1"
-annotations = "26.0.2"
-influxClient = "7.2.0"
-netty = "5.0.0.Alpha5"
-gulf = "1.0.0-SNAPSHOT"
+dockerJava = "3.7.1"
+nightConfig = "3.8.4"
+annotations = "26.1.0"
+influxClient = "7.4.0"
+netty = "2025.11.08-3a259e91"
 
 # logging
-slf4j = "2.0.16"
-logback = "1.5.16"
+slf4j = "2.0.17"
+logback = "1.5.32"
 
 # platform api versions
 sponge = "9.0.0"
-velocity = "3.4.0-SNAPSHOT"
+velocity = "3.5.0-SNAPSHOT"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "ccea53ac44"
+minestom = "2026.01.08-1.21.11"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-bungeecord = "1.21-R0.1-SNAPSHOT"
+bungeecord = "26.1-R0.1-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
+folia = "1.21.11-R0.1-SNAPSHOT"
 
 # platform extensions
-vault = "1.7.1"
-adventure = "4.19.0"
+adventure = "4.26.1"
 modlauncher = "8.1.3"
-npcLib = "3.0.0-beta10"
-packetEvents = "2.7.0"
-placeholderApi = "2.11.6"
-adventure-serializer-bungee = "4.3.4"
-luckPermsApi = "5.4"
-
-# fabric platform special dependencies
-minecraft = "1.21.4"
-fabricLoader = "0.16.10"
+npcLib = "3.0.0-beta.16"
+packetEvents = "2.11.1"
+placeholderApi = "2.11.7"
+adventure-serializer-bungee = "4.4.1"
+luckPermsApi = "5.5"
+fabricLoader = "0.18.4"
 
 
 [libraries]
@@ -117,14 +113,14 @@ cloudAnnotationsApi = { group = "org.incendo", name = "cloud-annotations", versi
 junitApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 junitParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
 junitEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
-junitLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitLauncher" }
+junitLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit" }
 
 # general testing
 mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
 
 # testcontainers
 testContainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
-testContainersJunit = { group = "org.testcontainers", name = "junit-jupiter", version.ref = "testcontainers" }
+testContainersJunit = { group = "org.testcontainers", name = "testcontainers-junit-jupiter", version.ref = "testcontainers" }
 
 # unirest
 unirest = { group = "com.konghq", name = "unirest-java-core", version.ref = "unirest" }
@@ -149,11 +145,11 @@ vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
-oshi = { group = "com.github.oshi", name = "oshi-core-java11", version.ref = "oshi" }
+oshi = { group = "com.github.oshi", name = "oshi-core-java25", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
-reflexion = { group = "dev.derklaro.reflexion", name = "reflexion", version.ref = "reflexion" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
+reflexion = { group = "dev.derklaro.reflexion", name = "reflexion-core", version.ref = "reflexion" }
 influxClient = { group = "com.influxdb", name = "influxdb-client-java", version.ref = "influxClient" }
 
 # aerogel
@@ -173,11 +169,12 @@ nukkitX = { group = "cn.nukkit", name = "nukkit", version.ref = "nukkitX" }
 spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
 sponge = { group = "org.spongepowered", name = "spongeapi", version.ref = "sponge" }
 bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
-minestom = { group = "net.minestom", name = "minestom-snapshots", version.ref = "minestom" }
+minestom = { group = "net.minestom", name = "minestom", version.ref = "minestom" }
 minestomExtensions = { group = "dev.hollowcube", name = "minestom-ce-extensions", version.ref = "minestomExtensions" }
 velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 waterdogpe = { group = "dev.waterdog.waterdogpe", name = "waterdog", version.ref = "waterdogpe" }
 limboloohp = { group = "com.loohp", name = "Limbo", version.ref = "limboloohp" }
+folia = { group = "dev.folia", name = "folia-api", version.ref = "folia" }
 
 # adventure
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
@@ -186,7 +183,6 @@ adventureSerializerLegacy = { group = "net.kyori", name = "adventure-text-serial
 adventureSerializerBungee = { group = "net.kyori", name = "adventure-text-serializer-bungeecord", version.ref = "adventure-serializer-bungee" }
 
 # platform extensions
-vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
 modLauncher = { group = "cpw.mods", name = "modlauncher", version.ref = "modlauncher" }
 bungeecordChat = { group = "net.md-5", name = "bungeecord-chat", version.ref = "bungeecord" }
 placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
@@ -195,9 +191,6 @@ npcLib = { group = "io.github.juliarn", name = "npc-lib-bukkit", version.ref = "
 packetEvents = { group = "com.github.retrooper", name = "packetevents-spigot", version.ref = "packetEvents" }
 npcLibLabymod = { group = "io.github.juliarn", name = "npc-lib-labymod", version.ref = "npcLib" }
 luckPermsApi = { group = "net.luckperms", name = "api", version.ref = "luckPermsApi" }
-
-# fabric platform special dependencies
-minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
 
 # dummy versions, just here for renovate to detect that there is something to update
@@ -207,12 +200,13 @@ checkstyleTools = { group = "com.puppycrawl.tools", name = "checkstyle", version
 [bundles]
 
 aerogel = ["aerogel", "aerogelScopedValues", "aerogelAuto"]
+aerogelApi = ["aerogel", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
 jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations", "cloudConfirmationProcessor"]
-cloudApi = ["cloudCoreApi", "cloudAnnotationsApi"]
+cloudApi = ["cloudCoreApi", "cloudAnnotationsApi", "cloudConfirmationProcessor"]
 netty = ["nettyHandler"]
 junit = ["junitApi", "junitParams", "junitEngine"]
 dockerJava = ["dockerJavaApi", "dockerJavaHttpclient5"]
@@ -226,8 +220,8 @@ serverPlatform = ["spigot", "sponge", "nukkitX", "minestom", "minestomExtensions
 
 [plugins]
 
-fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+indra = { id = "net.kyori.indra.git", version.ref = "indra" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
 nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }

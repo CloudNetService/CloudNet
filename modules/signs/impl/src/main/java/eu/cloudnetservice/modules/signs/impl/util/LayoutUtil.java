@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,22 +37,6 @@ public final class LayoutUtil {
 
   private LayoutUtil() {
     throw new UnsupportedOperationException();
-  }
-
-  public static @NonNull SignLayout layout(
-    @NonNull SignConfigurationEntry entry,
-    @NonNull Sign sign,
-    @Nullable ServiceInfoSnapshot snapshot
-  ) {
-    return layoutHolder(entry, sign, snapshot).currentLayout();
-  }
-
-  public static @NonNull SignLayout layoutAndTick(
-    @NonNull SignConfigurationEntry entry,
-    @NonNull Sign sign,
-    @Nullable ServiceInfoSnapshot snapshot
-  ) {
-    return layoutHolder(entry, sign, snapshot).tick().currentLayout();
   }
 
   public static boolean switchToSearching(

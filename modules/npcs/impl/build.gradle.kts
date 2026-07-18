@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,13 @@
  * limitations under the License.
  */
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
-}
-
-tasks.withType<Jar> {
-  archiveFileName.set(Files.npcs)
-
-  manifest {
-    attributes["paperweight-mappings-namespace"] = "mojang"
-  }
-}
-
-tasks.withType<JavaCompile> {
-  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
-}
-
-tasks.withType<ShadowJar> {
-  relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
-  relocate("io.papermc.lib", "eu.cloudnetservice.modules.npc.relocate.paperlib")
-  relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")
-  relocate("io.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.io.packetevents")
-  relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
-  relocate("com.github.juliarn.npclib", "eu.cloudnetservice.modules.npc.relocate.com.github.juliarn.npclib")
-
-  archiveClassifier.set(null as String?)
-  dependencies {
-    exclude("plugin.yml")
-    // excludes the META-INF directory, module infos & html files of all dependencies
-    // this includes for example maven lib files & multi-release module-json files
-    exclude("META-INF/**", "**/*.html", "module-info.*")
-  }
 }
 
 repositories {
@@ -56,25 +29,56 @@ repositories {
       includeGroup("com.github.retrooper")
     }
   }
+  maven("https://repo.codemc.io/repository/maven-snapshots/") {
+    mavenContent {
+      includeGroup("com.github.retrooper")
+    }
+  }
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }
 
 dependencies {
-  "compileOnly"(libs.unirest)
-  "compileOnly"(libs.reflexion)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-  "compileOnly"(libs.bundles.serverPlatform)
-  "compileOnly"(projects.wrapperJvm.wrapperJvmApi)
-  "compileOnly"(projects.modules.bridge.bridgeImpl)
+  compileOnly(libs.spigot)
+  compileOnly(libs.unirest)
+  compileOnly(libs.reflexion)
 
-  "implementation"(projects.modules.npcs.npcsApi)
-  "implementation"(projects.ext.bukkitCommand)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  compileOnlyApi(projects.wrapperJvm.wrapperJvmApi)
+  compileOnlyApi(projects.modules.bridge.bridgeImpl)
+  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
 
-  "implementation"(libs.packetEvents)
-  "implementation"(projects.ext.bukkitCommand)
+  implementation(libs.packetEvents)
+  implementation(projects.ext.bukkitCommand)
 
-  "api"(libs.bundles.npcLib)
-  "annotationProcessor"(libs.aerogelAuto)
+  api(libs.bundles.npcLib)
+  api(projects.modules.npcs.npcsApi)
+
+  annotationProcessor(libs.aerogelAuto)
+  annotationProcessor(projects.ext.platformInjectSupport.platformInjectProcessor)
+}
+
+tasks.shadowJar.configure {
+  archiveFileName = Files.npcs
+
+  relocate("net.kyori", "eu.cloudnetservice.modules.npc.relocate.net.kyori")
+  relocate("io.leangen.geantyref", "eu.cloudnetservice.modules.npc.relocate.geantyref")
+  relocate("io.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.io.packetevents")
+  relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
+  relocate("com.github.juliarn.npclib", "eu.cloudnetservice.modules.npc.relocate.com.github.juliarn.npclib")
+
+  dependencies {
+    exclude("plugin.yml")
+    exclude("META-INF/**", "**/*.html", "module-info.*")
+  }
+
+  manifest {
+    attributes["paperweight-mappings-namespace"] = "mojang"
+  }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/npcs.aero")
 }
 
 moduleJson {

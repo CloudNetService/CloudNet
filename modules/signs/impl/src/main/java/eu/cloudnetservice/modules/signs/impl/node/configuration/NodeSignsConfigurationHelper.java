@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,10 @@ import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.impl._deprecated.configuration.SignConfigurationReaderAndWriter;
 import eu.cloudnetservice.modules.signs.impl._deprecated.configuration.entry.SignLayoutConfiguration;
+import io.leangen.geantyref.TypeFactory;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Contract;
@@ -47,25 +50,104 @@ public final class NodeSignsConfigurationHelper {
   public static SignsConfiguration read(@NonNull Path path) {
     var configurationDocument = DocumentFactory.json().parse(path);
     if (configurationDocument.contains("config")) {
-      // write the new configuration file
+      // convert the old v3 configuration
       var configuration = convertOldConfiguration(configurationDocument, path);
       write(configuration, path);
-      // notify that the convert was successful
       LOGGER.info("Successfully converted the old signs configuration file");
-      // no need to load the configuration from the file again
       return configuration;
     }
-    // check if the configuration file already exists
+
     if (configurationDocument.empty()) {
-      // create a new configuration entry
+      // initial config load: create a new, blank config entry
       var configuration = SignsConfiguration.builder()
         .modifyEntries(entries -> entries.add(SignConfigurationType.JAVA.createEntry("Lobby")))
         .build();
       write(configuration, path);
       return configuration;
     }
-    // the document contains a configuration
-    return configurationDocument.toInstanceOf(SignsConfiguration.class);
+
+    // document contains a modern configuration, load that - migrate if necessary
+    convertGlowingColor(configurationDocument);
+    var configuration = configurationDocument.toInstanceOf(SignsConfiguration.class);
+    write(configuration, path);
+    return configuration;
+  }
+
+  /**
+   * Converts the old {@code glowingColor} setting for all config entries in the given config document.
+   *
+   * @param configDocument the config document to convert.
+   * @throws NullPointerException if the given config document is null.
+   */
+  private static void convertGlowingColor(@NonNull Document.Mutable configDocument) {
+    var listDocumentType = TypeFactory.parameterizedClass(List.class, Document.class);
+    var layoutNames = List.of("searchingLayout", "startingLayout", "emptyLayout", "onlineLayout", "fullLayout");
+
+    List<Document> configEntries = configDocument.readObject("entries", listDocumentType);
+    for (var entryIndex = 0; entryIndex < configEntries.size(); entryIndex++) {
+      // convert top-level layouts
+      var configEntry = configEntries.get(entryIndex).mutableCopy();
+      convertGlowingInConfig(configEntry, listDocumentType, layoutNames);
+
+      // convert group-level layouts
+      List<Document> groupConfigurations = configEntry.readObject("groupConfigurations", listDocumentType);
+      for (var groupIndex = 0; groupIndex < groupConfigurations.size(); groupIndex++) {
+        var groupConfig = groupConfigurations.get(groupIndex).mutableCopy();
+        convertGlowingInConfig(groupConfig, listDocumentType, layoutNames);
+        groupConfigurations.set(groupIndex, groupConfig);
+      }
+      configEntry.append("groupConfigurations", groupConfigurations);
+
+      // update the config entry
+      configEntries.set(entryIndex, configEntry);
+    }
+
+    // copy the modified config entries into the source document
+    configDocument.append("entries", configEntries);
+  }
+
+  /**
+   * Converts the old {@code glowingColor} setting for all layout holders in the given config document.
+   *
+   * @param config           the config document to convert.
+   * @param listDocumentType type representing a list of documents.
+   * @param layoutNames      the layout property names to convert.
+   * @throws NullPointerException if the given config document, list type or layout names is null.
+   */
+  private static void convertGlowingInConfig(
+    @NonNull Document.Mutable config,
+    @NonNull Type listDocumentType,
+    @NonNull List<String> layoutNames
+  ) {
+    for (var layoutName : layoutNames) {
+      var holder = config.readMutableDocument(layoutName, null);
+      if (holder != null) {
+        List<Document> layouts = holder.readObject("signLayouts", listDocumentType);
+        for (var index = 0; index < layouts.size(); index++) {
+          var layout = layouts.get(index).mutableCopy();
+          if (layout.contains("glowingColor")) {
+            var glowingColor = layout.getString("glowingColor");
+            if (glowingColor != null) {
+              // glowing color was set, enable text color and glowing
+              layout.append("textColor", glowingColor);
+              layout.append("textGlowing", true);
+            } else {
+              // glowing color was not set, no need to enable text color or glowing
+              layout.appendNull("textColor");
+              layout.append("textGlowing", false);
+            }
+
+            // remove old glowing color property, update document
+            layout.remove("glowingColor");
+            layouts.set(index, layout);
+          }
+        }
+
+        // update the sign layouts with the modified variant in the holder document and then in the original config
+        holder.append("signLayouts", layouts);
+        config.append(layoutName, holder);
+      }
+    }
   }
 
   // convert of old configuration file

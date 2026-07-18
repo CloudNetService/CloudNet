@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.impl.command.sub;
 
 import eu.cloudnetservice.node.command.annotation.CommandAlias;
 import eu.cloudnetservice.node.command.annotation.Description;
+import eu.cloudnetservice.node.command.annotation.EnableConfirmSkipFlag;
 import eu.cloudnetservice.node.impl.command.source.ConsoleCommandSource;
 import eu.cloudnetservice.node.impl.tick.DefaultShutdownHandler;
 import jakarta.inject.Inject;
@@ -42,6 +43,7 @@ public final class ExitCommand {
   }
 
   @Confirmation
+  @EnableConfirmSkipFlag
   @Command(value = "exit|shutdown|stop", requiredSender = ConsoleCommandSource.class)
   public void exit() {
     // call our shutdown handler, this prevents the Cleaner shutdown hook which is added

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,32 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.smart)
+dependencies {
+  compileOnly(libs.guava)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  compileOnlyApi(projects.modules.bridge.bridgeApi)
+
+  annotationProcessor(libs.aerogelAuto)
+
+  api(projects.modules.smart.smartApi)
 }
 
-dependencies {
-  "compileOnly"(projects.modules.bridge.bridgeApi)
-  "implementation"(projects.modules.smart.smartApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.smart
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-AaerogelAutoFileName=autoconfigure/smart.aero")
 }
 
 moduleJson {
@@ -34,7 +47,6 @@ moduleJson {
   author = "CloudNetService"
   main = "eu.cloudnetservice.modules.smart.impl.CloudNetSmartModule"
   description = "CloudNet extension, which implement smart network handling and automatic services providing"
-  runtimeModule = true
   // depend on internal modules
   dependencies.add(ModuleConfiguration.Dependency("CloudNet-Bridge").apply {
     needsRepoResolve = false

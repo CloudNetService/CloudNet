@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.JAVA_SERV
 import static eu.cloudnetservice.driver.service.ServiceEnvironmentType.PE_SERVER;
 
 import eu.cloudnetservice.driver.channel.ChannelMessage;
-import eu.cloudnetservice.driver.channel.ChannelMessageTarget;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.provider.CloudServiceProvider;
@@ -28,16 +27,17 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.modules.bridge.WorldPosition;
 import eu.cloudnetservice.modules.signs.Sign;
 import eu.cloudnetservice.modules.signs.configuration.SignConfigurationEntry;
-import eu.cloudnetservice.modules.signs.configuration.SignLayoutsHolder;
+import eu.cloudnetservice.modules.signs.configuration.SignLayout;
 import eu.cloudnetservice.modules.signs.configuration.SignsConfiguration;
 import eu.cloudnetservice.modules.signs.impl.AbstractSignManagement;
 import eu.cloudnetservice.modules.signs.impl.SharedChannelMessageListener;
 import eu.cloudnetservice.modules.signs.impl.util.LayoutUtil;
 import eu.cloudnetservice.modules.signs.impl.util.PriorityUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
+import io.vavr.Tuple2;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -76,7 +76,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   protected final Map<WorldPosition, PlatformSign<P, C>> platformSigns = new ConcurrentHashMap<>();
   protected final Queue<ServiceInfoSnapshot> waitingAssignments = new ConcurrentLinkedQueue<>();
 
-  protected int currentTick;
+  protected long currentTick;
 
   protected PlatformSignManagement(
     @NonNull EventManager eventManager,
@@ -107,53 +107,67 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       .targetNode(wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId())
       .build()
       .sendSingleQuery();
-    return response == null ? null : response.content().readObject(SignsConfiguration.class);
+    return switch (response) {
+      case null -> null;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(SignsConfiguration.class);
+        }
+      }
+    };
   }
 
   @Override
   public void createSign(@NonNull Sign sign) {
-    this.channelMessage(SIGN_CREATE)
-      .buffer(DataBuf.empty().writeObject(sign))
-      .build().send();
+    this.channelMessage(SIGN_CREATE).build(buffer -> buffer.writeObject(sign)).send();
   }
 
   @Override
   public void deleteSign(@NonNull WorldPosition position) {
-    this.channelMessage(SIGN_DELETE)
-      .buffer(DataBuf.empty().writeObject(position))
-      .build().send();
+    this.channelMessage(SIGN_DELETE).build(buffer -> buffer.writeObject(position)).send();
   }
 
   @Override
   public int deleteAllSigns(@NonNull String group, @Nullable String templatePath) {
     var response = this.channelMessage(SIGN_BULK_DELETE)
-      .buffer(DataBuf.empty().writeString(group).writeNullable(templatePath, DataBuf.Mutable::writeString))
-      .build().sendSingleQuery();
-    return response == null ? 0 : response.content().readInt();
+      .build(buffer -> buffer
+        .writeString(group)
+        .writeNullable(templatePath, DataBuf.Mutable::writeString))
+      .sendSingleQuery();
+    return switch (response) {
+      case null -> 0;
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readInt();
+        }
+      }
+    };
   }
 
   @Override
   public int deleteAllSigns() {
-    this.channelMessage(SIGN_ALL_DELETE)
-      .buffer(DataBuf.empty().writeObject(this.signs.keySet()))
-      .build().send();
+    this.channelMessage(SIGN_ALL_DELETE).build(buffer -> buffer.writeObject(this.signs.keySet())).send();
     return this.signs.size();
   }
 
   @Override
   public @NonNull Collection<Sign> signs(@NonNull Collection<String> groups) {
     var response = this.channelMessage(SIGN_GET_SIGNS_BY_GROUPS)
-      .buffer(DataBuf.empty().writeObject(groups))
-      .build()
+      .build(buffer -> buffer.writeObject(groups))
       .sendSingleQuery();
-    return response == null ? Set.of() : response.content().readObject(Sign.COLLECTION_TYPE);
+    return switch (response) {
+      case null -> Set.of();
+      case ChannelMessage channelMessage -> {
+        try (channelMessage) {
+          yield channelMessage.content().readObject(Sign.COLLECTION_TYPE);
+        }
+      }
+    };
   }
 
   @Override
   public void signsConfiguration(@NonNull SignsConfiguration signsConfiguration) {
-    this.channelMessage(SET_SIGN_CONFIG)
-      .buffer(DataBuf.empty().writeObject(signsConfiguration))
-      .build().send();
+    this.channelMessage(SET_SIGN_CONFIG).build(buffer -> buffer.writeObject(signsConfiguration)).send();
   }
 
   @Override
@@ -187,8 +201,8 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
 
   @Override
   protected @NonNull ChannelMessage.Builder channelMessage(@NonNull String message) {
-    return super.channelMessage(message)
-      .target(ChannelMessageTarget.Type.NODE, this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId());
+    var owningNodeId = this.wrapperConfig.serviceConfiguration().serviceId().nodeUniqueId();
+    return super.channelMessage(message).targetNode(owningNodeId);
   }
 
   public int removeAllMissingSigns() {
@@ -246,10 +260,6 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   }
 
   public void initialize() {
-    this.initialize(new HashMap<>());
-  }
-
-  public void initialize(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P, C>>> signsNeedingTicking) {
     if (this.signsConfiguration != null) {
       // initialize the platform signs
       for (var value : this.signs.values()) {
@@ -259,7 +269,7 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       // start the needed tasks
       this.executorService.scheduleWithFixedDelay(() -> {
         try {
-          this.tick(signsNeedingTicking);
+          this.tick();
         } catch (Throwable throwable) {
           LOGGER.error("Exception ticking signs", throwable);
         }
@@ -318,43 +328,39 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
   }
 
   @ApiStatus.Internal
-  protected void tick(@NonNull Map<SignLayoutsHolder, Set<PlatformSign<P, C>>> signsNeedingTicking) {
+  protected void tick() {
     this.currentTick++;
 
     var ownEntry = this.applicableSignConfigurationEntry();
     if (ownEntry != null) {
-      // marker if there are any updates we need to do - if there are no updates there is no need to schedule them
-      // which saves server resources
-      var hasUpdates = false;
-      for (var value : this.platformSigns.values()) {
-        // tick all sign layouts which we need to tick in the current tick
-        var holder = LayoutUtil.layoutHolder(ownEntry, value.base(), value.currentTarget());
-        if (holder.hasLayouts() && holder.animationsPerSecond() > 0
-          && this.currentTick % (this.tps() / holder.animationsPerSecond()) == 0) {
-          // tick the holder, then block the tick
-          holder.tick().enableTickBlock();
-          // register the sign for updates if we need to
-          if (value.needsUpdates()) {
-            hasUpdates = true;
-            signsNeedingTicking.computeIfAbsent(holder, $ -> new HashSet<>()).add(value);
+      List<Tuple2<SignLayout, PlatformSign<P, C>>> signsToTick = null;
+      for (var sign : this.platformSigns.values()) {
+        // update all sign layouts that need an animation tick,
+        // also register the sign for an update if the associated layout changed
+        var holder = LayoutUtil.layoutHolder(ownEntry, sign.base(), sign.currentTarget());
+        if (holder.hasLayouts() && holder.animationsPerSecond() > 0) {
+          var animationIntervalTicks = this.tps() / holder.animationsPerSecond();
+          if (animationIntervalTicks == 0 || this.currentTick % animationIntervalTicks == 0) {
+            holder.tick(this.currentTick);
+            var nextLayout = holder.currentLayout(this.tps());
+            if (nextLayout != null && sign.needsUpdates()) {
+              // the sign is loaded and needs an update to display the new layout
+              if (signsToTick == null) {
+                signsToTick = new ArrayList<>();
+              }
+              signsToTick.add(new Tuple2<>(nextLayout, sign));
+            }
           }
         }
       }
 
-      // execute updates if there are any
-      if (hasUpdates) {
+      if (signsToTick != null) {
+        var finalSignsToTick = signsToTick; // must not be modified anymore
         this.mainThreadExecutor.execute(() -> {
-          for (var entry : signsNeedingTicking.entrySet()) {
-            var layout = entry.getKey().releaseTickBlock().currentLayout();
-            // push out all sign changes we recorded previously
-            // we need to copy all entries of the set into a new array in case we have a thread de-sync (for example async
-            // tick but sync update) as we need to clear the underlying set after the call to prevent double ticks
-            var iterator = entry.getValue().iterator();
-            while (iterator.hasNext()) {
-              // update the sign, at this point the sign must be loaded - we can just push the change and unregister it
-              iterator.next().updateSign(layout);
-              iterator.remove();
-            }
+          for (var layoutSignTuple : finalSignsToTick) {
+            var layout = layoutSignTuple._1();
+            var sign = layoutSignTuple._2();
+            sign.updateSign(layout);
           }
         });
       }
@@ -362,22 +368,13 @@ public abstract class PlatformSignManagement<P, L, C> extends AbstractSignManage
       // check if we have waiting services which are not yet assigned - try to assign them to a sign
       if (!this.waitingAssignments.isEmpty()) {
         for (var waitingAssignment : this.waitingAssignments) {
-          // get the next free sign to which can assign the service
           var freeSign = this.nextFreeSign(waitingAssignment);
           if (freeSign != null) {
-            // remove instantly
             this.waitingAssignments.remove(waitingAssignment);
-            // assign the service to the sign, the layout of it will be updated within the next second
-            // we could directly update the layout but there is no need to do that
             freeSign.currentTarget(waitingAssignment);
           }
         }
       }
-    }
-
-    // reset the tick counter if we reached the max tps
-    if (this.currentTick >= this.tps()) {
-      this.currentTick = 0;
     }
   }
 

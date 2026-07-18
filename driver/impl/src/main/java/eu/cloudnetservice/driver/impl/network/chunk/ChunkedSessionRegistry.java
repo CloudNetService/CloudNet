@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package eu.cloudnetservice.driver.impl.network.chunk;
 
-import eu.cloudnetservice.driver.network.chunk.ChunkSessionInformation;
 import eu.cloudnetservice.driver.network.chunk.ChunkedPacketHandler;
 import jakarta.inject.Singleton;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.NonNull;
 
 /**
@@ -59,20 +58,18 @@ public final class ChunkedSessionRegistry {
 
   /**
    * Gets the currently active session or creates a new session using the given instance factory. Sessions are unique by
-   * their session id. Concurrently accessing this method to create a new session will return the same session instance
+   * their session id. Accessing this method concurrently to create a new session will return the same session instance
    * to all callers.
    *
-   * @param sessionInformation the information of the session to get or create the session of.
-   * @param sessionFactory     the factory to call if no session is currently associated with the session id.
+   * @param sessionId      the id of the session to get the current handler of.
+   * @param sessionFactory the factory to call if no session is currently associated with the session id.
    * @return the existing registered or newly created transfer session for the provided session id.
-   * @throws NullPointerException if the given session information or session factory is null.
+   * @throws NullPointerException if the given session id or session factory is null.
    */
   public @NonNull ChunkedPacketHandler getOrCreateSession(
-    @NonNull ChunkSessionInformation sessionInformation,
-    @NonNull Function<ChunkSessionInformation, ChunkedPacketHandler> sessionFactory
+    @NonNull UUID sessionId,
+    @NonNull Supplier<ChunkedPacketHandler> sessionFactory
   ) {
-    return this.runningSessions.computeIfAbsent(
-      sessionInformation.sessionUniqueId(),
-      _ -> sessionFactory.apply(sessionInformation));
+    return this.runningSessions.computeIfAbsent(sessionId, _ -> sessionFactory.get());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
   private final CommandManager commandManager;
   private final ConnectionManager connectionManager;
   private final PlayerExecutor directGlobalExecutor;
-  private final MinestomPermissionChecker permissionChecker;
+  private final Provider<MinestomPermissionChecker> permissionChecker;
 
   @Inject
   public MinestomBridgeManagement(
@@ -76,7 +77,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     @NonNull ServiceInfoHolder serviceInfoHolder,
     @NonNull CloudServiceProvider serviceProvider,
     @NonNull WrapperConfiguration wrapperConfiguration,
-    @NonNull @Service MinestomPermissionChecker permissionChecker
+    @NonNull @Service Provider<MinestomPermissionChecker> permissionChecker
   ) {
     super(
       rpcFactory,
@@ -93,7 +94,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     this.permissionChecker = permissionChecker;
 
     this.directGlobalExecutor = new MinestomDirectPlayerExecutor(
-      this.permissionChecker,
+      this.permissionFunction(),
       commandManager,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
       connectionManager::getOnlinePlayers);
@@ -103,8 +104,10 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     eventHandler.call(pingEvent);
 
     // init the bridge properties
-    serviceHelper.motd().set(legacySection().serialize(pingEvent.getResponseData().getDescription()));
-    serviceHelper.maxPlayers().set(pingEvent.getResponseData().getMaxPlayer());
+    var status = pingEvent.getStatus();
+    var playerInfo = status.playerInfo();
+    serviceHelper.motd().set(legacySection().serialize(status.description()));
+    serviceHelper.maxPlayers().set(playerInfo == null ? 0 : playerInfo.maxPlayers());
   }
 
   @Override
@@ -129,7 +132,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
 
   @Override
   public @NonNull BiFunction<Player, String, Boolean> permissionFunction() {
-    return this.permissionChecker::hasPermission;
+    return (player, permission) -> this.permissionChecker.get().hasPermission(player, permission);
   }
 
   @Override
@@ -165,7 +168,7 @@ public final class MinestomBridgeManagement extends PlatformBridgeManagement<Pla
     return uniqueId.equals(PlayerExecutor.GLOBAL_UNIQUE_ID)
       ? this.directGlobalExecutor
       : new MinestomDirectPlayerExecutor(
-        this.permissionChecker,
+        this.permissionFunction(),
         this.commandManager,
         uniqueId,
         () -> Collections.singleton(this.connectionManager.getOnlinePlayerByUuid(uniqueId)));

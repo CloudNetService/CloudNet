@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.bridge.BridgeDocProperties;
+import eu.cloudnetservice.modules.smart.SmartServiceManagement;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
-import eu.cloudnetservice.modules.smart.impl.CloudNetSmartModule;
 import eu.cloudnetservice.modules.smart.impl.util.SmartUtil;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
@@ -50,8 +50,8 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public final class CloudNetTickListener {
 
-  private final CloudNetSmartModule module;
   private final ServiceTaskProvider taskProvider;
+  private final SmartServiceManagement management;
   private final CloudServiceManager serviceManager;
   private final CloudServiceFactory serviceFactory;
   private final NodeServerProvider nodeServerProvider;
@@ -61,14 +61,14 @@ public final class CloudNetTickListener {
 
   @Inject
   public CloudNetTickListener(
-    @NonNull CloudNetSmartModule module,
     @NonNull ServiceTaskProvider taskProvider,
+    @NonNull SmartServiceManagement management,
     @NonNull CloudServiceManager serviceManager,
     @NonNull CloudServiceFactory serviceFactory,
     @NonNull NodeServerProvider nodeServerProvider
   ) {
-    this.module = module;
     this.taskProvider = taskProvider;
+    this.management = management;
     this.serviceManager = serviceManager;
     this.serviceFactory = serviceFactory;
     this.nodeServerProvider = nodeServerProvider;
@@ -81,7 +81,7 @@ public final class CloudNetTickListener {
 
   private void handleSmartEntries() {
     this.taskProvider.serviceTasks().forEach(task -> {
-      var config = this.module.smartConfig(task);
+      var config = this.management.smartServiceTaskConfig(task.name());
       if (config != null && config.enabled()) {
         // get all services of the task
         var services = this.serviceManager.servicesByTask(task.name());
