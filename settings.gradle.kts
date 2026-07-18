@@ -36,7 +36,7 @@ rootProject.name = "cloudnet-parent"
 
 registerSubProjects(
   root = "ext",
-  subProjects = arrayOf("adventure-helper", "bukkit-command", "modlauncher", "updater"),
+  subProjects = arrayOf("adventure-helper", "bukkit-command", "modlauncher", "updater", "platform-scheduler"),
 )
 registerSubProjects(
   root = "ext:platform-inject-support",

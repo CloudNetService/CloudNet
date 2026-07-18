@@ -14,31 +14,15 @@
  * limitations under the License.
  */
 
-import eu.cloudnetservice.cloudnet.gradle.util.Files
-
 plugins {
   id("cloudnet-java")
   id("cloudnet-publish")
 }
 
 repositories {
-  maven("https://repo.waterdog.dev/releases/")
-  maven("https://repo.waterdog.dev/snapshots/")
-  maven("https://repo.loohpjames.com/repository")
-  maven("https://repo.md-5.net/repository/releases/")
-  maven("https://repo.md-5.net/repository/snapshots/")
-  maven("https://repo.opencollab.dev/maven-releases/")
-  maven("https://repo.opencollab.dev/maven-snapshots/")
   maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 }
 
 dependencies {
-  compileOnly(libs.bundles.proxyPlatform)
-  compileOnly(libs.bundles.serverPlatform)
-  compileOnly(projects.ext.platformInjectSupport.platformInjectApi)
-}
-
-tasks.jar.configure {
-  archiveFileName.set(Files.injectSupport)
+  compileOnly(libs.folia)
 }

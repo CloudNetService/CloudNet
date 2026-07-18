@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.util
+package eu.cloudnetservice.ext.scheduler;
 
-object Versions {
-  const val CLOUDNET = "4.0.0-RC17-SNAPSHOT"
-  const val CLOUDNET_CODE_NAME = "Blizzard"
+/**
+ * Represents a scheduled task on the platform scheduler. Allowing to cancel tasks created on the platform scheduler.
+ *
+ * @since 4.0
+ */
+public interface ScheduledPlatformTask {
+
+  /**
+   * Cancels the scheduled task.
+   */
+  void cancel();
 }

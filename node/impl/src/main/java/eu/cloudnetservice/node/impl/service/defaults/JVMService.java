@@ -16,19 +16,19 @@
 
 package eu.cloudnetservice.node.impl.service.defaults;
 
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
 import eu.cloudnetservice.driver.service.ServiceEnvironment;
 import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.event.service.CloudServiceJvmClassPathConstructEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePostProcessStartEvent;
 import eu.cloudnetservice.node.event.service.CloudServicePreProcessStartEvent;
 import eu.cloudnetservice.node.impl.service.InternalCloudServiceManager;
 import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogCache;
 import eu.cloudnetservice.node.impl.service.defaults.log.ProcessServiceLogReadScheduler;
+import eu.cloudnetservice.node.impl.service.defaults.wrapper.WrapperFileProvider;
 import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.impl.version.ServiceVersionProvider;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
@@ -37,22 +37,20 @@ import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.vavr.CheckedFunction1;
-import io.vavr.Tuple2;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +60,6 @@ import org.slf4j.LoggerFactory;
 public class JVMService extends AbstractService {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(JVMService.class);
-  protected static final Pattern FILE_NUMBER_PATTERN = Pattern.compile("(\\d+).*");
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
     "--enable-preview",
     "-Dfile.encoding=UTF-8",
@@ -71,7 +68,6 @@ public class JVMService extends AbstractService {
     "-Djline.terminal=jline.UnsupportedTerminal");
 
   protected static final Path LIB_PATH = Path.of("launcher", "libs");
-  protected static final Path WRAPPER_TEMP_FILE = FileUtil.TEMP_DIR.resolve("caches").resolve("wrapper.jar");
 
   protected volatile Process process;
 
@@ -144,17 +140,20 @@ public class JVMService extends AbstractService {
     }
 
     // get the agent class of the application (if any)
-    var agentClass = applicationInformation._2().mainAttributes().getValue("Premain-Class");
-    if (agentClass == null) {
-      // some old versions named the agent class 'Launcher-Agent-Class' - try that
-      agentClass = applicationInformation._2().mainAttributes().getValue("Launcher-Agent-Class");
-    }
+    var agentClass = applicationInformation.mainAttributes().getValue("Launcher-Agent-Class");
 
     // prepare the full wrapper class path
-    var classPath = String.format(
-      "%s%s",
-      this.computeWrapperClassPath(wrapperInformation._1()),
-      wrapperInformation._1().toAbsolutePath());
+    List<Path> classPathBuilder = new ArrayList<>();
+    this.computeWrapperClassPath(classPathBuilder, wrapperInformation.path());
+    classPathBuilder.add(wrapperInformation.path());
+    classPathBuilder.add(applicationInformation.path());
+    this.eventManager.callEvent(new CloudServiceJvmClassPathConstructEvent(this, classPathBuilder));
+    var classPath = classPathBuilder.stream()
+      .map(Path::toAbsolutePath)
+      .map(Path::normalize)
+      .map(Path::toString)
+      .distinct()
+      .collect(Collectors.joining(File.pathSeparator));
 
     // prepare the service startup
     List<String> arguments = new LinkedList<>();
@@ -173,33 +172,27 @@ public class JVMService extends AbstractService {
 
     // override some default configuration options
     arguments.addAll(DEFAULT_JVM_SYSTEM_PROPERTIES);
-    arguments.add("-javaagent:" + wrapperInformation._1().toAbsolutePath());
+    arguments.add("-javaagent:" + wrapperInformation.path().toAbsolutePath());
     arguments.add("-Dcloudnet.wrapper.messages.language=" + super.i18n.selectedLanguage().toLanguageTag());
-
-    // fabric specific class path
-    arguments.add(String.format("-Dfabric.systemLibraries=%s", classPath));
+    if (agentClass != null) {
+      arguments.add("-Dcloudnet.wrapper.launcher-agent-class=" + agentClass);
+    }
 
     // set the used host and port as system property
     arguments.add("-Dservice.bind.host=" + this.serviceConfiguration().hostAddress());
     arguments.add("-Dservice.bind.port=" + this.serviceConfiguration().port());
 
-    // add the class path and the main class of the wrapper
+    // add the class path and the main class of the application
     arguments.add("-cp");
     arguments.add(classPath);
-    arguments.add(wrapperInformation._2().getValue("Main-Class")); // the main class we want to invoke first
-
-    // add all internal process parameters (they will be removed by the wrapper before starting the application)
-    arguments.add(applicationInformation._2().mainAttributes().getValue("Main-Class"));
-    arguments.add(String.valueOf(agentClass)); // the agent class might be null
-    arguments.add(applicationInformation._1().toAbsolutePath().toString());
-    arguments.add(Boolean.toString(applicationInformation._2().preloadJarContent()));
+    arguments.add(applicationInformation.mainAttributes().getValue(Attributes.Name.MAIN_CLASS));
 
     // add all process parameters
     arguments.addAll(environmentType.defaultProcessArguments());
     arguments.addAll(this.serviceConfiguration().processConfig().processParameters());
 
     // try to start the process like that
-    this.doStartProcess(arguments, wrapperInformation._1(), applicationInformation._1());
+    this.doStartProcess(arguments, wrapperInformation.path(), applicationInformation.path());
   }
 
   @Override
@@ -292,28 +285,17 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected @Nullable Tuple2<Path, Attributes> prepareWrapperFile() {
-    // check if the wrapper file is there - unpack it if not
-    if (Files.notExists(WRAPPER_TEMP_FILE)) {
-      FileUtil.createDirectory(WRAPPER_TEMP_FILE.getParent());
-      try (var stream = JVMService.class.getClassLoader().getResourceAsStream("wrapper.jar")) {
-        // ensure that the wrapper file is there
-        if (stream == null) {
-          throw new IllegalStateException("Build-in \"wrapper.jar\" missing, unable to start jvm based services");
-        }
-        // copy the wrapper file to the output directory
-        Files.copy(stream, WRAPPER_TEMP_FILE, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException exception) {
-        LOGGER.error("Unable to copy \"wrapper.jar\" to {}", WRAPPER_TEMP_FILE, exception);
-      }
-    }
-    // read the main class
-    return this.completeJarAttributeInformation(
-      WRAPPER_TEMP_FILE,
+
+  protected @Nullable JarFileData prepareWrapperFile() {
+    var wrapperTempPath = WrapperFileProvider.unpackWrapperFile();
+    var mainAttributes = this.extractFromJarFile(
+      wrapperTempPath,
       file -> file.getManifest().getMainAttributes());
+    Objects.requireNonNull(mainAttributes, "Wrapper jar does not contain a manifest");
+    return new JarFileData(wrapperTempPath, mainAttributes);
   }
 
-  protected @Nullable Tuple2<Path, ApplicationStartupInformation> prepareApplicationFile(
+  protected @Nullable JarFileData prepareApplicationFile(
     @NonNull ServiceEnvironmentType environmentType
   ) {
     // collect all names of environment names
@@ -331,45 +313,29 @@ public class JVMService extends AbstractService {
       return Files.walk(this.serviceDirectory, 1)
         .filter(path -> {
           var filename = path.getFileName().toString();
-          // check if the file is a jar file - it must end with '.jar' for that
           if (!filename.endsWith(".jar")) {
             return false;
           }
-          // search if any environment is in the name of the file
+
           for (var environment : environments) {
             if (filename.contains(environment)) {
               return true;
             }
           }
-          // not an application file for the environment
+
           return false;
-        }).min((left, right) -> {
-          // get the first number from the left path
-          var leftMatcher = FILE_NUMBER_PATTERN.matcher(left.getFileName().toString());
-          // no match -> neutral
-          if (!leftMatcher.matches()) {
-            return 0;
-          }
-
-          // get the first number from the right patch
-          var rightMatcher = FILE_NUMBER_PATTERN.matcher(right.getFileName().toString());
-          // no match -> neutral
-          if (!rightMatcher.matches()) {
-            return 0;
-          }
-
-          // extract the numbers
-          var leftNumber = Ints.tryParse(leftMatcher.group(1));
-          var rightNumber = Ints.tryParse(rightMatcher.group(1));
-          // compare both of the numbers
-          return leftNumber == null || rightNumber == null ? 0 : Integer.compare(leftNumber, rightNumber);
         })
-        .map(path -> this.completeJarAttributeInformation(
-          path,
-          file -> new ApplicationStartupInformation(
-            file.getEntry("META-INF/versions.list") != null,
-            this.validateManifest(file.getManifest()).getMainAttributes())
-        )).orElse(null);
+        .map(path -> {
+          var manifest = this.extractFromJarFile(path, JarFile::getManifest);
+          Objects.requireNonNull(manifest, "Application jar does not contain a manifest");
+
+          var mainClass = manifest.getMainAttributes().getValue("Main-Class");
+          Objects.requireNonNull(mainClass, "Application jar manifest does not contain a Main-Class");
+
+          return new JarFileData(path, manifest.getMainAttributes());
+        })
+        .findFirst()
+        .orElse(null);
     } catch (IOException exception) {
       LOGGER.error(
         "Unable to find application file information in {} for environment {}",
@@ -380,23 +346,21 @@ public class JVMService extends AbstractService {
     }
   }
 
-  protected @Nullable <T> Tuple2<Path, T> completeJarAttributeInformation(
+  protected @Nullable <T> T extractFromJarFile(
     @NonNull Path jarFilePath,
     @NonNull CheckedFunction1<JarFile, T> mapper
   ) {
     // open the file and lookup the main class
     try (var jarFile = new JarFile(jarFilePath.toFile())) {
-      return new Tuple2<>(jarFilePath, mapper.apply(jarFile));
+      return mapper.apply(jarFile);
     } catch (Throwable exception) {
       LOGGER.error("Unable to open wrapper file at {} for reading: ", jarFilePath, exception);
       return null;
     }
   }
 
-  protected @NonNull String computeWrapperClassPath(@NonNull Path wrapperPath) {
-    var builder = new StringBuilder();
+  protected void computeWrapperClassPath(@NonNull Collection<Path> classPath, @NonNull Path wrapperPath) {
     FileUtil.openZipFile(wrapperPath, fs -> {
-      // get the wrapper cnl file and check if it is available
       var wrapperCnl = fs.getPath("wrapper.cnl");
       if (Files.exists(wrapperCnl)) {
         Files.lines(wrapperCnl)
@@ -414,24 +378,12 @@ public class JVMService extends AbstractService {
               parts[5],
               parts.length == 8 ? "-" + parts[7] : "");
             return LIB_PATH.resolve(path);
-          }).forEach(path -> builder.append(path.toAbsolutePath()).append(File.pathSeparatorChar));
+          }).forEach(classPath::add);
       }
     });
-    // contains all paths we need now
-    return builder.toString();
   }
 
-  protected @NonNull Manifest validateManifest(@Nullable Manifest manifest) {
-    // make sure that we have a manifest at all
-    Preconditions.checkNotNull(manifest, "Application jar does not contain a manifest.");
-    // make sure that the manifest at least contains a main class
-    Preconditions.checkNotNull(
-      manifest.getMainAttributes().getValue("Main-Class"),
-      "Application jar manifest does not contain a Main-Class.");
-    return manifest;
-  }
-
-  protected record ApplicationStartupInformation(boolean preloadJarContent, @NonNull Attributes mainAttributes) {
+  protected record JarFileData(@NonNull Path path, @NonNull Attributes mainAttributes) {
 
   }
 }

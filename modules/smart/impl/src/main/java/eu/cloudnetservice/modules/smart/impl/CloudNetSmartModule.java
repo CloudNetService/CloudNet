@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.smart.impl;
 
 import eu.cloudnetservice.driver.event.EventManager;
+import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
@@ -24,26 +25,38 @@ import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.service.ServiceTask;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.modules.smart.impl.listener.CloudNetLocalServiceListener;
-import eu.cloudnetservice.modules.smart.impl.listener.CloudNetLocalServiceTaskListener;
 import eu.cloudnetservice.modules.smart.impl.listener.CloudNetTickListener;
+import eu.cloudnetservice.modules.smart.impl.listener.SmartConfigMessageListener;
 import eu.cloudnetservice.node.command.CommandProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 @Singleton
 public class CloudNetSmartModule extends DriverModule {
 
+  @Inject
+  public CloudNetSmartModule(@NonNull @Named("module") InjectionLayer<?> layer) {
+    layer.installAutoConfigureBindings(this.getClass().getClassLoader(), "smart");
+  }
+
   @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = Byte.MAX_VALUE)
-  public void rewriteOldSmartTaskEntries(@NonNull ServiceTaskProvider taskProvider) {
+  public void rewriteOldSmartTaskEntries(
+    @NonNull ServiceTaskProvider taskProvider,
+    @NonNull NodeSmartServiceManagement management
+  ) {
     for (var task : taskProvider.serviceTasks()) {
       // check if the task had a smart config entry previously
       if (task.propertyHolder().contains("smartConfig")) {
+        SmartServiceTaskConfig config = null;
+
         // check if the task still uses the old format
         var smartEntry = task.propertyHolder().readDocument("smartConfig");
         if (smartEntry.contains("dynamicMemoryAllocationRange")) {
           // rewrite the old config
-          var config = SmartServiceTaskConfig.builder()
+          config = SmartServiceTaskConfig.builder()
+            .targetTask(task.name())
             .enabled(smartEntry.getBoolean("enabled"))
             .priority(smartEntry.getInt("priority"))
 
@@ -62,26 +75,21 @@ public class CloudNetSmartModule extends DriverModule {
             .percentOfPlayersForANewServiceByInstance(smartEntry.getInt("percentOfPlayersForANewServiceByInstance"))
 
             .build();
-
-          // append the new smart entry and update the service
-          var newTask = ServiceTask.builder(task)
-            .modifyProperties(properties -> properties.append("smartConfig", config))
-            .build();
-          taskProvider.addServiceTask(newTask);
+        } else if (!smartEntry.containsNonNull("targetTask")) {
+          var newEntry = smartEntry.mutableCopy().append("targetTask", task.name());
+          config = newEntry.toInstanceOf(SmartServiceTaskConfig.class);
         }
-      }
-    }
-  }
 
-  @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = 64)
-  public void addMissingSmartConfigurationEntries(@NonNull ServiceTaskProvider taskProvider) {
-    for (var task : taskProvider.serviceTasks()) {
-      // check if the service task needs a smart entry
-      if (!task.propertyHolder().contains("smartConfig")) {
-        var newTask = ServiceTask.builder(task)
-          .modifyProperties(properties -> properties.append("smartConfig", SmartServiceTaskConfig.builder().build()))
-          .build();
-        taskProvider.addServiceTask(newTask);
+        if (config != null) {
+          var updatedTask = ServiceTask.builder(task)
+            .modifyProperties(properties -> properties.remove("smartConfig"))
+            .build();
+          taskProvider.addServiceTask(updatedTask);
+
+          if (config.enabled()) {
+            management.addSmartServiceTaskConfigSilently(config);
+          }
+        }
       }
     }
   }
@@ -90,14 +98,14 @@ public class CloudNetSmartModule extends DriverModule {
   public void start(@NonNull EventManager eventManager, @NonNull CommandProvider commandProvider) {
     eventManager
       .registerListener(CloudNetTickListener.class)
-      .registerListener(CloudNetLocalServiceListener.class)
-      .registerListener(CloudNetLocalServiceTaskListener.class);
+      .registerListener(SmartConfigMessageListener.class)
+      .registerListener(CloudNetLocalServiceListener.class);
 
     commandProvider.register(SmartCommand.class);
   }
 
-  public @Nullable SmartServiceTaskConfig smartConfig(@NonNull ServiceTask task) {
-    // try to get the smart config entry
-    return task.propertyHolder().readObject("smartConfig", SmartServiceTaskConfig.class);
+  @ModuleTask(lifecycle = ModuleLifeCycle.RELOADING)
+  public void reload(@NonNull NodeSmartServiceManagement management) {
+    management.loadSmartConfigurations();
   }
 }

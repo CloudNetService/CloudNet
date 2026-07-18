@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.base.Named;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.provider.ServiceTaskProvider;
 import eu.cloudnetservice.driver.registry.Service;
-import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.modules.smart.SmartServiceManagement;
 import eu.cloudnetservice.modules.smart.SmartServiceTaskConfig;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
@@ -43,45 +43,91 @@ import org.incendo.cloud.context.CommandInput;
 @Description("module-smart-command-description")
 public class SmartCommand {
 
-  private final ServiceTaskProvider taskProvider;
+  private final SmartServiceManagement smartManagement;
+  private final ServiceTaskProvider serviceTaskProvider;
 
   @Inject
-  public SmartCommand(@NonNull ServiceTaskProvider taskProvider) {
-    this.taskProvider = taskProvider;
+  public SmartCommand(
+    @NonNull SmartServiceManagement smartManagement,
+    @NonNull ServiceTaskProvider serviceTaskProvider
+  ) {
+    this.smartManagement = smartManagement;
+    this.serviceTaskProvider = serviceTaskProvider;
   }
 
-  @Parser(name = "smartTask", suggestions = "smartTask")
-  public @NonNull ServiceTask smartTaskParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
-    var task = this.taskProvider.serviceTask(input.readString());
-    if (task == null) {
-      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-task-not-found"));
+  @Parser(suggestions = "smartConfig")
+  public @NonNull SmartServiceTaskConfig smartConfigParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
+    var targetTask = input.readString();
+    var config = this.smartManagement.smartServiceTaskConfig(targetTask);
+    if (config == null) {
+      throw new ArgumentNotAvailableException(i18n.translate("module-smart-command-task-no-entry", targetTask));
     }
-    // only allow tasks with the smart config
-    if (!task.propertyHolder().contains("smartConfig")) {
-      throw new ArgumentNotAvailableException(i18n.translate("module-smart-command-task-no-entry", task.name()));
-    }
-    return task;
+
+    return config;
   }
 
-  @Suggestions("smartTask")
+  @Suggestions("smartConfig")
   public @NonNull Stream<String> suggestSmartTasks() {
-    return this.taskProvider.serviceTasks()
+    return this.smartManagement.configurations()
+      .values()
       .stream()
-      .filter(serviceTask -> serviceTask.propertyHolder().contains("smartConfig"))
-      .map(Named::name);
+      .map(SmartServiceTaskConfig::targetTask);
+  }
+
+  @Parser(name = "newSmartConfigs", suggestions = "newSmartConfigs")
+  public @NonNull String newSmartConfigParser(@NonNull @Service I18n i18n, @NonNull CommandInput input) {
+    var taskName = input.readString();
+    var task = this.serviceTaskProvider.serviceTask(taskName);
+    if (task == null) {
+      throw new ArgumentNotAvailableException(i18n.translate("command-tasks-task-not-found", taskName));
+    }
+
+    var config = this.smartManagement.smartServiceTaskConfig(taskName);
+    if (config != null) {
+      throw new ArgumentNotAvailableException(i18n.translate("module-smart-command-task-already-exists", taskName));
+    }
+
+    return taskName;
+  }
+
+  @Suggestions("newSmartConfigs")
+  public @NonNull Stream<String> suggestNewSmartConfigs() {
+    return this.serviceTaskProvider.serviceTasks().stream()
+      .map(Named::name)
+      .filter(taskName -> this.smartManagement.smartServiceTaskConfig(taskName) == null);
+  }
+
+  @Command("smart create <task>")
+  public void createEntry(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument(value = "task", parserName = "newSmartConfigs") String taskName
+  ) {
+    this.updateSmartConfig(SmartServiceTaskConfig.builder().targetTask(taskName).build(), Function.identity());
+    source.sendMessage(i18n.translate("module-smart-command-task-created", taskName));
+  }
+
+  @Command("smart delete <task>")
+  public void deleteEntry(
+    @NonNull @Service I18n i18n,
+    @NonNull CommandSource source,
+    @NonNull @Argument("task") SmartServiceTaskConfig config
+  ) {
+    this.smartManagement.removeSmartServiceTaskConfig(config.targetTask());
+    source.sendMessage(i18n.translate("module-smart-command-task-deleted", config.targetTask()));
   }
 
   @Command("smart task <task> enabled <enabled>")
   public void enable(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateSmart(task, config -> config.enabled(enabled));
+    this.updateSmartConfig(config, builder -> builder.enabled(enabled));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
-      "enabled", task.name(),
+      "enabled", config.targetTask(),
       enabled));
   }
 
@@ -89,14 +135,14 @@ public class SmartCommand {
   public void priority(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("priority") int priority
   ) {
-    this.updateSmart(task, config -> config.priority(priority));
+    this.updateSmartConfig(config, builder -> builder.priority(priority));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "priority",
-      task.name(),
+      config.targetTask(),
       priority));
   }
 
@@ -104,14 +150,14 @@ public class SmartCommand {
   public void maxServices(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("amount") int maxServices
   ) {
-    this.updateSmart(task, config -> config.maxServices(maxServices));
+    this.updateSmartConfig(config, builder -> builder.maxServices(maxServices));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "maxServices",
-      task.name(),
+      config.targetTask(),
       maxServices));
   }
 
@@ -119,15 +165,15 @@ public class SmartCommand {
   public void preparedServices(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("amount") int preparedServices
   ) {
-    this.updateSmart(task, config -> config.preparedServices(preparedServices));
+    this.updateSmartConfig(config, builder -> builder.preparedServices(preparedServices));
     source.sendMessage(
       i18n.translate(
         "command-tasks-set-property-success",
         "preparedServices",
-        task.name(),
+        config.targetTask(),
         preparedServices));
   }
 
@@ -135,15 +181,15 @@ public class SmartCommand {
   public void smartMinServiceCount(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("amount") int smartMinServiceCount
   ) {
-    this.updateSmart(task, config -> config.smartMinServiceCount(smartMinServiceCount));
+    this.updateSmartConfig(config, builder -> builder.smartMinServiceCount(smartMinServiceCount));
     source.sendMessage(
       i18n.translate(
         "command-tasks-set-property-success",
         "smartMinServiceCount",
-        task.name(),
+        config.targetTask(),
         smartMinServiceCount));
   }
 
@@ -151,15 +197,15 @@ public class SmartCommand {
   public void splitLogicallyOverNodes(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateSmart(task, config -> config.splitLogicallyOverNodes(enabled));
+    this.updateSmartConfig(config, builder -> builder.splitLogicallyOverNodes(enabled));
     source.sendMessage(
       i18n.translate(
         "command-tasks-set-property-success",
         "splitLogicallyOverNodes",
-        task.name(),
+        config.targetTask(),
         enabled));
   }
 
@@ -167,14 +213,14 @@ public class SmartCommand {
   public void directTemplatesAndInclusionsSetup(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("enabled") boolean enabled
   ) {
-    this.updateSmart(task, config -> config.directTemplatesAndInclusionsSetup(enabled));
+    this.updateSmartConfig(config, builder -> builder.directTemplatesAndInclusionsSetup(enabled));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "directTemplatesAndInclusionsSetup",
-      task.name(),
+      config.targetTask(),
       enabled));
   }
 
@@ -182,14 +228,14 @@ public class SmartCommand {
   public void templateInstaller(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @NonNull @Argument("installer") SmartServiceTaskConfig.TemplateInstaller installer
   ) {
-    this.updateSmart(task, config -> config.templateInstaller(installer));
+    this.updateSmartConfig(config, builder -> builder.templateInstaller(installer));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "templateInstaller",
-      task.name(),
+      config.targetTask(),
       installer));
   }
 
@@ -197,14 +243,14 @@ public class SmartCommand {
   public void autoStopTimeByUnusedServiceInSeconds(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("seconds") int seconds
   ) {
-    this.updateSmart(task, config -> config.autoStopTimeByUnusedServiceInSeconds(seconds));
+    this.updateSmartConfig(config, builder -> builder.autoStopTimeByUnusedServiceInSeconds(seconds));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "autoStopTimeByUnusedServiceInSeconds",
-      task.name(),
+      config.targetTask(),
       seconds));
   }
 
@@ -212,14 +258,14 @@ public class SmartCommand {
   public void percentOfPlayersToCheckShouldStopTheService(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("percent") @Range(min = "0", max = "100") int percent
   ) {
-    this.updateSmart(task, config -> config.percentOfPlayersToCheckShouldStop(percent));
+    this.updateSmartConfig(config, builder -> builder.percentOfPlayersToCheckShouldStop(percent));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "percentOfPlayersToCheckShouldStop",
-      task.name(),
+      config.targetTask(),
       percent));
   }
 
@@ -227,14 +273,14 @@ public class SmartCommand {
   public void forAnewInstanceDelayTimeInSeconds(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("seconds") int seconds
   ) {
-    this.updateSmart(task, config -> config.forAnewInstanceDelayTimeInSeconds(seconds));
+    this.updateSmartConfig(config, builder -> builder.forAnewInstanceDelayTimeInSeconds(seconds));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "forAnewInstanceDelayTimeInSeconds",
-      task.name(),
+      config.targetTask(),
       seconds));
   }
 
@@ -242,31 +288,22 @@ public class SmartCommand {
   public void percentOfPlayersForANewServiceByInstance(
     @NonNull @Service I18n i18n,
     @NonNull CommandSource source,
-    @NonNull @Argument(value = "task", parserName = "smartTask") ServiceTask task,
+    @NonNull @Argument("task") SmartServiceTaskConfig config,
     @Argument("percent") @Range(min = "0", max = "100") int percent
   ) {
-    this.updateSmart(task, config -> config.percentOfPlayersForANewServiceByInstance(percent));
+    this.updateSmartConfig(config, builder -> builder.percentOfPlayersForANewServiceByInstance(percent));
     source.sendMessage(i18n.translate(
       "command-tasks-set-property-success",
       "percentOfPlayersForANewServiceByInstance",
-      task.name(),
+      config.targetTask(),
       percent));
   }
 
-  private void updateSmart(
-    @NonNull ServiceTask serviceTask,
+  private void updateSmartConfig(
+    @NonNull SmartServiceTaskConfig config,
     @NonNull Function<SmartServiceTaskConfig.Builder, SmartServiceTaskConfig.Builder> modifier
   ) {
-    // read the smart config from the task
-    var property = serviceTask.propertyHolder().readObject("smartConfig", SmartServiceTaskConfig.class);
-
-    // rewrite the config and update it in the cluster
-    var task = ServiceTask.builder(serviceTask)
-      .modifyProperties(properties -> {
-        var newSmartConfigEntry = modifier.apply(SmartServiceTaskConfig.builder(property)).build();
-        properties.append("smartConfig", newSmartConfigEntry);
-      })
-      .build();
-    this.taskProvider.addServiceTask(task);
+    var resultingConfig = modifier.apply(SmartServiceTaskConfig.builder(config)).build();
+    this.smartManagement.addSmartServiceTaskConfig(resultingConfig);
   }
 }

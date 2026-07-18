@@ -13,6 +13,20 @@
       ],
       "releaseNotes": [],
       "dependingModules": []
+    },
+    {
+      "official": false,
+      "name": "Templify",
+      "website": "https://github.com/whereareiam/Templify",
+      "version": "1.0.0",
+      "sha3256": "638fb559511563534a4affb908bb4161fd63164989b9a5ef1deb95e7c10875c8",
+      "description": "Module for pre-startup processing and modification of service templates before they are deployed",
+      "url": "https://github.com/whereareiam/Templify/releases/download/1.0.0/Templify-1.0.0.jar",
+      "maintainers": [
+        "whereareiam"
+      ],
+      "releaseNotes": [],
+      "dependingModules": []
     }
   ]
 }

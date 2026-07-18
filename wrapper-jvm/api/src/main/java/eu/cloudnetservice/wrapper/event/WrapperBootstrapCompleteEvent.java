@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.cloudnet.gradle.util
+package eu.cloudnetservice.wrapper.event;
 
-object Versions {
-  const val CLOUDNET = "4.0.0-RC17-SNAPSHOT"
-  const val CLOUDNET_CODE_NAME = "Blizzard"
+import eu.cloudnetservice.driver.event.Event;
+
+/**
+ * An event called as last act of the cloudnet wrapper before the application is started. This event cannot be used by
+ * platform plugins or extensions, as this event is fired before they get enabled.
+ *
+ * @since 4.0
+ */
+public final class WrapperBootstrapCompleteEvent extends Event {
+
 }

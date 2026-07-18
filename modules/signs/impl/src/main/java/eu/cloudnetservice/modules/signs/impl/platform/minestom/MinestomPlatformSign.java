@@ -106,7 +106,7 @@ public class MinestomPlatformSign extends PlatformSign<Player, BinaryTag> {
       textCompound.put("color", serializedColor);
 
       // set the sign lines - they are provided as legacy text components and need to be converted to JSON
-      var linesCompound = ListBinaryTag.builder();
+      var linesCompound = ListBinaryTag.heterogeneousListBinaryTag();
       this.changeSignLines(layout, (_, line) -> linesCompound.add(line));
       textCompound.put("messages", linesCompound.build());
 
