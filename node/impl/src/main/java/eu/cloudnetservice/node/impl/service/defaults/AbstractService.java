@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.driver.network.NetworkChannel;
-import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.ssl.SSLConfiguration;
 import eu.cloudnetservice.driver.service.ProcessSnapshot;
 import eu.cloudnetservice.driver.service.ServiceConfiguration;
@@ -205,7 +204,14 @@ public abstract class AbstractService implements InternalCloudService {
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .build()
         .sendSingleQuery();
-      return response == null ? this.currentServiceInfo : response.content().readObject(ServiceInfoSnapshot.class);
+      return switch (response) {
+        case null -> this.currentServiceInfo;
+        case ChannelMessage channelMessage -> {
+          try (channelMessage) {
+            yield channelMessage.content().readObject(ServiceInfoSnapshot.class);
+          }
+        }
+      };
     } else {
       return this.currentServiceInfo;
     }
@@ -524,8 +530,7 @@ public abstract class AbstractService implements InternalCloudService {
         .targetService(this.serviceId().name())
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .message("request_update_service_information_with_new_properties")
-        .buffer(DataBuf.empty().writeObject(properties))
-        .build()
+        .build(buffer -> buffer.writeObject(properties))
         .send();
       return;
     }
@@ -629,8 +634,7 @@ public abstract class AbstractService implements InternalCloudService {
       .targetAll()
       .message("update_service_info")
       .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-      .buffer(DataBuf.empty().writeObject(this.currentServiceInfo))
-      .build()
+      .build(buffer -> buffer.writeObject(this.currentServiceInfo))
       .send();
   }
 
@@ -754,8 +758,7 @@ public abstract class AbstractService implements InternalCloudService {
         .targetAll()
         .message("update_service_lifecycle")
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
-        .buffer(DataBuf.empty().writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
-        .build()
+        .build(buffer -> buffer.writeObject(this.lastServiceInfo.lifeCycle()).writeObject(this.currentServiceInfo))
         .send();
     }
   }
@@ -900,12 +903,11 @@ public abstract class AbstractService implements InternalCloudService {
             .target(logTarget._1())
             .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
             .message("screen_new_line")
-            .buffer(DataBuf.empty()
+            .build(buffer -> buffer
               .writeObject(this.currentServiceInfo)
               .writeString(logTarget._2())
               .writeString(line)
               .writeBoolean(stderr))
-            .build()
             .send();
         }
       }

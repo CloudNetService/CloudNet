@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 CloudNetService team & contributors
+ * Copyright 2019-present CloudNetService team & contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
+import eu.cloudnetservice.cloudnet.gradle.util.Files
+
 plugins {
+  id("cloudnet-modules")
+  id("cloudnet-publish")
   alias(libs.plugins.shadow)
 }
 
-tasks.withType<Jar> {
-  archiveFileName.set(Files.cloudflare)
+dependencies {
+  compileOnly(libs.bundles.unirest)
+  compileOnlyApi(projects.node.nodeImpl)
+  compileOnlyApi(projects.utils.utilsBase)
+  api(projects.modules.cloudflare.cloudflareApi)
+  annotationProcessor(projects.driver.driverAp)
 }
 
-dependencies {
-  "compileOnly"(libs.bundles.unirest)
-  "compileOnly"(projects.node.nodeImpl)
-  "compileOnly"(projects.utils.utilsBase)
-
-  "annotationProcessor"(projects.driver.driverAp)
-
-  "implementation"(projects.modules.cloudflare.cloudflareApi)
+tasks.shadowJar.configure {
+  archiveFileName = Files.cloudflare
 }
 
 moduleJson {
