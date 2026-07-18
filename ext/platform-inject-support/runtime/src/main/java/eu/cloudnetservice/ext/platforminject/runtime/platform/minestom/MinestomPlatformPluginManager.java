@@ -37,7 +37,6 @@ import net.minestom.server.instance.block.BlockManager;
 import net.minestom.server.listener.manager.PacketListenerManager;
 import net.minestom.server.monitoring.BenchmarkManager;
 import net.minestom.server.network.ConnectionManager;
-import net.minestom.server.network.packet.PacketParser;
 import net.minestom.server.recipe.RecipeManager;
 import net.minestom.server.scoreboard.TeamManager;
 import net.minestom.server.timer.SchedulerManager;
@@ -61,7 +60,6 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
       layer.install(builder.bind(RecipeManager.class).toInstance(MinecraftServer.getRecipeManager()));
       layer.install(builder.bind(BossBarManager.class).toInstance(MinecraftServer.getBossBarManager()));
       layer.install(builder.bind(CommandManager.class).toInstance(MinecraftServer.getCommandManager()));
-      layer.install(builder.bind(PacketParser.class).toInstance(MinecraftServer.getPacketParser()));
       layer.install(builder.bind(InstanceManager.class).toInstance(MinecraftServer.getInstanceManager()));
       layer.install(builder.bind(ExceptionManager.class).toInstance(MinecraftServer.getExceptionManager()));
       layer.install(builder.bind(BenchmarkManager.class).toInstance(MinecraftServer.getBenchmarkManager()));
