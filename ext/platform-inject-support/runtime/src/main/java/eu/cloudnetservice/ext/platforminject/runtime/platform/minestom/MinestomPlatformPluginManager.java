@@ -26,7 +26,6 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerProcess;
 import net.minestom.server.advancements.AdvancementManager;
-import net.minestom.server.adventure.ClickCallbackManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.event.GlobalEventHandler;
@@ -67,7 +66,6 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
       layer.install(builder.bind(ExtensionManager.class).toInstance(ExtensionBootstrap.getExtensionManager()));
       layer.install(builder.bind(GlobalEventHandler.class).toInstance(MinecraftServer.getGlobalEventHandler()));
       layer.install(builder.bind(AdvancementManager.class).toInstance(MinecraftServer.getAdvancementManager()));
-      layer.install(builder.bind(ClickCallbackManager.class).toInstance(MinecraftServer.getClickCallbackManager()));
       layer.install(builder.bind(PacketListenerManager.class).toInstance(MinecraftServer.getPacketListenerManager()));
 
       // install the bindings which are specific to the plugin
