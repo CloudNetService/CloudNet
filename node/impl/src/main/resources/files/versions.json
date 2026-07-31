@@ -688,7 +688,7 @@
       "versions": [
         {
           "name": "26.2",
-          "url": "https://files.mcjars.app/spigot/26.2/4641/server.jar"
+          "url": "https://files.mcjars.app/spigot/26.2/4645/server.jar"
         },
         {
           "name": "26.1.2",
@@ -819,7 +819,7 @@
             ],
             "fetchOverFabricApi": true
           },
-          "minJavaVersion": 21
+          "minJavaVersion": 25
         },
         {
           "name": "26.1.2",
@@ -839,7 +839,7 @@
             ],
             "fetchOverFabricApi": true
           },
-          "minJavaVersion": 21
+          "minJavaVersion": 25
         },
         {
           "name": "26.1.1",
@@ -859,7 +859,7 @@
             ],
             "fetchOverFabricApi": true
           },
-          "minJavaVersion": 21
+          "minJavaVersion": 25
         },
         {
           "name": "1.21.11",

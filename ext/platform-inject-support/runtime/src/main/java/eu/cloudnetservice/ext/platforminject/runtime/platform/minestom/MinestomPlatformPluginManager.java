@@ -26,6 +26,7 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerProcess;
 import net.minestom.server.advancements.AdvancementManager;
+import net.minestom.server.adventure.ClickCallbackManager;
 import net.minestom.server.adventure.bossbar.BossBarManager;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.event.GlobalEventHandler;
@@ -35,7 +36,6 @@ import net.minestom.server.extensions.ExtensionManager;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.BlockManager;
 import net.minestom.server.listener.manager.PacketListenerManager;
-import net.minestom.server.monitoring.BenchmarkManager;
 import net.minestom.server.network.ConnectionManager;
 import net.minestom.server.recipe.RecipeManager;
 import net.minestom.server.scoreboard.TeamManager;
@@ -62,12 +62,12 @@ public final class MinestomPlatformPluginManager extends BasePlatformPluginManag
       layer.install(builder.bind(CommandManager.class).toInstance(MinecraftServer.getCommandManager()));
       layer.install(builder.bind(InstanceManager.class).toInstance(MinecraftServer.getInstanceManager()));
       layer.install(builder.bind(ExceptionManager.class).toInstance(MinecraftServer.getExceptionManager()));
-      layer.install(builder.bind(BenchmarkManager.class).toInstance(MinecraftServer.getBenchmarkManager()));
       layer.install(builder.bind(SchedulerManager.class).toInstance(MinecraftServer.getSchedulerManager()));
       layer.install(builder.bind(ConnectionManager.class).toInstance(MinecraftServer.getConnectionManager()));
       layer.install(builder.bind(ExtensionManager.class).toInstance(ExtensionBootstrap.getExtensionManager()));
       layer.install(builder.bind(GlobalEventHandler.class).toInstance(MinecraftServer.getGlobalEventHandler()));
       layer.install(builder.bind(AdvancementManager.class).toInstance(MinecraftServer.getAdvancementManager()));
+      layer.install(builder.bind(ClickCallbackManager.class).toInstance(MinecraftServer.getClickCallbackManager()));
       layer.install(builder.bind(PacketListenerManager.class).toInstance(MinecraftServer.getPacketListenerManager()));
 
       // install the bindings which are specific to the plugin
