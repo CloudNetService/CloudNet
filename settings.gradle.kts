@@ -91,6 +91,11 @@ registerSubProjects(
   subProjects = arrayOf("api", "impl"),
 )
 registerSubProjects(
+  root = "modules:database-postgres",
+  prefix = "database-postgres",
+  subProjects = arrayOf("api", "impl"),
+)
+registerSubProjects(
   root = "modules:dockerized-services",
   prefix = "dockerized-services",
   subProjects = arrayOf("api", "impl"),

@@ -34,6 +34,7 @@ xodus = "2.0.1"
 mongodb = "5.6.5"
 hikariCp = "7.0.2"
 mysqlConnector = "9.5.0"
+postgresql = "42.7.8"
 
 # general
 oshi = "6.9.2"
@@ -163,6 +164,7 @@ hikariCp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
 mongodb = { group = "org.mongodb", name = "mongodb-driver-sync", version.ref = "mongodb" }
 xodus = { group = "org.jetbrains.xodus", name = "xodus-environment", version.ref = "xodus" }
 mysqlConnector = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlConnector" }
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
 
 # platform api
 nukkitX = { group = "cn.nukkit", name = "nukkit", version.ref = "nukkitX" }
@@ -204,6 +206,7 @@ aerogelApi = ["aerogel", "aerogelAuto"]
 npcLib = ["npcLib", "npcLibLabymod"]
 unirest = ["unirest", "unirestGson"]
 mysql = ["mysqlConnector", "hikariCp"]
+postgresql = ["postgresql", "hikariCp"]
 jline = ["jlineReader", "jlineTerminal"]
 cloud = ["cloudCore", "cloudAnnotations", "cloudConfirmationProcessor"]
 cloudApi = ["cloudCoreApi", "cloudAnnotationsApi", "cloudConfirmationProcessor"]
