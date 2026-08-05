@@ -89,6 +89,54 @@
       "website": "https://papermc.io",
       "versions": [
         {
+          "name": "26.2",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.2"
+          }
+        },
+        {
+          "name": "26.1.2",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.1.2"
+          }
+        },
+        {
+          "name": "26.1.1",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.1.1"
+          }
+        },
+        {
           "name": "1.21.11",
           "cacheFiles": false,
           "properties": {
@@ -394,6 +442,22 @@
       ],
       "versions": [
         {
+          "name": "26.1.2",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.1.2"
+          }
+        },
+        {
           "name": "1.21.11",
           "cacheFiles": false,
           "properties": {
@@ -421,6 +485,51 @@
         "COPY_FILTER"
       ],
       "versions": [
+        {
+          "name": "26.2",
+          "url": "https://api.purpurmc.org/v2/purpur/26.2/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "26.1.2",
+          "url": "https://api.purpurmc.org/v2/purpur/26.1.2/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
+          "name": "26.1.1",
+          "url": "https://api.purpurmc.org/v2/purpur/26.1.1/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
         {
           "name": "1.21.11",
           "url": "https://api.purpurmc.org/v2/purpur/1.21.11/latest/download",
@@ -578,8 +687,20 @@
       ],
       "versions": [
         {
+          "name": "26.2",
+          "url": "https://files.mcjars.app/spigot/26.2/4645/server.jar"
+        },
+        {
+          "name": "26.1.2",
+          "url": "https://files.mcjars.app/spigot/26.1.2/4632/server.jar"
+        },
+        {
+          "name": "26.1.1",
+          "url": "https://files.mcjars.app/spigot/26.1.1/4617/server.jar"
+        },
+        {
           "name": "1.21.11",
-          "url": "https://files.mcjars.app/spigot/1.21.11/4578/server.jar"
+          "url": "https://files.mcjars.app/spigot/1.21.11/4598/server.jar"
         },
         {
           "name": "1.21.10",
@@ -680,6 +801,66 @@
       ],
       "website": "https://fabricmc.net",
       "versions": [
+        {
+          "name": "26.2",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 25
+        },
+        {
+          "name": "26.1.2",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 25
+        },
+        {
+          "name": "26.1.1",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 25
+        },
         {
           "name": "1.21.11",
           "cacheFiles": false,
@@ -914,6 +1095,14 @@
             "fetchOverPaperApi": true,
             "versionGroup": "3.5.0-SNAPSHOT"
           }
+        },
+        {
+          "name": "3.5.0-SNAPSHOT",
+          "cacheFiles": false,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "3.5.0-SNAPSHOT"
+          }
         }
       ]
     },
@@ -941,8 +1130,20 @@
       ],
       "versions": [
         {
+          "name": "26.2",
+          "url": "https://files.mcjars.app/loohp-limbo/26.2/75/server.jar"
+        },
+        {
+          "name": "26.1.2",
+          "url": "https://files.mcjars.app/loohp-limbo/26.1.2/74/server.jar"
+        },
+        {
+          "name": "26.1.1",
+          "url": "https://files.mcjars.app/loohp-limbo/26.1.1/73/server.jar"
+        },
+        {
           "name": "1.21.11",
-          "url": "https://files.mcjars.app/loohp-limbo/1.21.11/66/server.jar"
+          "url": "https://files.mcjars.app/loohp-limbo/1.21.11/71/server.jar"
         },
         {
           "name": "1.21.10",

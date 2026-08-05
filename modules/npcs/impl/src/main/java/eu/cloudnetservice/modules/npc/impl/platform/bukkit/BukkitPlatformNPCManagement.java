@@ -21,10 +21,7 @@ import com.github.juliarn.npclib.api.Platform;
 import com.github.juliarn.npclib.api.protocol.PlatformPacketAdapter;
 import com.github.juliarn.npclib.bukkit.BukkitPlatform;
 import com.github.juliarn.npclib.bukkit.BukkitWorldAccessor;
-import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.juliarn.npclib.ext.labymod.LabyModExtension;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
-import com.github.retrooper.packetevents.util.PEVersion;
 import com.google.common.base.Preconditions;
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.event.EventManager;
@@ -44,6 +41,7 @@ import eu.cloudnetservice.modules.npc.impl.InternalNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.platform.PlatformNPCManagement;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.EntityBukkitPlatformSelectorEntity;
 import eu.cloudnetservice.modules.npc.impl.platform.bukkit.entity.NPCBukkitPlatformSelector;
+import eu.cloudnetservice.modules.npc.impl.platform.bukkit.util.BukkitPacketAdapterUtil;
 import eu.cloudnetservice.modules.npc.platform.PlatformSelectorEntity;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import jakarta.inject.Inject;
@@ -290,15 +288,6 @@ public class BukkitPlatformNPCManagement extends
   }
 
   protected @NonNull PlatformPacketAdapter<World, Player, ItemStack, Plugin> resolvePacketAdapter() {
-    var bukkitVersion = this.server.getBukkitVersion();
-    var parsedVersion = PEVersion.fromString(bukkitVersion.substring(0, bukkitVersion.indexOf("-")));
-    var latestPEVersion = PEVersion.fromString(ServerVersion.getLatest().getReleaseName());
-    if (parsedVersion.isNewerThan(latestPEVersion)) {
-      this.plugin.getLogger().info("NPCs using ProtocolLib for version " + bukkitVersion);
-      return BukkitProtocolAdapter.protocolLib();
-    }
-
-    this.plugin.getLogger().info("NPCs using PacketEvents for version " + bukkitVersion);
-    return BukkitProtocolAdapter.packetEvents();
+    return BukkitPacketAdapterUtil.resolve();
   }
 }
