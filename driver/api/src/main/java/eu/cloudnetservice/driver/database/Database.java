@@ -307,7 +307,6 @@ public interface Database extends Named, AutoCloseable {
   CompletableFuture<Void> clearAsync();
 
   /**
-  /**
    * Get the amount of key-value pairs currently stored in the database.
    * <p>
    * The returned future, if completed successfully, completes with the amount of key-value pairs currently stored in

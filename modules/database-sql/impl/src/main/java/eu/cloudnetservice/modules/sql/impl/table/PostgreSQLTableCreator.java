@@ -37,7 +37,5 @@ public class PostgreSQLTableCreator implements TableCreator {
       .column(documentField, SQLDataType.JSONB.notNull())
       .primaryKey(keyField)
       .execute();
-
-    dslContext.execute("CREATE INDEX IF NOT EXISTS ")
   }
 }

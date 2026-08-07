@@ -88,12 +88,14 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
 
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
-    this.tableCreator.createTable(
-      this.dslContext,
-      name,
-      JooqDatabase.KEY_FIELD,
-      JooqDatabase.DOCUMENT_FIELD);
-    return new JooqDatabase(name, this, this.dslContext);
+    return this.databaseCache.get(name, _ -> {
+      this.tableCreator.createTable(
+        this.dslContext,
+        name,
+        JooqDatabase.KEY_FIELD,
+        JooqDatabase.DOCUMENT_FIELD);
+      return new JooqDatabase(name, this, this.dslContext);
+    });
   }
 
   @Override
