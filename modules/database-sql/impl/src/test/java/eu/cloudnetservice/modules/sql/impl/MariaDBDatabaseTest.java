@@ -41,6 +41,7 @@ public class MariaDBDatabaseTest extends SQLDatabaseTest {
   @BeforeAll
   static void setup() throws Exception {
     var config = new SQLConfigurationEntry(
+      true,
       DatabaseType.MARIADB,
       "mariadb",
       "cn_testing",

@@ -76,7 +76,6 @@ public enum JooqDatabaseType {
       case MARIADB -> MARIADB;
       case POSTGRES -> POSTGRESQL;
       case SQLITE -> SQLITE;
-      case MAGIC_MIKE -> throw new IllegalArgumentException("magic mike");
     };
   }
 

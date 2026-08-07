@@ -40,6 +40,7 @@ public class PostgreSQLDatabaseTest extends SQLDatabaseTest {
   @BeforeAll
   static void setup() throws Exception {
     var config = new SQLConfigurationEntry(
+      true,
       DatabaseType.POSTGRES,
       "postgres",
       "cn_testing",

@@ -40,6 +40,7 @@ public class MySQLDBDatabaseTest extends SQLDatabaseTest {
   @BeforeAll
   static void setup() throws Exception {
     var config = new SQLConfigurationEntry(
+      true,
       DatabaseType.MYSQL,
       "mysql",
       "cn_testing",

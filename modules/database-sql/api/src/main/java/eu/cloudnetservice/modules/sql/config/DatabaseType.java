@@ -17,7 +17,6 @@
 package eu.cloudnetservice.modules.sql.config;
 
 public enum DatabaseType {
-  MAGIC_MIKE,
   POSTGRES,
   MYSQL,
   MARIADB,

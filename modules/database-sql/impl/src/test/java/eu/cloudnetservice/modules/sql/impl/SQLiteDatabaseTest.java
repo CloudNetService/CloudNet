@@ -27,6 +27,7 @@ public class SQLiteDatabaseTest extends SQLDatabaseTest {
   @BeforeAll
   static void setup() throws Exception {
     var config = new SQLConfigurationEntry(
+      true,
       DatabaseType.SQLITE,
       "sqlite",
       "cn_testing",

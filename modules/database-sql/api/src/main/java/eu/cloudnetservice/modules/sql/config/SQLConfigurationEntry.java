@@ -22,6 +22,7 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public record SQLConfigurationEntry(
+  boolean enabled,
   @NonNull DatabaseType databaseType,
   @NonNull String databaseServiceName,
   @Nullable String databaseName,
@@ -45,7 +46,6 @@ public record SQLConfigurationEntry(
     var jdbcDescriptor = switch (this.databaseType) {
       case MYSQL -> "mysql";
       case MARIADB -> "mariadb";
-      case MAGIC_MIKE -> throw new IllegalArgumentException("magic mike");
       case POSTGRES -> "postgresql";
       case SQLITE -> "sqlite";
     };

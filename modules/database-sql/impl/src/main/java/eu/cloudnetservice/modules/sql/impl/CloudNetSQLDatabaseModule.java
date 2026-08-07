@@ -69,6 +69,7 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
     }
 
     var convertedConfig = new SQLConfigurationEntry(
+      true,
       DatabaseType.MYSQL,
       serviceName,
       database,
@@ -84,7 +85,8 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
     this.configuration = this.readConfig(
       SQLModuleConfiguration.class,
       () -> new SQLModuleConfiguration(List.of(new SQLConfigurationEntry(
-        DatabaseType.MAGIC_MIKE,
+        false,
+        DatabaseType.MYSQL,
         "sql",
         "cloudnet",
         "cloudnet",
@@ -95,6 +97,10 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
       DocumentFactory.json());
 
     for (var entry : this.configuration.entries()) {
+      if (!entry.enabled()) {
+        continue;
+      }
+
       var databaseType = JooqDatabaseType.fromDatabaseType(entry.databaseType());
       serviceRegistry.registerProvider(
         NodeDatabaseProvider.class,
@@ -105,7 +111,15 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.STOPPED)
   public void unregisterDatabaseProvider(@NonNull ServiceRegistry serviceRegistry) {
+    if (this.configuration == null) {
+      return;
+    }
+
     for (var entry : this.configuration.entries()) {
+      if (!entry.enabled()) {
+        continue;
+      }
+
       var service = serviceRegistry.registration(NodeDatabaseProvider.class, entry.databaseServiceName());
       if (service != null) {
         service.unregister();
