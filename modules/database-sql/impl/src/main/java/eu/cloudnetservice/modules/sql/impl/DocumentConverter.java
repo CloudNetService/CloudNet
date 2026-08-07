@@ -18,7 +18,7 @@ package eu.cloudnetservice.modules.sql.impl;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jooq.Converter;
 import org.jooq.JSONB;
 
@@ -40,12 +40,12 @@ public class DocumentConverter implements Converter<JSONB, Document> {
   }
 
   @Override
-  public @NotNull Class<JSONB> fromType() {
+  public @NonNull Class<JSONB> fromType() {
     return JSONB.class;
   }
 
   @Override
-  public @NotNull Class<Document> toType() {
+  public @NonNull Class<Document> toType() {
     return Document.class;
   }
 }
