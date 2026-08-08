@@ -39,10 +39,10 @@ public record SQLConfigurationEntry(
       return this.overrideConnectionUri;
     }
 
-    Objects.requireNonNull(this.address, "");
-    Objects.requireNonNull(this.username, "");
-    Objects.requireNonNull(this.password, "");
-    Objects.requireNonNull(this.databaseName, "");
+    Objects.requireNonNull(this.address, "Address must be set if no override connection uri is set");
+    Objects.requireNonNull(this.username, "Username must be set if no override connection uri is set");
+    Objects.requireNonNull(this.password, "Password must be set if no override connection uri is set");
+    Objects.requireNonNull(this.databaseName, "Database name must be set if no override connection uri is set");
     var jdbcDescriptor = switch (this.databaseType) {
       case MYSQL -> "mysql";
       case MARIADB -> "mariadb";
