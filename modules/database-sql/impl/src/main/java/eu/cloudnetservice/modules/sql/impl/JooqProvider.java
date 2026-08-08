@@ -105,6 +105,7 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
 
   @Override
   public boolean deleteDatabase(@NonNull String name) {
+    this.databaseCache.invalidate(name);
     return this.dslContext.dropTableIfExists(name).execute() != -1;
   }
 
