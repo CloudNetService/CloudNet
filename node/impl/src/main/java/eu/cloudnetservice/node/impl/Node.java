@@ -74,13 +74,14 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Collectors;
 import kong.unirest.core.Unirest;
 import lombok.NonNull;
 import org.slf4j.Logger;
@@ -352,40 +353,29 @@ public final class Node {
   @Inject
   @Order(600)
   private void establishNodeConnections(@NonNull @Service I18n i18n, @NonNull NodeServerProvider nodeServerProvider) {
-    // network client init
-    var nodeConnections = new Phaser(1);
-    Collection<BooleanSupplier> waitingNodeAvailableSuppliers = new LinkedList<>();
-    for (var node : nodeServerProvider.nodeServers()) {
-      // skip all node servers which are already available (normally only the local node)
-      if (node.available()) {
-        continue;
-      }
-
-      // register the connection attempt
-      nodeConnections.register();
-
-      // try to connect to the node
-      LOGGER.info(i18n.translate("start-node-connection-try", node.info().uniqueId()));
-      node.connect().whenComplete(($, exception) -> {
-        if (exception != null) {
-          // the connection couldn't be established
-          LOGGER.warn(i18n.translate("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
-        } else {
-          // wait for the node connection to become available
-          waitingNodeAvailableSuppliers.add(node::available);
-        }
-
-        // count down by one arrival
-        nodeConnections.arriveAndDeregister();
-      });
-    }
+    var nodeConnectionFutures = nodeServerProvider.nodeServers().stream()
+      .filter(node -> !node.available())
+      .map(node -> {
+        LOGGER.info(i18n.translate("start-node-connection-try", node.info().uniqueId()));
+        return node.connect()
+          .thenApply(_ -> (BooleanSupplier) node::available)
+          .exceptionally(exception -> {
+            LOGGER.warn(i18n.translate("start-node-connection-failure", node.info().uniqueId(), exception.getMessage()));
+            return null;
+          });
+      }).toList();
 
     // wait for all connections to establish (or fail during connect)
-    nodeConnections.arriveAndAwaitAdvance();
+    Collection<BooleanSupplier> waitingNodeAvailableSuppliers = CompletableFuture
+      .allOf(nodeConnectionFutures.toArray(CompletableFuture[]::new))
+      .thenApply(_ -> nodeConnectionFutures.stream()
+        .map(CompletableFuture::resultNow)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList()))
+      .join();
 
     // now we can wait for all nodes to become available (if needed)
     if (!waitingNodeAvailableSuppliers.isEmpty()) {
-      // notify the user that we're waiting
       LOGGER.info(i18n.translate("start-node-connection-waiting", waitingNodeAvailableSuppliers.size()));
 
       var waitStartInstant = Instant.now();
@@ -393,18 +383,16 @@ public final class Node {
         // remove all boolean suppliers that were notified that the node is available
         waitingNodeAvailableSuppliers.removeIf(BooleanSupplier::getAsBoolean);
 
-        // time-out this loop if we waited for more than 7 seconds
         var waitDuration = Duration.between(waitStartInstant, Instant.now());
         if (waitDuration.getSeconds() >= 7) {
           break;
         }
 
         try {
-          // wait for a tiny bit before checking again
           //noinspection BusyWait
           Thread.sleep(50L);
         } catch (InterruptedException exception) {
-          Thread.currentThread().interrupt(); // reset the interrupted state of the thread
+          Thread.currentThread().interrupt();
           throw new IllegalThreadStateException();
         }
       }
