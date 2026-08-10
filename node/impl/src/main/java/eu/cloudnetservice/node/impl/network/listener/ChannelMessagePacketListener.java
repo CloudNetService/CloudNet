@@ -18,6 +18,7 @@ package eu.cloudnetservice.node.impl.network.listener;
 
 import eu.cloudnetservice.driver.ComponentInfo;
 import eu.cloudnetservice.driver.channel.ChannelMessage;
+import eu.cloudnetservice.driver.event.EventListenerException;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.event.events.channel.ChannelMessageReceiveEvent;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -79,7 +80,13 @@ public final class ChannelMessagePacketListener implements PacketListener {
       var messageContent = channelMessage.content();
       messageContent.startTransaction(); // to reset after listeners were called
 
-      var event = this.eventManager.callEvent(new ChannelMessageReceiveEvent(channelMessage, channel, isQuery));
+      var event = new ChannelMessageReceiveEvent(channelMessage, channel, isQuery);
+      try {
+        this.eventManager.callEvent(event);
+      } catch (EventListenerException exception) {
+        LOGGER.warn("Exception while handling channel message receive event for {}", event.channelMessage(), exception);
+      }
+
       var responseTask = event.queryResponse();
       if (responseTask != null) {
         responseTask
