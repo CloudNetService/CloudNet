@@ -30,7 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class PostgreSQLDatabaseTest extends SQLDatabaseTest {
 
   @Container
-  private static final GenericContainer<?> postgresContainer = new GenericContainer<>("postgres:latest")
+  private static final GenericContainer<?> POSTGRES_CONTAINER = new GenericContainer<>("postgres:latest")
     .withExposedPorts(5432)
     .withEnv("POSTGRES_USER", "test")
     .withEnv("POSTGRES_PASSWORD", "test")
@@ -46,7 +46,7 @@ public class PostgreSQLDatabaseTest extends SQLDatabaseTest {
       "cn_testing",
       "test",
       "test",
-      new HostAndPort(postgresContainer.getHost(), postgresContainer.getFirstMappedPort()),
+      new HostAndPort(POSTGRES_CONTAINER.getHost(), POSTGRES_CONTAINER.getFirstMappedPort()),
       null);
     databaseProvider = JooqDatabaseType.POSTGRESQL.createProvider(config);
     databaseProvider.init();

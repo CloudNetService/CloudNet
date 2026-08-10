@@ -30,7 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class MariaDBDatabaseTest extends SQLDatabaseTest {
 
   @Container
-  private static final GenericContainer<?> mariaContainer = new GenericContainer<>("mariadb:latest")
+  private static final GenericContainer<?> MARIA_CONTAINER = new GenericContainer<>("mariadb:latest")
     .withExposedPorts(3306)
     .withEnv("MYSQL_USER", "test")
     .withEnv("MYSQL_PASSWORD", "test")
@@ -47,7 +47,7 @@ public class MariaDBDatabaseTest extends SQLDatabaseTest {
       "cn_testing",
       "test",
       "test",
-      new HostAndPort(mariaContainer.getHost(), mariaContainer.getFirstMappedPort()),
+      new HostAndPort(MARIA_CONTAINER.getHost(), MARIA_CONTAINER.getFirstMappedPort()),
       null);
     databaseProvider = JooqDatabaseType.MARIADB.createProvider(config);
     databaseProvider.init();

@@ -30,7 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class MySQLDBDatabaseTest extends SQLDatabaseTest {
 
   @Container
-  private static final GenericContainer<?> mysqlContainer = new GenericContainer<>("mysql:latest")
+  private static final GenericContainer<?> MYSQL_CONTAINER = new GenericContainer<>("mysql:latest")
     .withExposedPorts(3306)
     .withEnv("MYSQL_USER", "test")
     .withEnv("MYSQL_PASSWORD", "test")
@@ -46,7 +46,7 @@ public class MySQLDBDatabaseTest extends SQLDatabaseTest {
       "cn_testing",
       "test",
       "test",
-      new HostAndPort(mysqlContainer.getHost(), mysqlContainer.getFirstMappedPort()),
+      new HostAndPort(MYSQL_CONTAINER.getHost(), MYSQL_CONTAINER.getFirstMappedPort()),
       null);
     databaseProvider = JooqDatabaseType.MYSQL.createProvider(config);
     databaseProvider.init();
