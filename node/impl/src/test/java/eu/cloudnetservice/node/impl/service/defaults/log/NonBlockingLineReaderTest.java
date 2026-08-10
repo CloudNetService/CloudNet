@@ -48,6 +48,15 @@ public class NonBlockingLineReaderTest {
   }
 
   @Test
+  void testClosingReaderIsIdempotent() {
+    var source = new StringReader("Hello\nWorld");
+    var reader = new NonBlockingLineReader(source);
+
+    Assertions.assertDoesNotThrow(reader::close);
+    Assertions.assertDoesNotThrow(reader::close);
+  }
+
+  @Test
   void testMultipleNewlinesAreParsedCorrectly() throws IOException {
     var source = new StringReader("Hello\n\nWorld\n");
     var reader = new NonBlockingLineReader(source);
