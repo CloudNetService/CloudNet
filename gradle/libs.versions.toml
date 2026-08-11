@@ -36,7 +36,7 @@ hikariCp = "7.0.2"
 mysqlConnector = "9.7.0"
 
 # general
-oshi = "6.9.2"
+oshi = "7.4.4"
 gulf = "0.0.1"
 vavr = "1.0.1"
 sshj = "0.40.0"
@@ -145,7 +145,7 @@ vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
-oshi = { group = "com.github.oshi", name = "oshi-core-java25", version.ref = "oshi" }
+oshi = { group = "com.github.oshi", name = "oshi-core-ffm", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
