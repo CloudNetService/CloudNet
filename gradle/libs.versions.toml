@@ -4,7 +4,7 @@
 indra = "4.0.0"
 shadow = "9.3.1"
 juppiter = "0.5.0-beta.2"
-spotless = "8.1.0"
+spotless = "8.9.0"
 nexusPublish = "2.0.0"
 checkstyleTools = "13.0.0"
 
