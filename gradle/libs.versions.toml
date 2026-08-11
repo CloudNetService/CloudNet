@@ -36,7 +36,7 @@ hikariCp = "7.0.2"
 mysqlConnector = "9.7.0"
 
 # general
-oshi = "6.9.2"
+oshi = "6.12.0"
 gulf = "0.0.1"
 vavr = "1.0.1"
 sshj = "0.40.0"
