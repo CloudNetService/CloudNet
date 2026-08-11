@@ -15,14 +15,14 @@ guava = "33.6.0-jre"
 # testing
 junit = "6.0.3"
 mockito = "5.21.0"
-testcontainers = "2.0.4"
+testcontainers = "2.0.5"
 
 # compile time processing
-lombok = "1.18.44"
+lombok = "1.18.46"
 javapoet = "1.13.0"
 
 # console
-jline = "3.30.9"
+jline = "3.30.16"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
 stringSimilarity = "2.0.0"
@@ -43,7 +43,7 @@ sshj = "0.40.0"
 aerogel = "3.1.0"
 awsSdk = "2.41.11"
 unirest = "4.7.4"
-caffeine = "3.2.3"
+caffeine = "3.2.4"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
 dockerJava = "3.7.1"
@@ -53,12 +53,12 @@ influxClient = "7.4.0"
 netty = "2025.11.08-3a259e91"
 
 # logging
-slf4j = "2.0.17"
+slf4j = "2.0.18"
 logback = "1.5.32"
 
 # platform api versions
 sponge = "9.0.0"
-velocity = "3.5.0-SNAPSHOT"
+velocity = "3.5.1"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
 minestom = "2026.07.22-26.2"
