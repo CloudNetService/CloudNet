@@ -32,7 +32,7 @@ cloudConfirmation = "1.0.0-rc.1"
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "5.6.5"
-hikariCp = "7.0.2"
+hikariCp = "7.1.0"
 mysqlConnector = "9.7.0"
 
 # general
