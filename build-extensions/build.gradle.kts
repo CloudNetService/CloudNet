@@ -26,7 +26,7 @@ kotlin.jvmToolchain {
 
 dependencies {
   implementation(libs.gson)
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
   implementation("net.kyori:indra-git:${libs.versions.indra.get()}")
   implementation("eu.cloudnetservice.gradle:juppiter:${libs.versions.juppiter.get()}")
