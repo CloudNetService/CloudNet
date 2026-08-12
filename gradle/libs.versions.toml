@@ -4,25 +4,25 @@
 indra = "4.0.0"
 shadow = "9.3.1"
 juppiter = "0.5.0-beta.2"
-spotless = "8.1.0"
+spotless = "8.9.0"
 nexusPublish = "2.0.0"
-checkstyleTools = "13.0.0"
+checkstyleTools = "13.10.0"
 
 # google libs
-gson = "2.13.2"
+gson = "2.14.0"
 guava = "33.6.0-jre"
 
 # testing
 junit = "6.0.3"
 mockito = "5.21.0"
-testcontainers = "2.0.4"
+testcontainers = "2.0.5"
 
 # compile time processing
-lombok = "1.18.44"
+lombok = "1.18.46"
 javapoet = "1.13.0"
 
 # console
-jline = "3.30.9"
+jline = "3.30.16"
 cloud = "2.0.0-cn1"
 cloudApi = "2.0.0"
 stringSimilarity = "2.0.0"
@@ -36,14 +36,14 @@ hikariCp = "7.0.2"
 mysqlConnector = "9.7.0"
 
 # general
-oshi = "6.9.2"
+oshi = "7.4.4"
 gulf = "0.0.1"
 vavr = "1.0.1"
 sshj = "0.40.0"
 aerogel = "3.1.0"
 awsSdk = "2.41.11"
 unirest = "4.7.4"
-caffeine = "3.2.3"
+caffeine = "3.2.4"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
 dockerJava = "3.7.1"
@@ -53,15 +53,15 @@ influxClient = "7.4.0"
 netty = "2025.11.08-3a259e91"
 
 # logging
-slf4j = "2.0.17"
+slf4j = "2.0.18"
 logback = "1.5.32"
 
 # platform api versions
 sponge = "9.0.0"
-velocity = "3.5.0-SNAPSHOT"
+velocity = "3.5.1"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
-minestom = "2026.07.22-26.2"
+minestom = "2026.08.07-26.2"
 minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "26.1-R0.1-SNAPSHOT"
@@ -73,7 +73,7 @@ adventure = "4.26.1"
 modlauncher = "8.1.3"
 npcLib = "3.0.0-beta.17"
 packetEvents = "2.13.0"
-placeholderApi = "2.11.7"
+placeholderApi = "2.12.3"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
 fabricLoader = "0.19.3"
@@ -145,7 +145,7 @@ vavr = { group = "io.vavr", name = "vavr", version.ref = "vavr" }
 sshj = { group = "com.hierynomus", name = "sshj", version.ref = "sshj" }
 gulf = { group = "dev.derklaro.gulf", name = "gulf", version.ref = "gulf" }
 awsSdk = { group = "software.amazon.awssdk", name = "s3", version.ref = "awsSdk" }
-oshi = { group = "com.github.oshi", name = "oshi-core-java25", version.ref = "oshi" }
+oshi = { group = "com.github.oshi", name = "oshi-core-ffm", version.ref = "oshi" }
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
 geantyref = { group = "io.leangen.geantyref", name = "geantyref", version.ref = "geantyref" }
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }
