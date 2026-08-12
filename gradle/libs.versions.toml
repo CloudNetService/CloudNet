@@ -1,7 +1,7 @@
 [versions]
 
 # plugins
-indra = "4.0.0"
+indra = "4.1.0"
 shadow = "9.3.1"
 juppiter = "0.5.0-beta.2"
 spotless = "8.9.0"
