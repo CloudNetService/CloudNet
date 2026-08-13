@@ -53,11 +53,11 @@ import eu.cloudnetservice.node.impl.service.defaults.config.WaterdogPEConfigurat
 import eu.cloudnetservice.node.impl.service.defaults.factory.JVMLocalCloudServiceFactory;
 import eu.cloudnetservice.node.impl.service.defaults.provider.EmptySpecificCloudServiceProvider;
 import eu.cloudnetservice.node.impl.service.defaults.provider.RemoteNodeCloudServiceProvider;
-import eu.cloudnetservice.node.impl.tick.DefaultTickLoop;
 import eu.cloudnetservice.node.service.CloudService;
 import eu.cloudnetservice.node.service.CloudServiceManager;
 import eu.cloudnetservice.node.service.LocalCloudServiceFactory;
 import eu.cloudnetservice.node.service.ServiceConfigurationPreparer;
+import eu.cloudnetservice.node.tick.Scheduler;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import io.vavr.Tuple2;
 import jakarta.inject.Inject;
@@ -88,6 +88,9 @@ import org.slf4j.LoggerFactory;
 @Provides({InternalCloudServiceManager.class, CloudServiceManager.class, CloudServiceProvider.class})
 public class DefaultCloudServiceManager implements InternalCloudServiceManager {
 
+  protected static final int SERVICE_WATCHDOG_INTERVAL_MILLIS =
+    Integer.getInteger("cloudnet.service-watchdog-interval-millis", 1000);
+
   protected static final Path TEMP_SERVICE_DIR = Path.of(
     System.getProperty("cloudnet.tempDir.services", "temp/services"));
   protected static final Path PERSISTENT_SERVICE_DIR = Path.of(
@@ -117,7 +120,6 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
 
   @Inject
   public DefaultCloudServiceManager(
-    @NonNull DefaultTickLoop mainThread,
     @NonNull RPCFactory rpcFactory,
     @NonNull EventManager eventManager,
     @NonNull DataSyncRegistry dataSyncRegistry,
@@ -170,9 +172,16 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
         })
         .currentGetter(group -> this.serviceProviderByName(group.name()).serviceInfo())
         .build());
+  }
 
-    // schedule the service watchdog to run once per second
-    mainThread.scheduleTask(() -> {
+  @Inject
+  private void registerDefaultServiceFactory() {
+    this.addCloudServiceFactory("jvm", JVMLocalCloudServiceFactory.class);
+  }
+
+  @Inject
+  private void scheduleWatchdog(@NonNull Scheduler scheduler, @NonNull EventManager eventManager) {
+    scheduler.scheduleTask(() -> {
       for (var service : this.localCloudServices()) {
         if (service.lifeCycle() == ServiceLifeCycle.RUNNING && !service.alive()) {
           eventManager.callEvent(new CloudServicePreForceStopEvent(service));
@@ -181,12 +190,7 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
         }
       }
       return null;
-    }, Duration.ofMillis(DefaultTickLoop.MILLIS_BETWEEN_TICKS));
-  }
-
-  @Inject
-  private void registerDefaultServiceFactory() {
-    this.addCloudServiceFactory("jvm", JVMLocalCloudServiceFactory.class);
+    }, Duration.ofMillis(SERVICE_WATCHDOG_INTERVAL_MILLIS));
   }
 
   @Override
