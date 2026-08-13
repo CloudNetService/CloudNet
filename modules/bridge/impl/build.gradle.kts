@@ -70,7 +70,7 @@ tasks.withType<JavaCompile> {
 
 val zipFileName = "cloudnet_fabric_version_bridge_all.zip"
 val downloadUrl = "https://github.com/CloudNetService/cloudnet-bridge-fabric/releases/latest/download/$zipFileName"
-val includeNestedModJars by tasks.registering(IncludeNestedModJarsTask::class) {
+val includeNestedModJars = tasks.register<IncludeNestedModJarsTask>("includeNestedModJars") {
   dependsOn(tasks.compileJava)
 
   nestedZipDownloadUrl.set(downloadUrl)
