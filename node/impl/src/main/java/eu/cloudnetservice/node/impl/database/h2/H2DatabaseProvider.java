@@ -17,7 +17,7 @@
 package eu.cloudnetservice.node.impl.database.h2;
 
 import eu.cloudnetservice.node.database.LocalDatabase;
-import eu.cloudnetservice.node.impl.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import io.vavr.CheckedFunction1;
@@ -33,13 +33,18 @@ import lombok.NonNull;
 import org.h2.Driver;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Deprecated(forRemoval = true)
-public final class H2DatabaseProvider extends SQLDatabaseProvider {
+public final class H2DatabaseProvider extends AbstractNodeDatabaseProvider {
 
   static {
     Driver.load();
   }
+
+  private static final String[] TABLE_TYPE = new String[]{"TABLE"};
+  private static final Logger LOGGER = LoggerFactory.getLogger(H2DatabaseProvider.class);
 
   private final Path h2dbFile;
   private Connection connection;
@@ -47,6 +52,11 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   public H2DatabaseProvider(@NonNull String h2File) {
     super(DEFAULT_REMOVAL_LISTENER);
     this.h2dbFile = Path.of(h2File);
+  }
+
+  @Override
+  public boolean synced() {
+    return false;
   }
 
   @Override
@@ -60,6 +70,17 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
   @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
     return this.databaseCache.get(name, $ -> new H2Database(this, name));
+  }
+
+  @Override
+  public boolean containsDatabase(@NonNull String name) {
+    for (var database : this.databaseNames()) {
+      if (database.equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override
@@ -96,14 +117,8 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
   }
 
-  @Override
-  public @NonNull Connection connection() {
-    return this.connection;
-  }
-
-  @Override
   public int executeUpdate(@NonNull String query, @NonNull Object... objects) {
-    try (var preparedStatement = this.connection().prepareStatement(query)) {
+    try (var preparedStatement = this.connection.prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }
@@ -115,14 +130,13 @@ public final class H2DatabaseProvider extends SQLDatabaseProvider {
     }
   }
 
-  @Override
   public @UnknownNullability <T> T executeQuery(
     @NonNull String query,
     @NonNull CheckedFunction1<ResultSet, T> callback,
     @Nullable T def,
     @NonNull Object... objects
   ) {
-    try (var preparedStatement = this.connection().prepareStatement(query)) {
+    try (var preparedStatement = this.connection.prepareStatement(query)) {
       for (var i = 0; i < objects.length; i++) {
         preparedStatement.setString(i + 1, objects[i].toString());
       }

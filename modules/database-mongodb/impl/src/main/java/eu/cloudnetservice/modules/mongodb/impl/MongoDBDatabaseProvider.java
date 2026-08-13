@@ -52,6 +52,11 @@ public class MongoDBDatabaseProvider extends AbstractNodeDatabaseProvider {
   }
 
   @Override
+  public boolean synced() {
+    return true;
+  }
+
+  @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
     return this.databaseCache.get(name, $ -> {
       var collection = this.mongoDatabase.getCollection(name);

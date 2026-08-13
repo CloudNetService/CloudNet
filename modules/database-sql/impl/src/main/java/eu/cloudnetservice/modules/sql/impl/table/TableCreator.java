@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package eu.cloudnetservice.node.database;
+package eu.cloudnetservice.modules.sql.impl.table;
 
-import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.document.Document;
-import java.util.Map;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
+import org.jooq.DSLContext;
+import org.jooq.Field;
 
-public interface LocalDatabase extends Database {
+@FunctionalInterface
+public interface TableCreator {
 
-  /**
-   * Iterates over all entries in the database, but in chunks in the given size
-   *
-   * @param consumer  the consumer to pass the entries into
-   * @param chunkSize the chunkSize of the entries
-   */
-  void iterate(@NonNull BiConsumer<String, Document> consumer, int chunkSize);
+  void createTable(
+    @NonNull DSLContext dslContext,
+    @NonNull String name,
+    @NonNull Field<String> keyField,
+    @NonNull Field<Document> documentField);
 
-  @Nullable Map<String, Document> readChunk(long beginIndex, int chunkSize);
 }

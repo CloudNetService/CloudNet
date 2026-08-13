@@ -18,8 +18,7 @@ package eu.cloudnetservice.node.impl.database.h2;
 
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
-import eu.cloudnetservice.node.impl.database.sql.SQLDatabase;
-import eu.cloudnetservice.node.impl.database.sql.SQLDatabaseProvider;
+import eu.cloudnetservice.node.impl.database.AbstractDatabase;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,14 +28,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class H2Database extends SQLDatabase {
+@Deprecated(forRemoval = true)
+public final class H2Database extends AbstractDatabase {
 
-  public H2Database(@NonNull SQLDatabaseProvider provider, @NonNull String name) {
-    super(provider, name);
+  private static final String TABLE_COLUMN_KEY = "Name";
+  private static final String TABLE_COLUMN_VAL = "Document";
+
+  private final H2DatabaseProvider databaseProvider;
+
+  public H2Database(@NonNull H2DatabaseProvider provider, @NonNull String name) {
+    super(name, provider);
+
+    this.databaseProvider = provider;
 
     // create the table
     provider.executeUpdate(String.format(
@@ -201,21 +207,6 @@ public final class H2Database extends SQLDatabase {
 
         return map;
       }, Map.of());
-  }
-
-  @Override
-  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
-    this.databaseProvider.executeQuery(
-      String.format("SELECT * FROM `%s`;", this.name),
-      resultSet -> {
-        while (resultSet.next()) {
-          var key = resultSet.getString(TABLE_COLUMN_KEY);
-          var document = DocumentFactory.json().parse(resultSet.getString(TABLE_COLUMN_VAL));
-          consumer.accept(key, document);
-        }
-
-        return null;
-      }, null);
   }
 
   @Override
