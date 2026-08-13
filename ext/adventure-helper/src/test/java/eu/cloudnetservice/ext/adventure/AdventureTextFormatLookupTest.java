@@ -17,8 +17,8 @@
 package eu.cloudnetservice.ext.adventure;
 
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.format.TextFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -66,7 +66,6 @@ class AdventureTextFormatLookupTest {
     Assertions.assertEquals('k', AdventureTextFormatLookup.findFormatChar(TextDecoration.OBFUSCATED));
     Assertions.assertEquals('m', AdventureTextFormatLookup.findFormatChar(TextDecoration.STRIKETHROUGH));
 
-    Assertions.assertNull(AdventureTextFormatLookup.findFormatChar(new TextFormat() {
-    }));
+    Assertions.assertNull(AdventureTextFormatLookup.findFormatChar(TextColor.color(0x123456)));
   }
 }
