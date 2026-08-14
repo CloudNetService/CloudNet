@@ -54,7 +54,7 @@ netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.18"
-logback = "1.5.32"
+logback = "1.6.3"
 
 # platform api versions
 sponge = "9.0.0"
