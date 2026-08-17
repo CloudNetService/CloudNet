@@ -130,7 +130,7 @@ public sealed interface ModuleConfigContainer<T> permits SingleModuleConfigConta
   /**
    * Registers a transformer to this container. Transformers are called when a document is loaded by this container,
    * before it gets converted to a configuration model. This can, for example, be useful for migrating a configuration
-   * from an old version to fit the new schema. The transformer can return null to indicate that no noteable change was
+   * from an old version to fit the new schema. The transformer can return null to indicate that no notable change was
    * made. The document is instantly flushed back to the storage if the returned document does not equal the original
    * document (unless the transformer returns null).
    *

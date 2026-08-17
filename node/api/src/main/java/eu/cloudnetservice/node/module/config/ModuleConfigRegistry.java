@@ -26,7 +26,8 @@ import org.jetbrains.annotations.UnmodifiableView;
 /**
  * A registry of configurations that were loaded for a module during its lifetime. This can, for example, be used as a
  * hooking point for debugging modules to expose the loaded configurations. Direct registration of configurations is
- * explicitly not exposed into the api and should be done.
+ * explicitly not exposed into the api. Registration of configuration containers is handled by
+ * {@link #configContainer(ModuleConfigProperties)} on demand if not done before by another caller.
  *
  * @since 4.0
  */
