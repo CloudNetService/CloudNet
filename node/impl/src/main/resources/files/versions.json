@@ -89,6 +89,22 @@
       "website": "https://papermc.io",
       "versions": [
         {
+          "name": "26.3",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.3"
+          }
+        },
+        {
           "name": "26.2",
           "cacheFiles": false,
           "properties": {
@@ -486,6 +502,21 @@
       ],
       "versions": [
         {
+          "name": "26.3",
+          "url": "https://api.purpurmc.org/v2/purpur/26.3/latest/download",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "purpur\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ]
+          }
+        },
+        {
           "name": "26.2",
           "url": "https://api.purpurmc.org/v2/purpur/26.2/latest/download",
           "cacheFiles": false,
@@ -687,8 +718,12 @@
       ],
       "versions": [
         {
+          "name": "26.3",
+          "url": "https://files.mcjars.app/spigot/26.3/4658/server.jar"
+        },
+        {
           "name": "26.2",
-          "url": "https://files.mcjars.app/spigot/26.2/4645/server.jar"
+          "url": "https://files.mcjars.app/spigot/26.2/4648/server.jar"
         },
         {
           "name": "26.1.2",
@@ -801,6 +836,26 @@
       ],
       "website": "https://fabricmc.net",
       "versions": [
+        {
+          "name": "26.3",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "fabric-server-launch\\.jar": "fabric.jar",
+              "libraries/.*": "/",
+              "versions/.*": "/",
+              "server\\.jar": "server.jar"
+            },
+            "parameters": [
+              "server",
+              "-mcversion",
+              "%version%",
+              "-downloadMinecraft"
+            ],
+            "fetchOverFabricApi": true
+          },
+          "minJavaVersion": 25
+        },
         {
           "name": "26.2",
           "cacheFiles": false,
@@ -1129,6 +1184,10 @@
         "DOWNLOAD"
       ],
       "versions": [
+        {
+          "name": "26.3",
+          "url": "https://files.mcjars.app/loohp-limbo/26.3/76/server.jar"
+        },
         {
           "name": "26.2",
           "url": "https://files.mcjars.app/loohp-limbo/26.2/75/server.jar"
