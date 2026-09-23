@@ -22,16 +22,16 @@ lombok = "1.18.46"
 javapoet = "1.13.0"
 
 # console
-jline = "4.3.1"
+jline = "4.4.5"
 cloud = "2.0.0-cn1"
-cloudApi = "2.0.0"
+cloudApi = "2.1.0"
 stringSimilarity = "2.0.0"
 cloudConfirmation = "1.0.0-rc.1"
 
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.9.2"
+mongodb = "5.12.0"
 hikariCp = "7.1.0"
 mysqlConnector = "26.7.0"
 
@@ -41,7 +41,7 @@ gulf = "0.0.1"
 vavr = "1.0.1"
 sshj = "0.40.0"
 aerogel = "3.1.0"
-awsSdk = "2.52.1"
+awsSdk = "2.55.1"
 unirest = "4.10.1"
 caffeine = "3.2.4"
 reflexion = "2.0.0"
@@ -54,11 +54,11 @@ netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.18"
-logback = "1.6.2"
+logback = "1.6.3"
 
 # platform api versions
 sponge = "9.0.0"
-velocity = "4.0.0"
+velocity = "4.2.0"
 waterdogpe = "1.2.4"
 nukkitX = "1.0-SNAPSHOT"
 minestom = "2026.08.07-26.2"
