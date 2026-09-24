@@ -39,7 +39,10 @@ import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -48,6 +51,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
@@ -132,6 +136,31 @@ final class BungeeCordBridgeManagement extends PlatformBridgeManagement<ProxiedP
       player.getServer() == null ? null : player.getServer().getInfo().getName(),
       this.getVirtualHostString(player.getPendingConnection()),
       player::hasPermission);
+  }
+
+  @Override
+  public @NonNull List<String> consoleSuggestion(@NonNull String line) {
+    // BungeeCord have not provided tab-complete as root directly. we need to process manually
+    var console = this.proxyServer.getConsole();
+    List<String> suggestions = new ArrayList<>();
+
+    if (line.indexOf(' ') == -1) {
+      for (Map.Entry<String, Command> entry : this.proxyServer.getPluginManager().getCommands()) {
+        var name = entry.getKey();
+        if (name.startsWith(line)) {
+          var command = entry.getValue();
+          String permission = command.getPermission();
+          if (permission == null || permission.isEmpty() || console.hasPermission(permission)) {
+            suggestions.add(command.getName());
+          }
+        }
+      }
+    } else {
+      // Complete command arguments
+      this.proxyServer.getPluginManager().dispatchCommand(console, line, suggestions);
+    }
+
+    return suggestions;
   }
 
   @Override
