@@ -333,7 +333,7 @@ public final class JLine3Console implements Console {
 
   @Override
   public int width() {
-    return this.terminal.getWidth();
+    return this.terminal.getColumns();
   }
 
   @Override

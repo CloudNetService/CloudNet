@@ -68,22 +68,27 @@ public final class VelocityBridgePlugin implements PlatformEntrypoint {
 
   @Override
   public void onLoad() {
-    // init the bridge management
     this.bridgeManagement.registerServices(this.serviceRegistry);
     this.bridgeManagement.postInit();
-    // register the player listeners
+
     this.proxy.getEventManager().register(this.pluginInstance, this.playerListener);
-    // register the cloud command
-    this.proxy.getCommandManager().register("cloudnet", this.cloudCommand, "cloud");
+
+    var cloudCommandMeta = this.proxy.getCommandManager()
+      .metaBuilder("cloud")
+      .aliases("cloudnet")
+      .build();
+    this.proxy.getCommandManager().register(cloudCommandMeta, this.cloudCommand);
+
     // register the hub command if requested
     if (!this.bridgeManagement.configuration().hubCommandNames().isEmpty()) {
-      // convert to an array for easier access
       var names = this.bridgeManagement.configuration().hubCommandNames().toArray(new String[0]);
-      // register the command
+      var hubCommandMeta = this.proxy.getCommandManager()
+        .metaBuilder(names[0])
+        .aliases(names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0])
+        .build();
       this.proxy.getCommandManager().register(
-        names[0],
-        new VelocityHubCommand(this.proxy, this.bridgeManagement),
-        names.length > 1 ? Arrays.copyOfRange(names, 1, names.length) : new String[0]);
+        hubCommandMeta,
+        new VelocityHubCommand(this.proxy, this.bridgeManagement));
     }
   }
 

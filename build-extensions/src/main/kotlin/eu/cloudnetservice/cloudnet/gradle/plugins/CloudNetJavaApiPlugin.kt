@@ -26,7 +26,7 @@ import org.gradle.kotlin.dsl.withType
 /**
  * Java version compatibility to apply to all api projects.
  */
-val JAVA_API_COMPATIBILITY = JavaLanguageVersion.of(17)
+val JAVA_API_COMPATIBILITY = JavaLanguageVersion.of(21)
 
 class CloudNetJavaApiPlugin : Plugin<Project> {
   override fun apply(project: Project) {
