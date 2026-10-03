@@ -18,11 +18,11 @@ mockito = "5.23.0"
 testcontainers = "2.0.5"
 
 # compile time processing
-lombok = "1.18.46"
+lombok = "1.18.48"
 javapoet = "1.13.0"
 
 # console
-jline = "4.4.5"
+jline = "4.4.6"
 cloud = "2.0.0-cn1"
 cloudApi = "2.1.0"
 stringSimilarity = "2.0.0"
@@ -41,7 +41,7 @@ gulf = "0.0.1"
 vavr = "1.0.1"
 sshj = "0.40.0"
 aerogel = "3.1.0"
-awsSdk = "2.55.1"
+awsSdk = "2.55.11"
 unirest = "4.10.1"
 caffeine = "3.2.4"
 reflexion = "2.0.0"
@@ -53,8 +53,8 @@ influxClient = "7.4.0"
 netty = "2025.11.08-3a259e91"
 
 # logging
-slf4j = "2.0.18"
-logback = "1.6.3"
+slf4j = "2.0.20"
+logback = "1.6.5"
 
 # platform api versions
 sponge = "9.0.0"
@@ -76,7 +76,7 @@ packetEvents = "2.13.0"
 placeholderApi = "2.12.3"
 adventure-serializer-bungee = "4.4.1"
 luckPermsApi = "5.5"
-fabricLoader = "0.19.3"
+fabricLoader = "0.19.5"
 
 
 [libraries]
