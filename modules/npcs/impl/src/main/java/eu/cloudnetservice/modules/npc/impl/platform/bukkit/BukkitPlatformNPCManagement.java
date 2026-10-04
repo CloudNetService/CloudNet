@@ -103,7 +103,6 @@ public class BukkitPlatformNPCManagement extends
     if (entry != null) {
       this.npcPlatform = BukkitPlatform.bukkitNpcPlatformBuilder()
         .extension(plugin)
-        .debug(true)
         .actionController(builder -> builder
           .flag(NpcActionController.SPAWN_DISTANCE, entry.npcPoolOptions().spawnDistance())
           .flag(NpcActionController.IMITATE_DISTANCE, entry.npcPoolOptions().actionDistance()))
