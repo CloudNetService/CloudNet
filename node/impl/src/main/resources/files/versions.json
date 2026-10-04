@@ -458,6 +458,22 @@
       ],
       "versions": [
         {
+          "name": "26.2",
+          "cacheFiles": false,
+          "properties": {
+            "copy": {
+              "cache/.*": "/",
+              "versions/.*": "/",
+              "paper\\.jar": "paper.jar"
+            },
+            "jvmOptions": [
+              "-Dpaperclip.patchonly=true"
+            ],
+            "fetchOverPaperApi": true,
+            "versionGroup": "26.2"
+          }
+        },
+        {
           "name": "26.1.2",
           "cacheFiles": false,
           "properties": {
@@ -719,7 +735,7 @@
       "versions": [
         {
           "name": "26.3",
-          "url": "https://files.mcjars.app/spigot/26.3/4658/server.jar"
+          "url": "https://files.mcjars.app/spigot/26.3/4659/server.jar"
         },
         {
           "name": "26.2",
@@ -1148,15 +1164,22 @@
           "cacheFiles": false,
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.5.0-SNAPSHOT"
+            "versionGroup": "4.2.1-SNAPSHOT"
           }
         },
         {
-          "name": "3.5.0-SNAPSHOT",
-          "cacheFiles": false,
+          "name": "4.2.0",
           "properties": {
             "fetchOverPaperApi": true,
-            "versionGroup": "3.5.0-SNAPSHOT"
+            "versionGroup": "4.2.0"
+          }
+        },
+        {
+          "name": "3.5.1",
+          "deprecated": true,
+          "properties": {
+            "fetchOverPaperApi": true,
+            "versionGroup": "3.5.1"
           }
         }
       ]
