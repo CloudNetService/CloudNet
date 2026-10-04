@@ -22,10 +22,7 @@ import com.electronwill.nightconfig.core.io.ConfigParser;
 import com.electronwill.nightconfig.core.io.ConfigWriter;
 import eu.cloudnetservice.ext.platforminject.api.data.ParsedPluginData;
 import eu.cloudnetservice.ext.platforminject.api.generator.PluginInfoGenerator;
-import eu.cloudnetservice.ext.platforminject.processor.util.ResourceUtil;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.processing.Filer;
@@ -82,20 +79,16 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
 
   protected @NonNull Config loadFileTemplateOrNewConfig(@NonNull Filer filer) {
     for (var fileNameCandidate : this.platformFileNames) {
-      // find the expected template file in the resources directory
       var templateFileName = String.format(TEMPLATE_FILE_NAME_FORMAT, fileNameCandidate);
-      var templateFile = ResourceUtil.resolveResource(filer, templateFileName);
-
-      // check if the template file exists & load it if it does
-      if (templateFile != null) {
-        try (var reader = Files.newBufferedReader(templateFile, StandardCharsets.UTF_8)) {
+      try {
+        var templateFile = filer.getResource(StandardLocation.SOURCE_PATH, "", templateFileName);
+        try (var reader = templateFile.openReader(true)) {
           return this.parser.parse(reader);
-        } catch (IOException ignored) {
         }
+      } catch (IOException ignored) {
       }
     }
 
-    // create a new empty file, the template file doesn't exist
     return this.configFormat.createConfig();
   }
 }
