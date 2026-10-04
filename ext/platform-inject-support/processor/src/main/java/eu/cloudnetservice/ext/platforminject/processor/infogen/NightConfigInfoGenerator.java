@@ -81,11 +81,11 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
     for (var fileNameCandidate : this.platformFileNames) {
       try {
         var templateFileName = String.format(TEMPLATE_FILE_NAME_FORMAT, fileNameCandidate);
-        var templateFile = filer.getResource(StandardLocation.SOURCE_PATH, "", templateFileName);
-        try (var reader = templateFile.openReader(true)) {
-          return this.parser.parse(reader);
+        var templateFileResource = filer.getResource(StandardLocation.SOURCE_PATH, "", templateFileName);
+        try (var templateFileReader = templateFileResource.openReader(true)) {
+          return this.parser.parse(templateFileReader);
         }
-      } catch (IOException ignored) {
+      } catch (IOException _) {
       }
     }
 
