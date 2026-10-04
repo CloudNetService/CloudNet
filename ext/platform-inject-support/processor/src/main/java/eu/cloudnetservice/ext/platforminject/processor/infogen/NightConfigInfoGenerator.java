@@ -79,8 +79,8 @@ public abstract class NightConfigInfoGenerator implements PluginInfoGenerator {
 
   protected @NonNull Config loadFileTemplateOrNewConfig(@NonNull Filer filer) {
     for (var fileNameCandidate : this.platformFileNames) {
-      var templateFileName = String.format(TEMPLATE_FILE_NAME_FORMAT, fileNameCandidate);
       try {
+        var templateFileName = String.format(TEMPLATE_FILE_NAME_FORMAT, fileNameCandidate);
         var templateFile = filer.getResource(StandardLocation.SOURCE_PATH, "", templateFileName);
         try (var reader = templateFile.openReader(true)) {
           return this.parser.parse(reader);
