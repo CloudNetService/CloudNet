@@ -18,11 +18,13 @@ package eu.cloudnetservice.modules.bridge.impl.platform.velocity;
 
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
 
+import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -47,8 +49,10 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -140,6 +144,20 @@ final class VelocityBridgeManagement extends PlatformBridgeManagement<Player, Ne
       player.getCurrentServer().map(connection -> connection.getServerInfo().getName()).orElse(null),
       player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
       player::hasPermission);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public @NonNull List<String> consoleSuggestion(@NonNull String line) {
+    var commandManager = this.proxyServer.getCommandManager();
+    var consoleSource = this.proxyServer.getConsoleCommandSource();
+
+    CompletableFuture<List<String>> offerSuggestions = Reflexion.onBound(commandManager)
+      .findMethod("offerSuggestions", CommandSource.class, String.class)
+      .map((acc) -> (CompletableFuture<List<String>>) acc.invokeWithArgs(consoleSource, line).get())
+      .orElse(CompletableFuture.completedFuture(List.of()));
+
+    return offerSuggestions.join();
   }
 
   @Override

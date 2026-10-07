@@ -21,9 +21,13 @@ import java.lang.invoke.MethodType;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 final class BukkitUtil {
@@ -71,5 +75,31 @@ final class BukkitUtil {
 
     // resolve the locale tag from the cache, put it in if missing
     return LOCALE_CACHE.computeIfAbsent(localeTag, tag -> Locale.forLanguageTag(tag.replace('_', '-')));
+  }
+
+
+  public static <T> CompletableFuture<T> supplyOnMainThread(Plugin plugin, Supplier<T> supplier) {
+    CompletableFuture<T> future = new CompletableFuture<>();
+
+    if (Bukkit.isPrimaryThread()) {
+      try {
+        T result = supplier.get();
+        future.complete(result);
+      } catch (Throwable t) {
+        future.completeExceptionally(t);
+      }
+      return future;
+    }
+
+    Bukkit.getScheduler().runTask(plugin, () -> {
+      try {
+        T result = supplier.get();
+        future.complete(result);
+      } catch (Throwable t) {
+        future.completeExceptionally(t);
+      }
+    });
+
+    return future;
   }
 }
