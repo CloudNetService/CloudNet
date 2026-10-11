@@ -201,6 +201,14 @@ public interface SpecificCloudServiceProvider {
   void runCommand(@NonNull String command);
 
   /**
+   * Gets the console-suggestion(tab-complete) using ChannelMessage, if it is not supported, the response will get empty list.
+   *
+   * @param line the command line currently
+   * @return fully command list if supported
+   */
+  Collection<String> consoleSuggestion(@NonNull String line);
+
+  /**
    * Gets the templates that actually are installed on the service. If a template is present in the configuration
    * {@link eu.cloudnetservice.driver.service.ServiceConfiguration} but wasn't pulled onto the service it won't appear
    * in this collection.
