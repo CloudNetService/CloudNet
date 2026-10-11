@@ -340,14 +340,32 @@ public class DockerizedService extends JVMService {
     binds.add(this.bindFromPath(wrapperFilePath.toAbsolutePath().toString(), AccessMode.ro));
     binds.add(this.bindFromPath(this.serviceDirectory.toAbsolutePath().toString(), AccessMode.rw));
 
-    // get the task specific volumes and concat them with the default volumes
+    // get the task specific binds and concat them with the default binds
     var taskBinds = Objects.requireNonNullElse(
       this.readFromTaskConfig(config, TaskDockerConfig::binds),
       Set.<String>of());
     binds.addAll(Stream.concat(taskBinds.stream(), this.configuration.binds().stream())
-      .map(path -> this.serviceDirectory.resolve(path).toAbsolutePath().toString())
-      .map(path -> this.bindFromPath(path, AccessMode.rw))
+      .map(DockerMountParser::parseBindMount)
+      .map(parsedBindMount -> new Bind(
+        parsedBindMount.source(),
+        new Volume(parsedBindMount.target()),
+        parsedBindMount.readOnly() ? AccessMode.ro : AccessMode.rw
+      ))
       .toList());
+
+    // get the task specific named volumes and concat them with the default named volumes
+    var taskVolumes = Objects.requireNonNullElse(
+      this.readFromTaskConfig(config, TaskDockerConfig::volumes),
+      Set.<String>of());
+    Stream.concat(taskVolumes.stream(), this.configuration.volumes().stream())
+      .map(DockerMountParser::parseVolume)
+      .filter(DockerMountParser.ParsedVolume::hasSource)
+      .map(parsed -> new Bind(
+        parsed.source(),
+        new Volume(parsed.target()),
+        parsed.readOnly() ? AccessMode.ro : AccessMode.rw
+      ))
+      .forEach(binds::add);
 
     // uses array instead of list to ensure that there are no duplicate binds
     return binds.toArray(Bind[]::new);
@@ -358,8 +376,13 @@ public class DockerizedService extends JVMService {
       this.readFromTaskConfig(config, TaskDockerConfig::volumes),
       Set.<String>of());
     return Stream.concat(this.configuration.volumes().stream(), taskVolumes.stream())
-      .map(Volume::new)
+      .map(DockerMountParser::parseVolume)
+      // only add volumes which do not have a source as those are the only ones which need to be declared as anonymous volumes.
+      // the rest is handled via bind mounts and does not need to be declared as a volume here.
+      .filter(parsed -> !parsed.hasSource())
+      .map(DockerMountParser.ParsedVolume::target)
       .distinct()
+      .map(Volume::new)
       .toArray(Volume[]::new);
   }
 
