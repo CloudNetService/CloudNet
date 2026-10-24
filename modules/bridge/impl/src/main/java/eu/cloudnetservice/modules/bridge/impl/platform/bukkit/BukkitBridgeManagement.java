@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.modules.bridge.impl.platform.bukkit;
 
+import dev.derklaro.reflexion.Reflexion;
 import eu.cloudnetservice.driver.event.EventManager;
 import eu.cloudnetservice.driver.network.NetworkClient;
 import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
@@ -32,18 +33,21 @@ import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.PlayerManager;
 import eu.cloudnetservice.modules.bridge.player.ServicePlayer;
 import eu.cloudnetservice.modules.bridge.player.executor.PlayerExecutor;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import eu.cloudnetservice.wrapper.configuration.WrapperConfiguration;
 import eu.cloudnetservice.wrapper.event.ServiceInfoPropertiesConfigureEvent;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.command.CommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
@@ -57,6 +61,7 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
 
   private final Server server;
   private final Plugin plugin;
+  private final Optional<CommandMap> commandMap;
   private final PlayerExecutor directGlobalExecutor;
 
   @Inject
@@ -84,6 +89,15 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
     // init fields
     this.server = server;
     this.plugin = plugin;
+    this.commandMap = Reflexion.onBound(server)
+      .findField("commandMap")
+      .flatMap(fieldAccessor -> {
+        var value = fieldAccessor.getValue();
+        if (value.wasSuccessful()) {
+          return Optional.of((CommandMap) value.get());
+        }
+        return Optional.empty();
+      });
     this.directGlobalExecutor = new BukkitDirectPlayerExecutor(
       plugin,
       PlayerExecutor.GLOBAL_UNIQUE_ID,
@@ -121,6 +135,17 @@ final class BukkitBridgeManagement extends PlatformBridgeManagement<Player, Netw
   @Override
   public boolean isOnAnyFallbackInstance(@NonNull Player player) {
     return this.isOnAnyFallbackInstance(this.ownNetworkServiceInfo.serverName(), null, player::hasPermission);
+  }
+
+  @Override
+  public @NonNull List<String> consoleSuggestion(@NonNull String line) {
+    // Ensure better compatibility
+    var future = BukkitUtil.supplyOnMainThread(
+      this.plugin,
+      () -> this.commandMap.map(map -> map.tabComplete(this.server.getConsoleSender(), line))
+    );
+    return TaskUtil.getOrDefault(future, Optional.empty())
+      .orElseGet(List::of);
   }
 
   @Override
