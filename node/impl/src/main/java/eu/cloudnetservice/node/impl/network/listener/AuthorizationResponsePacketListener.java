@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.node.impl.network.listener;
 
+import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
@@ -30,6 +31,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.impl.cluster.util.QueuedNetworkChannel;
 import eu.cloudnetservice.node.impl.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.impl.network.packet.ServiceSyncAckPacket;
+import eu.cloudnetservice.node.service.CloudServiceManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.Objects;
@@ -47,6 +49,7 @@ public final class AuthorizationResponsePacketListener implements PacketListener
   private final NodeNetworkUtil networkUtil;
   private final DataSyncRegistry dataSyncRegistry;
   private final NodeServerProvider nodeServerProvider;
+  private final CloudServiceManager cloudServiceManager;
 
   @Inject
   public AuthorizationResponsePacketListener(
@@ -54,13 +57,15 @@ public final class AuthorizationResponsePacketListener implements PacketListener
     @NonNull Configuration configuration,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull DataSyncRegistry dataSyncRegistry,
-    @NonNull NodeServerProvider nodeServerProvider
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull CloudServiceManager cloudServiceManager
   ) {
     this.i18n = i18n;
     this.configuration = configuration;
     this.networkUtil = networkUtil;
     this.dataSyncRegistry = dataSyncRegistry;
     this.nodeServerProvider = nodeServerProvider;
+    this.cloudServiceManager = cloudServiceManager;
   }
 
   @Override
@@ -77,6 +82,7 @@ public final class AuthorizationResponsePacketListener implements PacketListener
         .orElse(null);
       if (server != null) {
         var wasReconnect = packetContent.readBoolean();
+        var republishServices = false;
         if (wasReconnect) {
           try (var syncData = packetContent.readDataBuf()) {
             var forceApply = syncData.readBoolean();
@@ -99,6 +105,12 @@ public final class AuthorizationResponsePacketListener implements PacketListener
           // of the channel to 'disconnected' before actually closing the channel
           server.state(NodeServerState.DISCONNECTED);
           server.channel().close();
+        } else if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
+          // we reconnected, but the other node either did not notice the disconnect or already removed this node
+          // from the cluster. flush the packets that were queued for the node and close the old channel
+          queuedChannel.drainPacketQueue(channel);
+          queuedChannel.close();
+          republishServices = true;
         }
 
         // re-initialize the node data
@@ -106,6 +118,22 @@ public final class AuthorizationResponsePacketListener implements PacketListener
         server.state(NodeServerState.READY);
         channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
         this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
+
+        // re-select the head node as the node might have been the head node before it disconnected. this
+        // ensures that the current node uses the same node as the head node as all other nodes in the cluster
+        this.nodeServerProvider.selectHeadNode();
+
+        // the other node might have removed all services of this node already, re-publish them to the node
+        if (republishServices) {
+          for (var service : this.cloudServiceManager.localCloudServices()) {
+            ChannelMessage.builder()
+              .targetNode(server.info().uniqueId())
+              .message("update_service_info")
+              .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+              .build(buffer -> buffer.writeObject(service.serviceInfo()))
+              .send();
+          }
+        }
         return;
       }
     }

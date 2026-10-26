@@ -29,6 +29,7 @@ import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.impl.cluster.util.NodeDisconnectHandler;
 import eu.cloudnetservice.node.impl.network.listener.AuthorizationPacketListener;
 import eu.cloudnetservice.node.impl.service.InternalCloudService;
 import eu.cloudnetservice.node.impl.util.IpAllowlist;
@@ -49,6 +50,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
   private final NodeNetworkUtil networkUtil;
   private final Configuration configuration;
   private final NodeServerProvider nodeServerProvider;
+  private final NodeDisconnectHandler disconnectHandler;
   private final CloudServiceManager cloudServiceManager;
 
   private IpAllowlist ipAllowlist;
@@ -60,6 +62,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull Configuration configuration,
     @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull NodeDisconnectHandler disconnectHandler,
     @NonNull CloudServiceManager cloudServiceManager
   ) {
     this.i18n = i18n;
@@ -67,6 +70,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
     this.networkUtil = networkUtil;
     this.configuration = configuration;
     this.nodeServerProvider = nodeServerProvider;
+    this.disconnectHandler = disconnectHandler;
     this.cloudServiceManager = cloudServiceManager;
   }
 
@@ -120,7 +124,7 @@ public final class DefaultNetworkServerChannelHandler implements NetworkChannelH
 
     var nodeServer = this.nodeServerProvider.node(channel);
     if (nodeServer != null && nodeServer.state() != NodeServerState.DISCONNECTED) {
-      nodeServer.close();
+      this.disconnectHandler.handleNodeServerChannelClose(nodeServer);
     }
   }
 

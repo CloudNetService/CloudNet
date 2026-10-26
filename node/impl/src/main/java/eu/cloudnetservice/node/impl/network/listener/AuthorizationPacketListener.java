@@ -34,6 +34,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.node.event.network.NetworkServiceAuthSuccessEvent;
+import eu.cloudnetservice.node.impl.cluster.util.QueuedNetworkChannel;
 import eu.cloudnetservice.node.impl.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.impl.network.packet.AuthorizationResponsePacket;
 import eu.cloudnetservice.node.impl.service.InternalCloudService;
@@ -88,6 +89,8 @@ public final class AuthorizationPacketListener implements PacketListener {
           // read the required data for the node auth
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
+          // the startup time of the node is not sent by nodes running an older version
+          var startupMillis = content.readableBytes() > 0 ? content.readLong() : -1;
           // check if the cluster id matches
           if (!this.configuration.clusterConfig().clusterId().equals(clusterId)) {
             break;
@@ -95,6 +98,12 @@ public final class AuthorizationPacketListener implements PacketListener {
           // search for the node server which represents the connected node and initialize it
           for (var server : this.nodeServerProvider.nodeServers()) {
             if (server.info().uniqueId().equals(node.uniqueId())) {
+              // check if the node was restarted since the last connection, in that case all data of the previous
+              // session is gone and the node must join the cluster like a newly started node instead of reconnecting
+              var lastSnapshot = server.nodeInfoSnapshot();
+              if (lastSnapshot != null && startupMillis != -1 && lastSnapshot.startupMillis() != startupMillis) {
+                server.close();
+              }
               // add the required packet listeners
               this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
@@ -113,9 +122,17 @@ public final class AuthorizationPacketListener implements PacketListener {
               } else {
                 // reply with a default auth success
                 channel.sendPacket(new AuthorizationResponsePacket(true, false, null));
+                // a previous reconnect of the node did not complete, flush the packets that were queued
+                // for the node and close the old channel before switching to the new channel
+                if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
+                  queuedChannel.drainPacketQueue(channel);
+                  queuedChannel.close();
+                }
                 // set the state of the node for further handling
                 server.channel(channel);
                 server.state(NodeServerState.READY);
+                // re-select the head node in case the node was the head node before it disconnected
+                this.nodeServerProvider.selectHeadNode();
                 // call the auth success event
                 this.eventManager.callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
               }
