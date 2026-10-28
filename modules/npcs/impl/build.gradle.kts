@@ -67,10 +67,8 @@ tasks.shadowJar.configure {
   relocate("com.github.retrooper", "eu.cloudnetservice.modules.npc.relocate.com.packetevents")
   relocate("com.github.juliarn.npclib", "eu.cloudnetservice.modules.npc.relocate.com.github.juliarn.npclib")
 
-  dependencies {
-    exclude("plugin.yml")
-    exclude("META-INF/**", "**/*.html", "module-info.*")
-  }
+  exclude("plugin.yml")
+  exclude("META-INF/**", "**/*.html", "module-info.*")
 
   manifest {
     attributes["paperweight-mappings-namespace"] = "mojang"

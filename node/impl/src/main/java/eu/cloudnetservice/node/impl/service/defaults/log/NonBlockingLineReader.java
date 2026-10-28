@@ -182,7 +182,10 @@ final class NonBlockingLineReader implements Closeable {
    */
   @Override
   public void close() throws IOException {
-    this.reader.close();
-    this.reader = null;
+    var reader = this.reader;
+    if (reader != null) {
+      this.reader = null;
+      reader.close();
+    }
   }
 }

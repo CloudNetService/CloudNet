@@ -88,11 +88,19 @@ public final class AsmClassReaderTransformer implements ClassTransformer {
     }
 
     // finds the model of the method to transform, preferring the modern constructor over the legacy one
-    var hasModernCtr = original.methods().stream().anyMatch(mm -> mm.methodTypeSymbol().equals(MODERN_ASM_CTR_MT));
+    var hasModernCtr = original.methods()
+      .stream()
+      .anyMatch(mm -> mm.methodTypeSymbol().equals(MODERN_ASM_CTR_MT)
+        && mm.methodName().equalsString(ConstantDescs.INIT_NAME));
     var targetCtrMt = hasModernCtr ? MODERN_ASM_CTR_MT : LEGACY_ASM_CTR_MT;
 
-    var codeTransform = new AsmConstructorTransformer();
-    return ClassTransform.transformingMethodBodies(mm -> mm.methodTypeSymbol().equals(targetCtrMt), codeTransform);
+    var codeTransform = hasModernCtr
+      ? new DisableClassVersionCheck()
+      : CodeTransform.ofStateful(AsmConstructorTransformer::new);
+    return ClassTransform.transformingMethodBodies(
+      mm -> mm.methodTypeSymbol().equals(targetCtrMt)
+        && mm.methodName().equalsString(ConstantDescs.INIT_NAME),
+      codeTransform);
   }
 
   /**
@@ -104,7 +112,31 @@ public final class AsmClassReaderTransformer implements ClassTransformer {
   }
 
   /**
-   * Code transform that removes the throw instruction on an unsupported class file major from the target method.
+   * Disables the explicit version check flag added in ASM 7 to the ClassReader constructor.
+   *
+   * @since 4.0
+   */
+  private static final class DisableClassVersionCheck implements CodeTransform {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void atStart(@NonNull CodeBuilder builder) {
+      builder.iconst_0().istore(3);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(@NonNull CodeBuilder builder, @NonNull CodeElement element) {
+      builder.with(element);
+    }
+  }
+
+  /**
+   * Removes the unsupported class file major throw in ASM 4 to 6, which have no explicit version check flag.
    *
    * @since 4.0
    */
