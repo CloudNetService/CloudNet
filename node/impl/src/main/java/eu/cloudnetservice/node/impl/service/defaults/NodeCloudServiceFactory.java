@@ -200,13 +200,19 @@ public class NodeCloudServiceFactory implements CloudServiceFactory {
     var serviceUniqueId = result.serviceInfo().serviceId().uniqueId();
     var serviceProvider = this.serviceManager.registerService(result.serviceInfo(), nodeChannel);
     if (serviceProvider != null) {
-      // service registered successfully, finish the registration of the service on the other node
-      ChannelMessage.builder()
+      // service registered successfully, finish the registration of the service on the other node and wait for it.
+      // the other node handles incoming packets concurrently: a call to the service made right after this method
+      // returns (for example a start) could otherwise be handled before the registration and would be dropped
+      var future = ChannelMessage.builder()
         .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
         .message("head_node_to_node_finish_service_registration")
         .targetNode(associatedNode.info().uniqueId())
         .build(buffer -> buffer.writeUniqueId(serviceUniqueId))
-        .send();
+        .sendSingleQueryAsync();
+      var response = TaskUtil.getOrDefault(future, Duration.ofSeconds(5), null);
+      if (response != null) {
+        response.close();
+      }
       return result;
     } else {
       // a service with the id already exists, just let the unaccepted service
