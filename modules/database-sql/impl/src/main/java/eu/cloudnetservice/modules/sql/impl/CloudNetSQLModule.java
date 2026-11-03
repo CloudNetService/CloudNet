@@ -34,14 +34,14 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
-public final class CloudNetSQLDatabaseModule extends DriverModule {
+public final class CloudNetSQLModule extends DriverModule {
 
   private volatile SQLModuleConfiguration configuration;
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     var config = this.readConfig(DocumentFactory.json());
-    if (!config.contains("overrideConnectionUri")) {
+    if (config.contains("overrideConnectionUri")) {
       return;
     }
 
@@ -77,7 +77,7 @@ public final class CloudNetSQLDatabaseModule extends DriverModule {
       password,
       address,
       null);
-    this.writeConfig(Document.newJsonDocument().appendTree(convertedConfig));
+    this.writeConfig(Document.newJsonDocument().appendTree(new SQLModuleConfiguration(List.of(convertedConfig))));
   }
 
   @ModuleTask(order = 125, lifecycle = ModuleLifeCycle.LOADED)
