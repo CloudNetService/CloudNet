@@ -23,14 +23,14 @@ import jakarta.inject.Singleton;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import lombok.NonNull;
-import oshi.SystemInfoFFM;
+import oshi.ffm.SystemInfo;
 import oshi.util.FormatUtil;
 
 @Singleton
 @AutoService(services = ReportDataEmitter.class, name = "SystemInfo")
 public final class SystemInfoDataEmitter implements ReportDataEmitter {
 
-  private static final SystemInfoFFM SYSTEM_INFO = new SystemInfoFFM();
+  private static final SystemInfo SYSTEM_INFO = new SystemInfo();
   private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 
   private static @NonNull String formatSeconds(long seconds) {

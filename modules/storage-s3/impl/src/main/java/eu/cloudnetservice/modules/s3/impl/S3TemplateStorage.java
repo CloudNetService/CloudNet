@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
+import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -86,8 +88,13 @@ public class S3TemplateStorage implements TemplateStorage {
         .accelerateModeEnabled(this.config().accelerateMode())
         .pathStyleAccessEnabled(this.config().pathStyleAccess())
         .chunkedEncodingEnabled(this.config().chunkedEncoding())
-        .checksumValidationEnabled(this.config().checksumValidation())
         .build())
+      .requestChecksumCalculation(this.config().checksumValidation()
+        ? RequestChecksumCalculation.WHEN_SUPPORTED
+        : RequestChecksumCalculation.WHEN_REQUIRED)
+      .responseChecksumValidation(this.config().checksumValidation()
+        ? ResponseChecksumValidation.WHEN_SUPPORTED
+        : ResponseChecksumValidation.WHEN_REQUIRED)
       .build();
 
     // init the bucket

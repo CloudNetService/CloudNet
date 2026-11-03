@@ -19,10 +19,12 @@ package eu.cloudnetservice.cloudnet.gradle.plugins
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
 import eu.cloudnetservice.cloudnet.gradle.tasks.PrepareUpdaterDataTask
 import eu.cloudnetservice.cloudnet.gradle.util.UpdaterMeta
+import eu.cloudnetservice.cloudnet.gradle.util.sourceSets
 import eu.cloudnetservice.gradle.juppiter.GenerateModuleJson
 import eu.cloudnetservice.gradle.juppiter.JuppiterPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.invoke
@@ -42,9 +44,12 @@ class CloudNetModulesPlugin : Plugin<Project> {
         }
       }
 
-      val generateModuleJson = tasks.named<GenerateModuleJson>("genModuleJson")
-      val archiveFileName = project.objects.property<String>()
+      tasks.named<JavaCompile>("compileJava") {
+        options.sourcepath = files(sourceSets().named("main").map { it.resources.sourceDirectories })
+      }
 
+      val archiveFileName = project.objects.property<String>()
+      val generateModuleJson = tasks.named<GenerateModuleJson>("genModuleJson")
       val prepareUpdaterData = tasks.named<PrepareUpdaterDataTask>("prepareUpdaterData") {
         dependsOn(generateModuleJson)
         from(generateModuleJson.flatMap { it.outputDirectory.file(it.fileName) })

@@ -16,15 +16,21 @@
 
 package eu.cloudnetservice.cloudnet.gradle.plugins
 
+import eu.cloudnetservice.cloudnet.gradle.util.sourceSets
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.named
 
 class CloudNetPluginsPlugin : Plugin<Project> {
   override fun apply(project: Project) {
     project.run {
       apply<CloudNetJavaPlugin>()
       registerProcessSources()
+      tasks.named<JavaCompile>("compileJava") {
+        options.sourcepath = files(sourceSets().named("main").map { it.resources.sourceDirectories })
+      }
     }
   }
 }

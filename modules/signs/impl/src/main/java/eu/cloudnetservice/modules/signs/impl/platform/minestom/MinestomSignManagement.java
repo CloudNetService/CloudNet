@@ -36,12 +36,12 @@ import jakarta.inject.Singleton;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.NonNull;
 import net.kyori.adventure.nbt.BinaryTag;
-import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.property.ServerProperties;
 import net.minestom.server.timer.SchedulerManager;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +83,7 @@ public class MinestomSignManagement extends PlatformSignManagement<Player, Tuple
 
   @Override
   protected int tps() {
-    return ServerFlag.SERVER_TICKS_PER_SECOND;
+    return ServerProperties.SERVER_TICKS_PER_SECOND.get();
   }
 
   @Override
