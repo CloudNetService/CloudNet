@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -55,7 +56,7 @@ public final class UnsafeReplacementDelegate {
 
   // accessor for the operating system mx bean
   private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN =
-    StableValue.supplier(ManagementFactory::getOperatingSystemMXBean);
+    new LazyConstantSupplier<>(ManagementFactory::getOperatingSystemMXBean);
 
   // method handle to define a class in any class loader, takes the target class loader as the first argument
   // method descriptor: ClassLoader.defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
@@ -76,7 +77,7 @@ public final class UnsafeReplacementDelegate {
    * @return a supplier for a method handle to invoke {@code ClassLoader.defineClass}.
    */
   private static @NonNull Supplier<MethodHandle> createClassDefineMethodHandleSupplier() {
-    return StableValue.supplier(() -> {
+    return new LazyConstantSupplier<>(() -> {
       try {
         // resolves the method handle for: Class<?> defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
         var lookup = OpConstants.TRUSTED_LOOKUP.get();
@@ -103,7 +104,7 @@ public final class UnsafeReplacementDelegate {
    * @return a supplier that creates a consumer to clean a direct byte buffer.
    */
   private static @NonNull Supplier<Consumer<ByteBuffer>> createByteBufferCleaner() {
-    return StableValue.supplier(() -> {
+    return new LazyConstantSupplier<>(() -> {
       try {
         var lookup = OpConstants.TRUSTED_LOOKUP.get();
 

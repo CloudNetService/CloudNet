@@ -337,18 +337,14 @@ public class UnsafeReplacementDelegateTest {
     var fields = ClassWithFields.class.getDeclaredFields();
     for (var field : fields) {
       var isStatic = Modifier.isStatic(field.getModifiers());
-      var offset = switch (isStatic) {
-        case true -> UnsafeReplacementDelegate.unsafeStaticFieldOffset(field);
-        case false -> UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
-      };
+      var offset = isStatic
+        ? UnsafeReplacementDelegate.unsafeStaticFieldOffset(field)
+        : UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
       Assertions.assertTrue(offset >= 0);
       Assertions.assertTrue(offset <= 25);
       Assertions.assertTrue(seenOffsets.add(offset));
 
-      var base = switch (isStatic) {
-        case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
-        case false -> inst;
-      };
+      var base = isStatic ? UnsafeReplacementDelegate.unsafeStaticFieldBase(field) : inst;
       var resolved = FieldOffsetOps.fieldFromOffset(base, offset);
       Assertions.assertNotNull(resolved);
       Assertions.assertEquals(field, resolved.wrappedField());
@@ -365,18 +361,14 @@ public class UnsafeReplacementDelegateTest {
       var fields = current.getDeclaredFields();
       for (var field : fields) {
         var isStatic = Modifier.isStatic(field.getModifiers());
-        var offset = switch (isStatic) {
-          case true -> UnsafeReplacementDelegate.unsafeStaticFieldOffset(field);
-          case false -> UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
-        };
+        var offset = isStatic
+          ? UnsafeReplacementDelegate.unsafeStaticFieldOffset(field)
+          : UnsafeReplacementDelegate.unsafeObjectFieldOffset(field);
         Assertions.assertTrue(offset >= 0);
         Assertions.assertTrue(offset <= 250);
         Assertions.assertTrue(seenOffsets.add(offset));
 
-        var base = switch (isStatic) {
-          case true -> UnsafeReplacementDelegate.unsafeStaticFieldBase(field);
-          case false -> inst;
-        };
+        var base = isStatic ? UnsafeReplacementDelegate.unsafeStaticFieldBase(field) : inst;
         var resolved = FieldOffsetOps.fieldFromOffset(base, offset);
         Assertions.assertNotNull(resolved);
         Assertions.assertEquals(field, resolved.wrappedField());
