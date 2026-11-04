@@ -16,12 +16,11 @@
 
 package eu.cloudnetservice.modules.npc.impl.platform.bukkit.util;
 
-import eu.cloudnetservice.utils.base.LazyConstantSupplier;
-
 import com.github.juliarn.npclib.api.protocol.PlatformPacketAdapter;
 import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.util.PEVersion;
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
 import eu.cloudnetservice.utils.base.StringUtil;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

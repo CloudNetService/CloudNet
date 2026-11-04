@@ -17,7 +17,6 @@
 package eu.cloudnetservice.ext.scheduler;
 
 import eu.cloudnetservice.utils.base.LazyConstantSupplier;
-
 import java.util.function.Supplier;
 
 /**
