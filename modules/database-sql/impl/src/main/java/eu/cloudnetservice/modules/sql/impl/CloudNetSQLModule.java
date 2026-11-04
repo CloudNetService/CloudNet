@@ -38,6 +38,7 @@ public final class CloudNetSQLModule extends DriverModule {
 
   static {
     System.setProperty("org.jooq.no-logo", "true");
+    System.setProperty("org.jooq.no-tips", "true");
   }
 
   private volatile SQLModuleConfiguration configuration;
