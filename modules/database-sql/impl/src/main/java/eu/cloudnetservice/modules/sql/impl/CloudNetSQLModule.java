@@ -41,7 +41,7 @@ public final class CloudNetSQLModule extends DriverModule {
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
   public void convertConfig() {
     var config = this.readConfig(DocumentFactory.json());
-    if (config.contains("overrideConnectionUri")) {
+    if (config.contains("entries")) {
       return;
     }
 
