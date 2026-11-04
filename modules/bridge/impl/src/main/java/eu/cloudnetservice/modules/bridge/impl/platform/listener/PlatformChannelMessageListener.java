@@ -36,6 +36,10 @@ import eu.cloudnetservice.modules.bridge.player.CloudPlayer;
 import eu.cloudnetservice.modules.bridge.player.NetworkPlayerServerInfo;
 import eu.cloudnetservice.modules.bridge.player.NetworkServiceInfo;
 import eu.cloudnetservice.modules.bridge.player.executor.ServerSelectorType;
+import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -61,6 +65,28 @@ public final class PlatformChannelMessageListener {
       var configuration = event.content().readObject(BridgeConfiguration.class);
       // set the configuration
       this.management.configurationSilently(configuration);
+    }
+  }
+
+  @EventListener
+  public void handleConsoleSuggestionChannelMessage(@NonNull ChannelMessageReceiveEvent event) {
+    // TODO need a better way to get channel of 'cloudnet:internal' from NetworkConstants.INTERNAL_MSG_CHANNEL.
+    if (event.channel().equals("cloudnet:internal") && event.message()
+      .equals("request_console_suggestion")) {
+      // read the line
+      var line = event.content().readString();
+      var future = TaskUtil.supplyAsync(() -> this.management.consoleSuggestion(line));
+      // make sure normal while service console is lagging
+      var rawList = TaskUtil.getOrDefault(future, Duration.of(100, ChronoUnit.MILLIS), List.of());
+      List<String> suggestions;
+      // Preventing cloudnet console from dying
+      if (rawList.size() > 50) {
+        suggestions = rawList.subList(0, 50);
+      } else {
+        suggestions = rawList;
+      }
+
+      event.binaryResponse(DataBuf.empty().writeObject(suggestions));
     }
   }
 
