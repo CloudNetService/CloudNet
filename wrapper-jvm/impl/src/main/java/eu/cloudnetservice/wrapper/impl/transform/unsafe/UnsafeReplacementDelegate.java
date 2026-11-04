@@ -17,7 +17,6 @@
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
 import eu.cloudnetservice.utils.base.LazyConstantSupplier;
-
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

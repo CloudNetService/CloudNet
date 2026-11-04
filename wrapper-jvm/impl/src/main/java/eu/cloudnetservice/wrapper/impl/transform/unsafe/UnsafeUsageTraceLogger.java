@@ -17,7 +17,6 @@
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
 import eu.cloudnetservice.utils.base.LazyConstantSupplier;
-
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
