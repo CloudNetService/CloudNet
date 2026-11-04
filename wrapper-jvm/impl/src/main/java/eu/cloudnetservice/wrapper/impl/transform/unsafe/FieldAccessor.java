@@ -57,25 +57,19 @@ final class FieldAccessor {
     var lookup = OpConstants.TRUSTED_LOOKUP.get();
     var fieldVh = lookup.unreflectVarHandle(field);
     var isStatic = Modifier.isStatic(field.getModifiers());
-    this.varHandle = switch (isStatic) {
-      case false -> fieldVh;
-      case true -> MethodHandles.dropCoordinates(fieldVh, 0, Object.class);
-    };
+    this.varHandle = isStatic ? MethodHandles.dropCoordinates(fieldVh, 0, Object.class) : fieldVh;
 
     // resolve field put method handle, only needed when the var handle cannot be used to set the field value
     // if present a static field put mh will have a leading dummy object argument for calling convenience
     var vhCanSet = this.varHandle.isAccessModeSupported(VarHandle.AccessMode.SET);
-    this.putMethodHandle = switch (vhCanSet) {
-      case true -> null; // can do everything with VH
-      case false -> {
-        if (isStatic) {
-          var mh = lookup.findStaticSetter(field.getDeclaringClass(), field.getName(), field.getType());
-          yield MethodHandles.dropArguments(mh, 0, Object.class);
-        } else {
-          yield lookup.findSetter(field.getDeclaringClass(), field.getName(), field.getType());
-        }
-      }
-    };
+    if (vhCanSet) {
+      this.putMethodHandle = null; // can do everything with VH
+    } else if (isStatic) {
+      var mh = lookup.findStaticSetter(field.getDeclaringClass(), field.getName(), field.getType());
+      this.putMethodHandle = MethodHandles.dropArguments(mh, 0, Object.class);
+    } else {
+      this.putMethodHandle = lookup.findSetter(field.getDeclaringClass(), field.getName(), field.getType());
+    }
   }
 
   /**
