@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandles;
@@ -37,37 +39,37 @@ enum ValueTypeKind {
   // CHECKSTYLE.OFF: checkstyle isn't really helping here
   BYTE(
     (left, right) -> (byte) left == (byte) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(byte[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(byte[].class)),
     arr -> MemorySegment.ofArray((byte[]) arr),
     ValueLayout.JAVA_BYTE),
   SHORT(
     (left, right) -> (short) left == (short) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(short[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(short[].class)),
     arr -> MemorySegment.ofArray((short[]) arr),
     ValueLayout.JAVA_SHORT),
   INT(
     (left, right) -> (int) left == (int) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(int[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(int[].class)),
     arr -> MemorySegment.ofArray((int[]) arr),
     ValueLayout.JAVA_INT),
   LONG(
     (left, right) -> (long) left == (long) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(long[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(long[].class)),
     arr -> MemorySegment.ofArray((long[]) arr),
     ValueLayout.JAVA_LONG),
   FLOAT(
     (left, right) -> (float) left == (float) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(float[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(float[].class)),
     arr -> MemorySegment.ofArray((float[]) arr),
     ValueLayout.JAVA_FLOAT),
   DOUBLE(
     (left, right) -> (double) left == (double) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(double[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(double[].class)),
     arr -> MemorySegment.ofArray((double[]) arr),
     ValueLayout.JAVA_DOUBLE),
   BOOL(
     (left, right) -> (boolean) left == (boolean) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(boolean[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(boolean[].class)),
     arr -> {
       // boolean arrays aren't natively supported, but they are basically byte arrays with 0/1 values
       var boolArray = (boolean[]) arr;
@@ -80,12 +82,12 @@ enum ValueTypeKind {
     ValueLayout.JAVA_BOOLEAN),
   CHAR(
     (left, right) -> (char) left == (char) right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(char[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(char[].class)),
     arr -> MemorySegment.ofArray((char[]) arr),
     ValueLayout.JAVA_CHAR),
   REF(
     (left, right) -> left == right,
-    StableValue.supplier(() -> MethodHandles.arrayElementVarHandle(Object[].class)),
+    new LazyConstantSupplier<>(() -> MethodHandles.arrayElementVarHandle(Object[].class)),
     null,
     null);
   // CHECKSTYLE.ON

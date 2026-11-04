@@ -16,6 +16,8 @@
 
 package eu.cloudnetservice.modules.npc.impl.platform.bukkit.util;
 
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
+
 import com.github.juliarn.npclib.api.protocol.PlatformPacketAdapter;
 import com.github.juliarn.npclib.bukkit.protocol.BukkitProtocolAdapter;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
@@ -40,7 +42,7 @@ public final class BukkitPacketAdapterUtil {
 
   private static final String SYS_PROP_PACKET_ADAPTER = "cloudnet.npcs.packet-adapter";
   private static final Supplier<PlatformPacketAdapter<World, Player, ItemStack, Plugin>> PACKET_ADAPTER_HOLDER =
-    StableValue.supplier(BukkitPacketAdapterUtil::resolveAdapter);
+    new LazyConstantSupplier<>(BukkitPacketAdapterUtil::resolveAdapter);
 
   private BukkitPacketAdapterUtil() {
     throw new UnsupportedOperationException();
