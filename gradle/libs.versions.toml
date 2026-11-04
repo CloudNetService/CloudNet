@@ -4,13 +4,13 @@
 indra = "4.1.0"
 shadow = "9.6.1"
 juppiter = "0.5.0-beta.2"
-spotless = "8.10.4"
+spotless = "8.11.0"
 nexusPublish = "2.0.0"
-checkstyleTools = "14.3.0"
+checkstyleTools = "14.4.0"
 
 # google libs
 gson = "2.15.0"
-guava = "33.7.2-jre"
+guava = "33.8.0-jre"
 
 # testing
 junit = "6.1.3"
@@ -31,7 +31,7 @@ cloudConfirmation = "1.0.0-rc.1"
 # databases
 h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
-mongodb = "5.13.0"
+mongodb = "5.14.0"
 hikariCp = "7.1.0"
 mysqlConnector = "26.10.0"
 
