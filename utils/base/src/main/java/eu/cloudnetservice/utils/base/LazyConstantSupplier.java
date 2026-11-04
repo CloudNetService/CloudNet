@@ -73,12 +73,10 @@ public final class LazyConstantSupplier<T> implements Supplier<T> {
     }
   }
 
-  /** Returns whether the value has already been initialized. */
   public boolean initialized() {
     return VH_VALUE.getAcquire(this) != null;
   }
 
-  /** Returns the initialized value, or the fallback without initializing it. */
   public @UnknownNullability T orElse(@Nullable T other) {
     var value = (T) VH_VALUE.getAcquire(this);
     return value != null ? value : other;
