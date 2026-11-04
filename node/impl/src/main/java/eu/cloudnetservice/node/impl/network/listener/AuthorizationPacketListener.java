@@ -34,6 +34,7 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.node.event.network.NetworkServiceAuthSuccessEvent;
+import eu.cloudnetservice.node.impl.cluster.util.NodeDisconnectHandler;
 import eu.cloudnetservice.node.impl.cluster.util.QueuedNetworkChannel;
 import eu.cloudnetservice.node.impl.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.impl.network.packet.AuthorizationResponsePacket;
@@ -56,6 +57,7 @@ public final class AuthorizationPacketListener implements PacketListener {
   private final NodeNetworkUtil networkUtil;
   private final DataSyncRegistry dataSyncRegistry;
   private final NodeServerProvider nodeServerProvider;
+  private final NodeDisconnectHandler disconnectHandler;
   private final CloudServiceManager cloudServiceManager;
 
   @Inject
@@ -66,6 +68,7 @@ public final class AuthorizationPacketListener implements PacketListener {
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull NodeDisconnectHandler disconnectHandler,
     @NonNull CloudServiceManager cloudServiceManager
   ) {
     this.i18n = i18n;
@@ -74,6 +77,7 @@ public final class AuthorizationPacketListener implements PacketListener {
     this.networkUtil = networkUtil;
     this.dataSyncRegistry = dataSyncRegistry;
     this.nodeServerProvider = nodeServerProvider;
+    this.disconnectHandler = disconnectHandler;
     this.cloudServiceManager = cloudServiceManager;
   }
 
@@ -104,6 +108,22 @@ public final class AuthorizationPacketListener implements PacketListener {
               if (lastSnapshot != null && startupMillis != -1 && lastSnapshot.startupMillis() != startupMillis) {
                 server.close();
               }
+              // the node can reconnect before this node noticed that the previous connection was lost, for example
+              // if only the other side detected the loss. everything that changed in the meantime is missing on
+              // both sides in that case, so the reconnect must run the data sync as well instead of authorizing the
+              // node like a new one. nodes of an older version don't send their startup time, a restart can't be
+              // ruled out for them. without a grace period there is no reconnect
+              if (this.disconnectHandler.hardDisconnectMillis() > 0
+                && startupMillis != -1
+                && server.state() == NodeServerState.READY
+                && server.channel() != null
+                && server.nodeInfoSnapshot() != null
+                && server.nodeInfoSnapshot().startupMillis() == startupMillis) {
+                LOGGER.debug("Node {} reconnected before the lost connection was noticed, running a reconnect sync",
+                  server.name());
+                this.disconnectHandler.markNodeServerDisconnected(server);
+              }
+
               // add the required packet listeners
               this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);

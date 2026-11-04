@@ -37,6 +37,7 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
@@ -165,7 +166,9 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
           // ugly hack to get the channel of the service's associated node. nodes which are currently
           // reconnecting are accepted as well, as the services are part of the reconnect data sync
           var node = this.nodeServerProvider.node(ser.serviceId().nodeUniqueId());
-          if (node != null && (node.available() || node.channel() != null)) {
+          // the local node is the only authority over its own services: a service which is unknown locally was
+          // removed (the remote data is outdated), and a known one must not be overwritten with outdated data
+          if (node != null && !(node instanceof LocalNodeServer) && (node.available() || node.channel() != null)) {
             this.handleServiceUpdate(ser, node.channel());
           }
         })

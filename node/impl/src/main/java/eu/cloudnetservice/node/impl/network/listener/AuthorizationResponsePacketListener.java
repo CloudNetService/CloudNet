@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.channel.ChannelMessage;
 import eu.cloudnetservice.driver.impl.network.NetworkConstants;
 import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.network.NetworkChannel;
+import eu.cloudnetservice.driver.network.buffer.DataBuf;
 import eu.cloudnetservice.driver.network.protocol.Packet;
 import eu.cloudnetservice.driver.network.protocol.PacketListener;
 import eu.cloudnetservice.driver.registry.Service;
@@ -84,9 +85,14 @@ public final class AuthorizationResponsePacketListener implements PacketListener
         var wasReconnect = packetContent.readBoolean();
         var republishServices = false;
         if (wasReconnect) {
-          try (var syncData = packetContent.readDataBuf()) {
-            var forceApply = syncData.readBoolean();
-            this.dataSyncRegistry.handle(syncData, forceApply);
+          // the sync data is written as a nullable object (see AuthorizationResponsePacket), reading it as a plain
+          // data buf takes the presence marker for the size of the data and drops the whole sync
+          var remoteSyncData = packetContent.readObject(DataBuf.class);
+          if (remoteSyncData != null) {
+            try (remoteSyncData) {
+              var forceApply = remoteSyncData.readBoolean();
+              this.dataSyncRegistry.handle(remoteSyncData, forceApply);
+            }
           }
 
           // flush the packets that were queued for the node that reconnected
