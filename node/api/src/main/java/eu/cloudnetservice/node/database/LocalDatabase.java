@@ -26,14 +26,6 @@ import org.jetbrains.annotations.Nullable;
 public interface LocalDatabase extends Database {
 
   /**
-   * Iterates over all entries in the database This option should not be used with big databases Use
-   * {@link #iterate(BiConsumer, int)}} instead
-   *
-   * @param consumer the consumer to pass the entries into
-   */
-  void iterate(@NonNull BiConsumer<String, Document> consumer);
-
-  /**
    * Iterates over all entries in the database, but in chunks in the given size
    *
    * @param consumer  the consumer to pass the entries into
