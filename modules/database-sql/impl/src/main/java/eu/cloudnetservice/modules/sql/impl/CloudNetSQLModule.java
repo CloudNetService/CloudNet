@@ -36,6 +36,10 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public final class CloudNetSQLModule extends DriverModule {
 
+  static {
+    System.setProperty("org.jooq.no-logo", "true");
+  }
+
   private volatile SQLModuleConfiguration configuration;
 
   @ModuleTask(order = 127, lifecycle = ModuleLifeCycle.LOADED)
