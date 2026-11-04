@@ -100,7 +100,18 @@ public final class AuthorizationPacketListenerTest {
       Mockito.mock(NodeNetworkUtil.class),
       dataSyncRegistry,
       this.provider,
+      this.disconnectHandler,
       Mockito.mock(CloudServiceManager.class));
+  }
+
+  private void enableGracePeriod() {
+    Mockito.when(this.disconnectHandler.hardDisconnectMillis()).thenReturn(30_000L);
+    // behave like the real handler: packets to the node are queued until it is connected again
+    Mockito.doAnswer(_ -> {
+      this.server.state(NodeServerState.DISCONNECTED);
+      this.server.channel(new QueuedNetworkChannel(this.server.channel()));
+      return null;
+    }).when(this.disconnectHandler).markNodeServerDisconnected(this.server);
   }
 
   @Test
@@ -145,11 +156,67 @@ public final class AuthorizationPacketListenerTest {
 
   @Test
   void testRestartedReadyNodeJoinsAsNewNode() {
+    this.enableGracePeriod();
     RemoteNodeServerTestUtil.initSession(this.server, this.oldChannel, NODE_STARTUP_MILLIS, NodeServerState.READY);
 
     this.listener.handle(this.newChannel, nodeAuthPacket(NODE_STARTUP_MILLIS + 5_000));
 
     Mockito.verify(this.disconnectHandler).handleNodeServerClose(this.server);
+    Mockito.verify(this.disconnectHandler, Mockito.never()).markNodeServerDisconnected(Mockito.any());
+    Assertions.assertEquals(NodeServerState.READY, this.server.state());
+    Assertions.assertSame(this.newChannel, this.server.channel());
+  }
+
+  @Test
+  void testReadyNodeReconnectingBeforeTheLossWasNoticedStartsReconnect() {
+    this.enableGracePeriod();
+    RemoteNodeServerTestUtil.initSession(this.server, this.oldChannel, NODE_STARTUP_MILLIS, NodeServerState.READY);
+
+    this.listener.handle(this.newChannel, nodeAuthPacket(NODE_STARTUP_MILLIS));
+
+    // the node is treated like a node that was marked as disconnected: the data sync of the reconnect runs and the
+    // channel gets switched when it completes. the old channel is kept (queued) until then
+    Mockito.verify(this.disconnectHandler).markNodeServerDisconnected(this.server);
+    Assertions.assertEquals(NodeServerState.SYNCING, this.server.state());
+    var queuedChannel = Assertions.assertInstanceOf(QueuedNetworkChannel.class, this.server.channel());
+    queuedChannel.sendPacket(Mockito.mock(Packet.class));
+    Mockito.verify(this.oldChannel, Mockito.never()).sendPacket(Mockito.any(Packet.class));
+    Mockito.verify(this.disconnectHandler, Mockito.never()).handleNodeServerClose(Mockito.any());
+  }
+
+  @Test
+  void testReadyNodeReconnectingWithoutGracePeriodIsAuthorizedLikeBefore() {
+    // no grace period configured, nodes are never kept around to reconnect
+    RemoteNodeServerTestUtil.initSession(this.server, this.oldChannel, NODE_STARTUP_MILLIS, NodeServerState.READY);
+
+    this.listener.handle(this.newChannel, nodeAuthPacket(NODE_STARTUP_MILLIS));
+
+    Mockito.verify(this.disconnectHandler, Mockito.never()).markNodeServerDisconnected(Mockito.any());
+    Assertions.assertEquals(NodeServerState.READY, this.server.state());
+    Assertions.assertSame(this.newChannel, this.server.channel());
+  }
+
+  @Test
+  void testReadyNodeOfOlderVersionIsAuthorizedLikeBefore() {
+    // the node does not send its startup time, a restart can't be ruled out (the reconnect would fail for it)
+    this.enableGracePeriod();
+    RemoteNodeServerTestUtil.initSession(this.server, this.oldChannel, NODE_STARTUP_MILLIS, NodeServerState.READY);
+
+    this.listener.handle(this.newChannel, nodeAuthPacket(-1));
+
+    Mockito.verify(this.disconnectHandler, Mockito.never()).markNodeServerDisconnected(Mockito.any());
+    Assertions.assertEquals(NodeServerState.READY, this.server.state());
+    Assertions.assertSame(this.newChannel, this.server.channel());
+  }
+
+  @Test
+  void testNewlyConnectedNodeIsAuthorizedLikeBefore() {
+    // no session before this connection, so there is nothing to reconnect to
+    this.enableGracePeriod();
+
+    this.listener.handle(this.newChannel, nodeAuthPacket(NODE_STARTUP_MILLIS));
+
+    Mockito.verify(this.disconnectHandler, Mockito.never()).markNodeServerDisconnected(Mockito.any());
     Assertions.assertEquals(NodeServerState.READY, this.server.state());
     Assertions.assertSame(this.newChannel, this.server.channel());
   }
