@@ -30,6 +30,7 @@ import eu.cloudnetservice.driver.registry.Service;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.NodeServerState;
 import eu.cloudnetservice.node.config.Configuration;
+import eu.cloudnetservice.node.impl.cluster.util.NodeDisconnectHandler;
 import eu.cloudnetservice.node.impl.network.listener.AuthorizationResponsePacketListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -49,6 +50,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
   private final NodeNetworkUtil networkUtil;
   private final Configuration configuration;
   private final NodeServerProvider nodeServerProvider;
+  private final NodeDisconnectHandler disconnectHandler;
 
   @Inject
   public DefaultNetworkClientChannelHandler(
@@ -56,13 +58,15 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
     @NonNull EventManager eventManager,
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull Configuration configuration,
-    @NonNull NodeServerProvider nodeServerProvider
+    @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull NodeDisconnectHandler disconnectHandler
   ) {
     this.i18n = i18n;
     this.eventManager = eventManager;
     this.networkUtil = networkUtil;
     this.configuration = configuration;
     this.nodeServerProvider = nodeServerProvider;
+    this.disconnectHandler = disconnectHandler;
   }
 
   @Override
@@ -72,12 +76,13 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
       channel.packetRegistry().addListener(
         NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL,
         AuthorizationResponsePacketListener.class);
-      // send the authentication request
+      // send the authentication request, the startup time allows the other node to detect restarts of this node
       channel.sendPacket(new AuthorizationPacket(
         AuthorizationPacket.PacketAuthorizationType.NODE_TO_NODE,
         DataBuf.empty()
           .writeUniqueId(this.configuration.clusterConfig().clusterId())
-          .writeObject(this.configuration.identity())));
+          .writeObject(this.configuration.identity())
+          .writeLong(this.nodeServerProvider.localNode().nodeInfoSnapshot().startupMillis())));
 
       LOGGER.debug(this.i18n.translate("client-network-channel-init",
         channel.serverAddress(),
@@ -103,7 +108,7 @@ public final class DefaultNetworkClientChannelHandler implements NetworkChannelH
 
     var clusterNodeServer = this.nodeServerProvider.node(channel);
     if (clusterNodeServer != null && clusterNodeServer.state() != NodeServerState.DISCONNECTED) {
-      clusterNodeServer.close();
+      this.disconnectHandler.handleNodeServerChannelClose(clusterNodeServer);
     }
   }
 }
