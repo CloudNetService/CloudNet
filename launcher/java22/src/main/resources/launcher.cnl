@@ -85,9 +85,11 @@ var cloudnet.node.memory 256
 # setting for this)
 #var cloudnet.max.node.idle.millis 30000
 # Sets the timeout until a node gets force disconnected from the current node after getting marked as disconnected (see
-# the previous setting). This defaults to 0 as we want a node to get disconnected instantly. Increasing this timeout might
-# lead to unexpected cluster behaviour, such as registered players which are already disconnected or registered services
-# which were already stopped during the disconnect time. USE THIS SETTING AT YOUR OWN RISK!
+# the previous setting) or after the connection to the node was lost. During this time the nodes try to reconnect to each
+# other. This defaults to 0 as we want a node to get disconnected instantly. Increasing this timeout (for example to 30000
+# for nodes in different datacenters) might lead to unexpected cluster behaviour, such as registered players which are
+# already disconnected or registered services which were already stopped during the disconnect time.
+# USE THIS SETTING AT YOUR OWN RISK!
 #var cloudnet.max.node.disconnect.millis 0
 # Sets the path to the directory in which the local xodus database file is located
 #var cloudnet.database.xodus.path local/database/xodus

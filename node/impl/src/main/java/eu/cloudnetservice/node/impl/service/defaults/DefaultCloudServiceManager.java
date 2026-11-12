@@ -37,6 +37,7 @@ import eu.cloudnetservice.driver.service.ServiceEnvironmentType;
 import eu.cloudnetservice.driver.service.ServiceInfoSnapshot;
 import eu.cloudnetservice.driver.service.ServiceLifeCycle;
 import eu.cloudnetservice.driver.service.ServiceTask;
+import eu.cloudnetservice.node.cluster.LocalNodeServer;
 import eu.cloudnetservice.node.cluster.NodeServer;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.cluster.sync.DataSyncRegistry;
@@ -162,9 +163,12 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
         .dataCollector(this::services)
         .convertObject(ServiceInfoSnapshot.class)
         .writer(ser -> {
-          // ugly hack to get the channel of the service's associated node
+          // ugly hack to get the channel of the service's associated node. nodes which are currently
+          // reconnecting are accepted as well, as the services are part of the reconnect data sync
           var node = this.nodeServerProvider.node(ser.serviceId().nodeUniqueId());
-          if (node != null && node.available()) {
+          // the local node is the only authority over its own services: a service which is unknown locally was
+          // removed (the remote data is outdated), and a known one must not be overwritten with outdated data
+          if (node != null && !(node instanceof LocalNodeServer) && (node.available() || node.channel() != null)) {
             this.handleServiceUpdate(ser, node.channel());
           }
         })
@@ -542,11 +546,17 @@ public class DefaultCloudServiceManager implements InternalCloudServiceManager {
       return null;
     }
 
-    // build the service provider for the newly added service
+    // build the service provider for the newly added service. the target channel is resolved from the node
+    // of the service on each call, as the channel changes when the node reconnects to the cluster
+    var nodeUniqueId = snapshot.serviceId().nodeUniqueId();
     var baseRPC = this.sender.invokeMethod("serviceProvider", MTD_SERVICE_PROVIDER, serviceUniqueId);
     var serviceProvider = this.specificProviderAllocator
       .withBaseRPC(baseRPC)
-      .withTargetChannel(() -> source)
+      .withTargetChannel(() -> {
+        var node = this.nodeServerProvider.node(nodeUniqueId);
+        var nodeChannel = node == null ? null : node.channel();
+        return nodeChannel == null ? source : nodeChannel;
+      })
       .withAdditionalConstructorParameters(snapshot)
       .allocate();
 
