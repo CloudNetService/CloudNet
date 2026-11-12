@@ -99,6 +99,11 @@ public final class ServiceChannelMessageListener {
                 .send();
             }
           }
+
+          // let the head node know that the registration is done
+          if (event.query()) {
+            event.binaryResponse(DataBuf.empty());
+          }
         }
 
         // update of a service in the network
