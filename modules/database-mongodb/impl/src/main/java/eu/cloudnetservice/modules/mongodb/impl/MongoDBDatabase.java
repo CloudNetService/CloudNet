@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import org.bson.conversions.Bson;
 import org.jetbrains.annotations.Nullable;
@@ -167,11 +166,6 @@ public class MongoDBDatabase extends AbstractDatabase {
     }
 
     return entries;
-  }
-
-  @Override
-  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
-    this.entries().forEach(consumer);
   }
 
   @Override
