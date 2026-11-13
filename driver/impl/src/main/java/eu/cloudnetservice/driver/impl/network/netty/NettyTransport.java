@@ -16,7 +16,7 @@
 
 package eu.cloudnetservice.driver.impl.network.netty;
 
-import com.google.common.base.Suppliers;
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelFactory;
 import io.netty5.channel.EventLoopGroup;
@@ -101,7 +101,7 @@ public enum NettyTransport {
     this.name = name;
     this.available = available;
     this.nativeTransport = nativeTransport;
-    this.ioHandlerFactory = Suppliers.memoize(ioHandlerFactory::get);
+    this.ioHandlerFactory = new LazyConstantSupplier<>(ioHandlerFactory);
     this.clientChannelFactory = clientChannelFactory;
     this.serverChannelFactory = serverChannelFactory;
   }

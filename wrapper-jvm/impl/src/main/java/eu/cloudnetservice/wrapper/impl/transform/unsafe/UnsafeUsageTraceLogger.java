@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
@@ -36,7 +37,7 @@ public final class UnsafeUsageTraceLogger {
    * Stack walker to get the caller of the unsafe replacement method.
    */
   private static final Supplier<StackWalker> CALLER_GET_STACK_WALKER =
-    StableValue.supplier(() -> StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
+    new LazyConstantSupplier<>(() -> StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
 
   private UnsafeUsageTraceLogger() {
     throw new UnsupportedOperationException();
