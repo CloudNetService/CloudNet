@@ -42,7 +42,7 @@ vavr = "1.1.0"
 sshj = "0.41.2"
 aerogel = "3.1.0"
 awsSdk = "2.58.0"
-unirest = "4.11.4"
+unirest = "4.11.9"
 caffeine = "3.3.1"
 reflexion = "2.0.0"
 geantyref = "2.0.1"
@@ -54,7 +54,7 @@ netty = "2025.11.08-3a259e91"
 
 # logging
 slf4j = "2.0.20"
-logback = "1.6.6"
+logback = "1.6.7"
 
 # platform api versions
 sponge = "9.0.0"
