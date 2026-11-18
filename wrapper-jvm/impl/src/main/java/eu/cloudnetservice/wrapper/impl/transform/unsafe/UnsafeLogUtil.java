@@ -108,6 +108,19 @@ final class UnsafeLogUtil {
   }
 
   /**
+   * Logs failed unsafe access to a field or array on debug level. This method should be used on hot paths instead of
+   * the varargs debug method, to keep the boxing and array creation out of the caller.
+   *
+   * @param operation the name of the unsafe operation that failed.
+   * @param base      the base object that was passed to the operation.
+   * @param offset    the offset that was passed to the operation.
+   * @param exception the exception that caused the operation to fail.
+   */
+  public static void debugAccessFailure(String operation, Object base, long offset, Throwable exception) {
+    LOGGER_DEBUG.log("Unable to unsafe {}: [obj={}, offset={}]", operation, base, offset, exception);
+  }
+
+  /**
    * A custom logging interface used to delegate logging calls to an underlying SLF4J logger instance.
    *
    * @since 4.0
