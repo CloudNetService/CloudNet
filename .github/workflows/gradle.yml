@@ -46,6 +46,7 @@ jobs:
         if: ${{ always() }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
+          large_files: true
           files: '**/build/test-results/test/TEST-*.xml'
           comment_mode: ${{ github.event_name == 'pull_request' && 'always' || 'off' }}
 
