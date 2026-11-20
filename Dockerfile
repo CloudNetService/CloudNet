@@ -3,13 +3,13 @@ ARG VERSION="0.0.0-dev"
 ARG REVISION="local"
 ARG CREATED="1970-01-01T00:00:00Z"
 
-FROM --platform=$BUILDPLATFORM azul/zulu-openjdk-debian:25-latest AS builder
+FROM --platform=$BUILDPLATFORM azul-zulu:25-jdk-debian AS builder
 
 WORKDIR /build
 COPY . .
 RUN ./gradlew build genUpdaterInformation -x test -x checkstyleMain -x checkstyleTest --no-daemon
 
-FROM azul/zulu-openjdk-alpine:25-jre-headless-latest
+FROM azul-zulu:25-jre-headless-alpine
 ARG BRANCH
 ARG VERSION
 ARG REVISION
