@@ -23,14 +23,14 @@ public final class Launcher {
 
   public static void main(String[] args) throws Exception {
     int javaVersion = detectJavaVersion();
-    if (javaVersion == 25) {
+    if (javaVersion >= 25) {
       Class<?> theLauncherClass = Class.forName("eu.cloudnetservice.launcher.java22.CloudNetLauncher");
       Constructor<?> launcherEntrypoint = theLauncherClass.getConstructor(String[].class);
       launcherEntrypoint.newInstance((Object) args);
     } else {
       // CHECKSTYLE.OFF: Launcher has no proper logger
-      System.err.println("Cannot start CloudNet: Java 25 is required, but Java " + javaVersion + " was detected");
-      System.err.println("Please install a Java 25 JRE or JDK (e.g. from OpenJDK, Azul, Adoptium, or another vendor)");
+      System.err.println("Cannot start CloudNet: Java 25+ is required, but Java " + javaVersion + " was detected");
+      System.err.println("Please install Java 25 or newer (e.g. from OpenJDK, Azul, Adoptium, or another vendor)");
       TimeUnit.SECONDS.sleep(7L);
       System.exit(1);
       // CHECKSTYLE.ON
