@@ -275,7 +275,7 @@ public class NodeServiceTaskProvider implements ServiceTaskProvider {
 
         // remove all custom java paths that do not support Java 25
         var javaVersion = JavaVersionResolver.resolveFromJavaExecutable(task.javaCommand());
-        if (javaVersion != JavaVersion.JAVA_25) {
+        if (javaVersion == null || !javaVersion.isNewerOrAt(JavaVersion.JAVA_25)) {
           task = ServiceTask.builder(task).javaCommand(null).build();
           LOGGER.warn(this.i18n.translate("cloudnet-load-task-unsupported-java-version", taskName));
         }
