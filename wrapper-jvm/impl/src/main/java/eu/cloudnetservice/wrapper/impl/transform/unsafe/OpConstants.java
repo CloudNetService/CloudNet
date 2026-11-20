@@ -29,15 +29,7 @@ final class OpConstants {
   /**
    * Supplier of the jvm-static trusted lookup instance, only initialized on the first access.
    */
-  static final Supplier<MethodHandles.Lookup> TRUSTED_LOOKUP = StableValue.supplier(() -> {
-    try {
-      var trustedLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-      trustedLookupField.setAccessible(true);
-      return (MethodHandles.Lookup) trustedLookupField.get(null);
-    } catch (NoSuchFieldException | IllegalAccessException exception) {
-      throw new ExceptionInInitializerError(exception);
-    }
-  });
+  static final Supplier<MethodHandles.Lookup> TRUSTED_LOOKUP = () -> TrustedLookupHolder.VALUE;
 
   /**
    * Plain access mode without any memory ordering guarantees. Supported by get and put operations.
@@ -54,5 +46,20 @@ final class OpConstants {
 
   private OpConstants() {
     throw new UnsupportedOperationException();
+  }
+
+  private static final class TrustedLookupHolder {
+
+    private static final MethodHandles.Lookup VALUE = resolveTrustedLookup();
+
+    private static MethodHandles.Lookup resolveTrustedLookup() {
+      try {
+        var trustedLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+        trustedLookupField.setAccessible(true);
+        return (MethodHandles.Lookup) trustedLookupField.get(null);
+      } catch (NoSuchFieldException | IllegalAccessException exception) {
+        throw new ExceptionInInitializerError(exception);
+      }
+    }
   }
 }

@@ -16,7 +16,6 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
-import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -35,8 +34,8 @@ public final class UnsafeUsageTraceLogger {
   /**
    * Stack walker to get the caller of the unsafe replacement method.
    */
-  private static final Supplier<StackWalker> CALLER_GET_STACK_WALKER =
-    StableValue.supplier(() -> StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
+  private static final StackWalker CALLER_GET_STACK_WALKER =
+    StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
   private UnsafeUsageTraceLogger() {
     throw new UnsupportedOperationException();
@@ -51,8 +50,7 @@ public final class UnsafeUsageTraceLogger {
    */
   public static void traceUnsafeUsage(@NonNull String calledMethodName, @NonNull String calledMethodDesc) {
     if (TRACE_UNSAFE_USAGE && UnsafeLogUtil.debugEnabled()) {
-      var stackWalker = CALLER_GET_STACK_WALKER.get();
-      var callingFrame = stackWalker.walk(stream -> stream
+      var callingFrame = CALLER_GET_STACK_WALKER.walk(stream -> stream
         .skip(1) // skip this method
         .dropWhile(frame -> {
           var dc = frame.getDeclaringClass();

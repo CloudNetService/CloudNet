@@ -156,7 +156,6 @@ fun applyJavadocOptions(options: StandardJavadocDocletOptions) {
   options.encoding = "UTF-8"
   options.memberLevel = JavadocMemberLevel.PRIVATE
   options.addBooleanOption("quiet", true)
-  options.addBooleanOption("-enable-preview", true)
   options.addBooleanOption("Xdoclint:all,-missing", true)
   options.addStringOption("-link-modularity-mismatch", "info")
   options.jFlags("-Duser.language=en", "-Duser.country=US")

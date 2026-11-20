@@ -50,118 +50,115 @@ public final class UnsafeReplacementDelegate {
   static final Consumer<ByteBuffer> BB_CLEANER_NOOP = _ -> {
   };
   @VisibleForTesting
-  static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = createByteBufferCleaner();
+  static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = () -> ByteBufferCleanerHolder.VALUE;
 
   // accessor for the operating system mx bean
-  private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN =
-    StableValue.supplier(ManagementFactory::getOperatingSystemMXBean);
+  private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN = () -> OperatingSystemMxBeanHolder.VALUE;
 
   // method handle to define a class in any class loader, takes the target class loader as the first argument
   // method descriptor: ClassLoader.defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
-  private static final Supplier<MethodHandle> CLASS_DEFINE_METHOD_HANDLE = createClassDefineMethodHandleSupplier();
+  private static final Supplier<MethodHandle> CLASS_DEFINE_METHOD_HANDLE = () -> ClassDefineMethodHandleHolder.VALUE;
 
   // the size of addresses on the machine, either 4 or 8
   private static final byte ADDRESS_SIZE = (byte) ValueLayout.ADDRESS.byteSize();
+
+  private static final class ByteBufferCleanerHolder {
+
+    private static final Consumer<ByteBuffer> VALUE = createByteBufferCleaner();
+  }
+
+  private static final class OperatingSystemMxBeanHolder {
+
+    private static final OperatingSystemMXBean VALUE = ManagementFactory.getOperatingSystemMXBean();
+  }
+
+  private static final class ClassDefineMethodHandleHolder {
+
+    private static final MethodHandle VALUE = createClassDefineMethodHandle();
+  }
 
   private UnsafeReplacementDelegate() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Creates a supplier that resolves the
-   * {@code ClassLoader.defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)} method handle
-   * once when initialized.
-   *
-   * @return a supplier for a method handle to invoke {@code ClassLoader.defineClass}.
-   */
-  private static @NonNull Supplier<MethodHandle> createClassDefineMethodHandleSupplier() {
-    return StableValue.supplier(() -> {
-      try {
-        // resolves the method handle for: Class<?> defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
-        var lookup = OpConstants.TRUSTED_LOOKUP.get();
-        var defineClassMt = MethodType.methodType(
-          Class.class,
-          ClassLoader.class,
-          String.class,
-          byte[].class,
-          int.class,
-          int.class,
-          ProtectionDomain.class,
-          String.class);
-        return lookup.findStatic(ClassLoader.class, "defineClass1", defineClassMt);
-      } catch (NoSuchMethodException | IllegalAccessException exception) {
-        throw new ExceptionInInitializerError(exception); // cannot happen
-      }
-    });
+  private static @NonNull MethodHandle createClassDefineMethodHandle() {
+    try {
+      // resolves the method handle for: Class<?> defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
+      var lookup = OpConstants.TRUSTED_LOOKUP.get();
+      var defineClassMt = MethodType.methodType(
+        Class.class,
+        ClassLoader.class,
+        String.class,
+        byte[].class,
+        int.class,
+        int.class,
+        ProtectionDomain.class,
+        String.class);
+      return lookup.findStatic(ClassLoader.class, "defineClass1", defineClassMt);
+    } catch (NoSuchMethodException | IllegalAccessException exception) {
+      throw new ExceptionInInitializerError(exception); // cannot happen
+    }
   }
 
-  /**
-   * Get a supplier that creates a consumer to clean a direct byte buffer. The consumer is only created once on the
-   * first initialization of the supplier.
-   *
-   * @return a supplier that creates a consumer to clean a direct byte buffer.
-   */
-  private static @NonNull Supplier<Consumer<ByteBuffer>> createByteBufferCleaner() {
-    return StableValue.supplier(() -> {
-      try {
-        var lookup = OpConstants.TRUSTED_LOOKUP.get();
+  private static @NonNull Consumer<ByteBuffer> createByteBufferCleaner() {
+    try {
+      var lookup = OpConstants.TRUSTED_LOOKUP.get();
 
-        // get the method handle to get the cleaner of the provided byte buffer (type: (ByteBuffer):Cleaner)
-        var directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
-        var cleanerMethod = directBufferClass.getDeclaredMethod("cleaner");
-        var cleanerHandle = MethodHandles.explicitCastArguments(
-          lookup.unreflect(cleanerMethod),
-          MethodType.methodType(cleanerMethod.getReturnType(), ByteBuffer.class));
+      // get the method handle to get the cleaner of the provided byte buffer (type: (ByteBuffer):Cleaner)
+      var directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
+      var cleanerMethod = directBufferClass.getDeclaredMethod("cleaner");
+      var cleanerHandle = MethodHandles.explicitCastArguments(
+        lookup.unreflect(cleanerMethod),
+        MethodType.methodType(cleanerMethod.getReturnType(), ByteBuffer.class));
 
-        // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner):void)
-        var cleanerClass = cleanerMethod.getReturnType();
-        var cleanMethod = cleanerClass.getDeclaredMethod("clean");
-        var cleanHandle = lookup.unreflect(cleanMethod);
+      // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner):void)
+      var cleanerClass = cleanerMethod.getReturnType();
+      var cleanMethod = cleanerClass.getDeclaredMethod("clean");
+      var cleanHandle = lookup.unreflect(cleanMethod);
 
-        // adapt the clean() method handle by pre-processing it with the result of the cleaner retrieval
-        // method handle, this results in a chained invocation (type: (ByteBuffer):void)
-        var cleanBufferHandle = MethodHandles.filterReturnValue(cleanerHandle, cleanHandle);
+      // adapt the clean() method handle by pre-processing it with the result of the cleaner retrieval
+      // method handle, this results in a chained invocation (type: (ByteBuffer):void)
+      var cleanBufferHandle = MethodHandles.filterReturnValue(cleanerHandle, cleanHandle);
 
-        // get a method handle to check if a buffer has an attachment (type: (ByteBuffer):boolean)
-        var attachementMethod = directBufferClass.getMethod("attachment");
-        var attachmentHandle = MethodHandles.explicitCastArguments(
-          lookup.unreflect(attachementMethod),
-          MethodType.methodType(attachementMethod.getReturnType(), ByteBuffer.class));
-        var isNullHandle = lookup.findStatic(
-          Objects.class,
-          "isNull",
-          MethodType.methodType(boolean.class, Object.class));
-        var isAttachmentNullHandle = MethodHandles.collectArguments(isNullHandle, 0, attachmentHandle);
+      // get a method handle to check if a buffer has an attachment (type: (ByteBuffer):boolean)
+      var attachementMethod = directBufferClass.getMethod("attachment");
+      var attachmentHandle = MethodHandles.explicitCastArguments(
+        lookup.unreflect(attachementMethod),
+        MethodType.methodType(attachementMethod.getReturnType(), ByteBuffer.class));
+      var isNullHandle = lookup.findStatic(
+        Objects.class,
+        "isNull",
+        MethodType.methodType(boolean.class, Object.class));
+      var isAttachmentNullHandle = MethodHandles.collectArguments(isNullHandle, 0, attachmentHandle);
 
-        // get a method handle that throws an IAE with the message 'duplicate or slice' (type: ():void)
-        // this handle needs to then be adapted to add an extra, ignored ByteBuffer param (type: (ByteBuffer):void)
-        var iaeMessageCtrHandle = lookup.findConstructor(
-          IllegalArgumentException.class,
-          MethodType.methodType(void.class, String.class));
-        var dupOrSliceIaeCtrHandle = MethodHandles.insertArguments(iaeMessageCtrHandle, 0, "duplicate or slice");
-        var throwIaeHandle = MethodHandles.throwException(void.class, IllegalArgumentException.class);
-        var throwDupOrSliceHandle = MethodHandles.collectArguments(throwIaeHandle, 0, dupOrSliceIaeCtrHandle);
-        var throwDupOrSliceHandleWithBBArg = MethodHandles.dropArguments(throwDupOrSliceHandle, 0, ByteBuffer.class);
+      // get a method handle that throws an IAE with the message 'duplicate or slice' (type: ():void)
+      // this handle needs to then be adapted to add an extra, ignored ByteBuffer param (type: (ByteBuffer):void)
+      var iaeMessageCtrHandle = lookup.findConstructor(
+        IllegalArgumentException.class,
+        MethodType.methodType(void.class, String.class));
+      var dupOrSliceIaeCtrHandle = MethodHandles.insertArguments(iaeMessageCtrHandle, 0, "duplicate or slice");
+      var throwIaeHandle = MethodHandles.throwException(void.class, IllegalArgumentException.class);
+      var throwDupOrSliceHandle = MethodHandles.collectArguments(throwIaeHandle, 0, dupOrSliceIaeCtrHandle);
+      var throwDupOrSliceHandleWithBBArg = MethodHandles.dropArguments(throwDupOrSliceHandle, 0, ByteBuffer.class);
 
-        // construct a method handle that conditionally invokes 'bb.cleaner().clean()' or throws an
-        // IAE depending on the fact if the provided ByteBuffer has an attachment or not
-        var cleanIfNotAttachmentHandle = MethodHandles.guardWithTest(
-          isAttachmentNullHandle,
-          cleanBufferHandle,
-          throwDupOrSliceHandleWithBBArg);
-        return buffer -> {
-          try {
-            cleanIfNotAttachmentHandle.invokeExact(buffer);
-          } catch (IllegalArgumentException exception) {
-            throw exception;
-          } catch (Throwable _) {
-          }
-        };
-      } catch (Throwable throwable) {
-        UnsafeLogUtil.debug("Unable to access byte buffer cleaning methods; falling back to no cleaning", throwable);
-        return BB_CLEANER_NOOP; // unable to clean direct buffers
-      }
-    });
+      // construct a method handle that conditionally invokes 'bb.cleaner().clean()' or throws an
+      // IAE depending on the fact if the provided ByteBuffer has an attachment or not
+      var cleanIfNotAttachmentHandle = MethodHandles.guardWithTest(
+        isAttachmentNullHandle,
+        cleanBufferHandle,
+        throwDupOrSliceHandleWithBBArg);
+      return buffer -> {
+        try {
+          cleanIfNotAttachmentHandle.invokeExact(buffer);
+        } catch (IllegalArgumentException exception) {
+          throw exception;
+        } catch (Throwable _) {
+        }
+      };
+    } catch (Throwable throwable) {
+      UnsafeLogUtil.debug("Unable to access byte buffer cleaning methods; falling back to no cleaning", throwable);
+      return BB_CLEANER_NOOP; // unable to clean direct buffers
+    }
   }
 
   //<editor-fold defaultstate="collapsed" desc="Static Replacement Fields">
