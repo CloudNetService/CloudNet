@@ -40,24 +40,20 @@ final class OpConstants {
     }
   });
 
+  /**
+   * Plain access mode without any memory ordering guarantees. Supported by get and put operations.
+   */
+  static final int MODE_PLAIN = 0;
+  /**
+   * Volatile access mode. Supported by get and put operations.
+   */
+  static final int MODE_VOLATILE = 1;
+  /**
+   * Release access mode (ordered put). Only supported by put operations.
+   */
+  static final int MODE_RELEASE = 2;
+
   private OpConstants() {
     throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Type of operation that can be used to get a value.
-   */
-  enum GetOp {
-    DEFAULT,
-    VOLATILE,
-  }
-
-  /**
-   * Type of operation that can be used to set a value.
-   */
-  enum SetOp {
-    DEFAULT,
-    VOLATILE,
-    RELEASE,
   }
 }

@@ -139,12 +139,15 @@ public final class Node {
 
   @Inject
   @Order(75)
-  private void setupDefaultUnirestUserAgent(@NonNull CloudNetVersion version) {
+  private void setupUnirestConfig(@NonNull CloudNetVersion version) {
     var formattedVersion = String.format(
       "%d.%d.%d-%s[%s]",
       version.major(), version.minor(), version.patch(), version.versionType(), version.revision());
     var userAgent = String.format("CloudNetService/CloudNet/%s (https://discord.cloudnetservice.eu)", formattedVersion);
-    Unirest.config().addDefaultHeader("User-Agent", userAgent);
+    Unirest.config()
+      .enableCookieManagement(false)
+      .cookieSpec("ignoreCookies")
+      .addDefaultHeader("User-Agent", userAgent);
   }
 
   @Inject
