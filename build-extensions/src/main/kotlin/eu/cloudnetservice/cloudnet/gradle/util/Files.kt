@@ -19,7 +19,6 @@ package eu.cloudnetservice.cloudnet.gradle.util
 object Files {
 
   const val driver = "driver.jar"
-  const val common = "common.jar"
   const val wrapper = "wrapper.jar"
   const val launcher = "launcher.jar"
   const val launcherPatcher = "launcher-patcher.jar"
@@ -33,10 +32,9 @@ object Files {
   const val cloudflare = "cloudnet-cloudflare.jar"
   const val dockerizedServices = "cloudnet-dockerized-services.jar"
   const val databaseMongo = "cloudnet-database-mongodb.jar"
-  const val databaseMysql = "cloudnet-database-mysql.jar"
+  const val databaseSql = "cloudnet-database-sql.jar"
   const val labymod = "cloudnet-labymod.jar"
   const val npcs = "cloudnet-npcs.jar"
-  const val rest = "cloudnet-rest.jar"
   const val signs = "cloudnet-signs.jar"
   const val smart = "cloudnet-smart.jar"
   const val syncproxy = "cloudnet-syncproxy.jar"

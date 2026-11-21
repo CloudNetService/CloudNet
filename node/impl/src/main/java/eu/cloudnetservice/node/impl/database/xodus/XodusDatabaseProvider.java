@@ -64,6 +64,11 @@ public class XodusDatabaseProvider extends AbstractNodeDatabaseProvider {
   }
 
   @Override
+  public boolean synced() {
+    return false;
+  }
+
+  @Override
   public @NonNull LocalDatabase database(@NonNull String name) {
     return this.databaseCache.get(name, $ -> this.environment.computeInTransaction(txn -> {
       var store = this.environment.openStore(name, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);

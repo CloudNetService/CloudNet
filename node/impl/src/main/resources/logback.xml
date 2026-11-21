@@ -73,4 +73,5 @@
   <logger name="jetbrains.exodus" level="WARN"/>
   <logger name="net.schmizz.sshj" level="WARN"/>
   <logger name="jetbrains.exodus.io.FileDataWriter" level="OFF"/>
+  <logger name="org.jooq.impl.DefaultExecuteContext.logVersionSupport" level="WARN"/>
 </configuration>
