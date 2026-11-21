@@ -60,6 +60,7 @@ import eu.cloudnetservice.utils.base.StringUtil;
 import eu.cloudnetservice.utils.base.concurrent.TaskUtil;
 import eu.cloudnetservice.utils.base.io.FileUtil;
 import eu.cloudnetservice.utils.base.resource.CpuUsageResolver;
+import io.leangen.geantyref.TypeFactory;
 import io.vavr.Tuple2;
 import java.net.Inet6Address;
 import java.nio.charset.StandardCharsets;
@@ -415,6 +416,19 @@ public abstract class AbstractService implements InternalCloudService {
   public void restart() {
     this.updateLifecycle(ServiceLifeCycle.STOPPED, false);
     this.updateLifecycle(ServiceLifeCycle.RUNNING);
+  }
+
+  @Override
+  public Collection<String> consoleSuggestion(@NonNull String line) {
+    var listPropertyType = TypeFactory.parameterizedClass(List.class, String.class);
+    var response = ChannelMessage.builder()
+      .targetService(this.serviceId().name())
+      .channel(NetworkConstants.INTERNAL_MSG_CHANNEL)
+      .message("request_console_suggestion")
+      .buffer(DataBuf.empty().writeString(line))
+      .build().sendSingleQuery();
+
+    return response != null ? response.content().readObject(listPropertyType) : List.of();
   }
 
   @Override
