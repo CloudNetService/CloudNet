@@ -90,7 +90,6 @@ class CloudNetJavaPlugin : Plugin<Project> {
 
 // We need the jvmArgs to run JVMs in multiple places
 private val cloudNetJvmArgs = arrayOf(
-  "--enable-preview",
   "-XX:+EnableDynamicAgentLoading",
   "--enable-native-access=ALL-UNNAMED",
   "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
@@ -157,12 +156,10 @@ private fun Project.configureCompileJava() {
 
     if (project.path != ":launcher:launcher-patcher" && !project.plugins.hasPlugin("cloudnet-java-api")) {
       options.compilerArgs.add("-proc:full")
-      options.compilerArgs.add("--enable-preview")
       options.compilerArgs.addAll(
         listOf(
           "-Xlint:all",         // enable all warnings
-          "-Xlint:-preview",    // reduce warning size for the following warning types
-          "-Xlint:-unchecked",
+          "-Xlint:-unchecked",  // reduce warning size for the following warning types
           "-Xlint:-processing",
         )
       )

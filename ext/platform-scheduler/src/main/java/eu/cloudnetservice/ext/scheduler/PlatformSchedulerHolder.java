@@ -16,6 +16,7 @@
 
 package eu.cloudnetservice.ext.scheduler;
 
+import eu.cloudnetservice.utils.base.LazyConstantSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -25,7 +26,7 @@ import java.util.function.Supplier;
  */
 final class PlatformSchedulerHolder {
 
-  static final Supplier<PlatformScheduler<?, ?, ?>> HOLDER = StableValue.supplier(() -> {
+  static final Supplier<PlatformScheduler<?, ?, ?>> HOLDER = new LazyConstantSupplier<>(() -> {
     // recommended way to check for Folia, see https://docs.papermc.io/paper/dev/folia-support/#checking-for-folia
     var isFolia = SchedulerUtil.isClassPresent("io.papermc.paper.threadedregions.RegionizedServer");
     if (isFolia) {

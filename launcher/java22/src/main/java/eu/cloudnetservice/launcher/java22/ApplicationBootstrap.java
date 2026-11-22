@@ -84,7 +84,6 @@ final class ApplicationBootstrap {
 
     // add the arguments supplied to the current process
     arguments.addAll(filteredInputArguments);
-    arguments.add("--enable-preview");
 
     // add the memory options for the node now
     arguments.add("-Xmx" + nodeProcessMemory + 'M');

@@ -60,7 +60,6 @@ public class JVMService extends AbstractService {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(JVMService.class);
   protected static final Collection<String> DEFAULT_JVM_SYSTEM_PROPERTIES = Arrays.asList(
-    "--enable-preview",
     "-Dfile.encoding=UTF-8",
     "-Dlog4j2.formatMsgNoLookups=true",
     "-DIReallyKnowWhatIAmDoingISwear=true",
