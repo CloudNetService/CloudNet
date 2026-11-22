@@ -47,7 +47,6 @@ import eu.cloudnetservice.node.impl.console.Console;
 import eu.cloudnetservice.node.impl.console.util.HeaderReader;
 import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
-import eu.cloudnetservice.node.impl.database.h2.H2DatabaseProvider;
 import eu.cloudnetservice.node.impl.database.xodus.XodusDatabaseProvider;
 import eu.cloudnetservice.node.impl.module.ModulesHolder;
 import eu.cloudnetservice.node.impl.module.NodeModuleProviderHandler;
@@ -198,41 +197,6 @@ public final class Node {
       NodeDatabaseProvider.class,
       "xodus",
       new XodusDatabaseProvider(i18n, dbDirectory, runsInCluster));
-  }
-
-  @Inject
-  @Order(300)
-  private void convertDatabase(
-    @NonNull @Service I18n i18n,
-    @NonNull Configuration configuration,
-    @NonNull @Service(name = "xodus") NodeDatabaseProvider xodusProvider
-  ) throws Exception { // TODO: remove in 4.1
-    var configuredDatabase = configuration.properties().getString("database_provider", "xodus");
-    // check if we need to migrate the old h2 database into a new xodus database
-    if (configuredDatabase.equals("h2")) {
-      // initialize the provider for the local h2 files
-      var h2Provider = new H2DatabaseProvider(System.getProperty("cloudnet.database.h2.path", "local/database/h2"));
-      h2Provider.init();
-      // initialize the provider for our new xodus database
-      xodusProvider.init();
-      // run the migration on all tables in the h2 database
-      for (var databaseName : h2Provider.databaseNames()) {
-        var h2Database = h2Provider.database(databaseName);
-        // create the new xodus storage
-        var xodusDatabase = xodusProvider.database(databaseName);
-        // insert the data of the h2 database into the xodus database
-        // in chunks of 100 documents to prevent oom
-        h2Database.iterate(xodusDatabase::insert, 100);
-      }
-
-      // close the database provider as they are not needed anymore
-      h2Provider.close();
-      xodusProvider.close();
-
-      // save the updated configuration
-      configuration.properties(configuration.properties().mutableCopy().append("database_provider", "xodus"));
-      configuration.save();
-    }
   }
 
   @Inject

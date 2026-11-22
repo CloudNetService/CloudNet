@@ -30,7 +30,6 @@ cloudConfirmation = "1.0.0-rc.1"
 
 # databases
 jooq = "3.20.10"
-h2 = "1.4.197" # do not update, leads to database incompatibility
 xodus = "2.0.1"
 mongodb = "5.15.0"
 hikariCp = "7.1.0"
@@ -163,7 +162,6 @@ aerogelScopedValues = { group = "dev.derklaro.aerogel", name = "aerogel-scoped-v
 
 # databases
 jooq = { group = "org.jooq", name = "jooq", version.ref = "jooq" }
-h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
 hikariCp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
 mongodb = { group = "org.mongodb", name = "mongodb-driver-sync", version.ref = "mongodb" }
 xodus = { group = "org.jetbrains.xodus", name = "xodus-environment", version.ref = "xodus" }

@@ -55,7 +55,6 @@
       "description": "Dependencies whose updates shouldn't be done automatically",
       "matchPackageNames": [
         "azul-zulu", // we update our target java version manually
-        "com.h2database:h2", // breaks old database files & support will be removed in a future release anyway
         "cpw.mods:modlauncher", // can be removed when sponge updated to v9
         "org.spongepowered:spongeapi", // we want to leave the oldest version we support as the dependency
         "io.github.juliarn:npc-lib-**", // currently unstable and will be updated manually
