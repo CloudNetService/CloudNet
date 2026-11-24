@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
 import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.impl.junit.EnableServicesInject;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -47,7 +48,8 @@ public class PostgreSQLDatabaseTest extends SQLDatabaseTest {
       "test",
       "test",
       new HostAndPort(POSTGRES_CONTAINER.getHost(), POSTGRES_CONTAINER.getFirstMappedPort()),
-      null);
+      null,
+      Map.of());
     databaseProvider = JooqDatabaseType.POSTGRESQL.createProvider(config);
     databaseProvider.init();
   }

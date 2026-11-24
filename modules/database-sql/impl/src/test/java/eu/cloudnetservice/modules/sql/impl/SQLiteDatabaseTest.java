@@ -19,6 +19,7 @@ package eu.cloudnetservice.modules.sql.impl;
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
 import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.impl.junit.EnableServicesInject;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 
 @EnableServicesInject
@@ -34,7 +35,8 @@ public class SQLiteDatabaseTest extends SQLDatabaseTest {
       null,
       null,
       null,
-      "jdbc:sqlite::memory:");
+      "jdbc:sqlite::memory:",
+      Map.of());
     databaseProvider = JooqDatabaseType.SQLITE.createProvider(config);
     databaseProvider.init();
   }

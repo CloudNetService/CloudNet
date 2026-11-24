@@ -23,13 +23,14 @@ import eu.cloudnetservice.modules.sql.impl.table.TableCreator;
 import eu.cloudnetservice.node.database.LocalDatabase;
 import eu.cloudnetservice.node.impl.database.AbstractNodeDatabaseProvider;
 import java.util.Collection;
+import java.util.Properties;
 import lombok.NonNull;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableOptions;
 import org.jooq.impl.DSL;
 
-public class JooqProvider extends AbstractNodeDatabaseProvider {
+public class JooqDatabaseProvider extends AbstractNodeDatabaseProvider {
 
   protected final TableCreator tableCreator;
   protected final JooqDatabaseType databaseType;
@@ -38,7 +39,7 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
   protected DSLContext dslContext;
   protected HikariDataSource dataSource;
 
-  protected JooqProvider(
+  protected JooqDatabaseProvider(
     @NonNull TableCreator tableCreator,
     @NonNull JooqDatabaseType databaseType,
     @NonNull SQLConfigurationEntry config
@@ -52,7 +53,21 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
 
   @Override
   public boolean init() {
-    var hikariConfig = new HikariConfig();
+    var hikariConfig = this.createHikariConfig();
+    this.dataSource = new HikariDataSource(hikariConfig);
+    this.dslContext = DSL.using(this.dataSource, this.databaseType.jooqDialect());
+    return true;
+  }
+
+  HikariConfig createHikariConfig() {
+    var properties = new Properties();
+    properties.putAll(this.config.hikariProperties());
+    properties.putIfAbsent("minimumIdle", "2");
+    properties.putIfAbsent("maximumPoolSize", "10");
+    properties.putIfAbsent("connectionTimeout", "10000");
+    properties.putIfAbsent("validationTimeout", "5000");
+
+    var hikariConfig = new HikariConfig(properties);
     var endpoint = this.config.buildConnectionUri();
 
     hikariConfig.setJdbcUrl(endpoint);
@@ -60,25 +75,7 @@ public class JooqProvider extends AbstractNodeDatabaseProvider {
     hikariConfig.setUsername(this.config.username());
     hikariConfig.setPassword(this.config.password());
 
-    hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-    hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-    hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-    hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
-    hikariConfig.addDataSourceProperty("useLocalSessionState", "true");
-    hikariConfig.addDataSourceProperty("rewriteBatchedStatements", "true");
-    hikariConfig.addDataSourceProperty("cacheResultSetMetadata", "true");
-    hikariConfig.addDataSourceProperty("cacheServerConfiguration", "true");
-    hikariConfig.addDataSourceProperty("elideSetAutoCommits", "true");
-    hikariConfig.addDataSourceProperty("maintainTimeStats", "false");
-
-    hikariConfig.setMinimumIdle(2);
-    hikariConfig.setMaximumPoolSize(10);
-    hikariConfig.setConnectionTimeout(10_000);
-    hikariConfig.setValidationTimeout(10_000);
-
-    this.dataSource = new HikariDataSource(hikariConfig);
-    this.dslContext = DSL.using(this.dataSource, this.databaseType.jooqDialect());
-    return true;
+    return hikariConfig;
   }
 
   @Override

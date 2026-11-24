@@ -91,7 +91,7 @@ public enum JooqDatabaseType {
     return this.synced;
   }
 
-  public @NonNull JooqProvider createProvider(@NonNull SQLConfigurationEntry config) {
-    return new JooqProvider(this.tableCreator, this, config);
+  public @NonNull JooqDatabaseProvider createProvider(@NonNull SQLConfigurationEntry config) {
+    return new JooqDatabaseProvider(this.tableCreator, this, config);
   }
 }

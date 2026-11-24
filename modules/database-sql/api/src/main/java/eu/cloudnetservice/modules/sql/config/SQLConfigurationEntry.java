@@ -17,6 +17,7 @@
 package eu.cloudnetservice.modules.sql.config;
 
 import eu.cloudnetservice.driver.network.HostAndPort;
+import java.util.Map;
 import java.util.Objects;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +30,8 @@ public record SQLConfigurationEntry(
   @Nullable String username,
   @Nullable String password,
   @Nullable HostAndPort address,
-  @Nullable String overrideConnectionUri
+  @Nullable String overrideConnectionUri,
+  @NonNull Map<String, String> hikariProperties
 ) {
 
   private static final String JDBC_URI = "jdbc:%s://%s:%d/%s";

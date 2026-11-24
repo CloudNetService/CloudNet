@@ -20,6 +20,7 @@ import eu.cloudnetservice.driver.network.HostAndPort;
 import eu.cloudnetservice.modules.sql.config.DatabaseType;
 import eu.cloudnetservice.modules.sql.config.SQLConfigurationEntry;
 import eu.cloudnetservice.modules.sql.impl.junit.EnableServicesInject;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -48,7 +49,8 @@ public class MariaDBDatabaseTest extends SQLDatabaseTest {
       "test",
       "test",
       new HostAndPort(MARIA_CONTAINER.getHost(), MARIA_CONTAINER.getFirstMappedPort()),
-      null);
+      null,
+      Map.of());
     databaseProvider = JooqDatabaseType.MARIADB.createProvider(config);
     databaseProvider.init();
   }

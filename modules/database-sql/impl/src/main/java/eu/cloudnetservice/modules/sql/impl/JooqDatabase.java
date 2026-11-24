@@ -20,7 +20,7 @@ import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.node.impl.database.AbstractDatabase;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
@@ -50,7 +50,7 @@ public class JooqDatabase extends AbstractDatabase {
 
   public JooqDatabase(
     @NonNull String name,
-    @NonNull JooqProvider databaseProvider,
+    @NonNull JooqDatabaseProvider databaseProvider,
     @NonNull DSLContext dslContext
   ) {
     super(name, databaseProvider);
@@ -104,9 +104,7 @@ public class JooqDatabase extends AbstractDatabase {
 
   @Override
   public @NonNull Collection<Document> find(@NonNull String fieldName, @Nullable String fieldValue) {
-    Map<String, String> filters = HashMap.newHashMap(1);
-    filters.put(fieldName, fieldValue);
-    return this.find(filters);
+    return this.find(Collections.singletonMap(fieldName, fieldValue));
   }
 
   @Override

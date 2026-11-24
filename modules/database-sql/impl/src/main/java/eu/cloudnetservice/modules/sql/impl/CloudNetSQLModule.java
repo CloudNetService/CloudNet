@@ -30,11 +30,24 @@ import eu.cloudnetservice.node.impl.database.NodeDatabaseProvider;
 import io.leangen.geantyref.TypeFactory;
 import jakarta.inject.Singleton;
 import java.util.List;
+import java.util.Map;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 @Singleton
 public final class CloudNetSQLModule extends DriverModule {
+
+  private static final Map<String, String> DEFAULT_HIKARI_PROPERTIES = Map.of(
+    "dataSource.cachePrepStmts", "true",
+    "dataSource.prepStmtCacheSize", "250",
+    "dataSource.prepStmtCacheSqlLimit", "2048",
+    "dataSource.useServerPrepStmts", "true",
+    "dataSource.useLocalSessionState", "true",
+    "dataSource.rewriteBatchedStatements", "true",
+    "dataSource.cacheResultSetMetadata", "true",
+    "dataSource.cacheServerConfiguration", "true",
+    "dataSource.elideSetAutoCommits", "true",
+    "dataSource.maintainTimeStats", "false");
 
   static {
     System.setProperty("org.jooq.no-logo", "true");
@@ -81,7 +94,8 @@ public final class CloudNetSQLModule extends DriverModule {
       username,
       password,
       address,
-      null);
+      null,
+      DEFAULT_HIKARI_PROPERTIES);
     this.writeConfig(Document.newJsonDocument().appendTree(new SQLModuleConfiguration(List.of(convertedConfig))));
   }
 
@@ -97,7 +111,8 @@ public final class CloudNetSQLModule extends DriverModule {
         "cloudnet",
         "password",
         new HostAndPort("127.0.0.1", 3306),
-        null
+        null,
+        DEFAULT_HIKARI_PROPERTIES
       ))),
       DocumentFactory.json());
 
