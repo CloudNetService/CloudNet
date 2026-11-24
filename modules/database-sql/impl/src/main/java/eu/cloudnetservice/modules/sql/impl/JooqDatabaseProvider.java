@@ -59,21 +59,19 @@ public class JooqDatabaseProvider extends AbstractNodeDatabaseProvider {
     return true;
   }
 
-  HikariConfig createHikariConfig() {
+  protected @NonNull HikariConfig createHikariConfig() {
     var properties = new Properties();
     properties.putAll(this.config.hikariProperties());
-    properties.putIfAbsent("minimumIdle", "2");
-    properties.putIfAbsent("maximumPoolSize", "10");
-    properties.putIfAbsent("connectionTimeout", "10000");
+    properties.putIfAbsent("minimumIdle", "1");
+    properties.putIfAbsent("maximumPoolSize", "15");
+    properties.putIfAbsent("connectionTimeout", "5000");
     properties.putIfAbsent("validationTimeout", "5000");
 
     var hikariConfig = new HikariConfig(properties);
-    var endpoint = this.config.buildConnectionUri();
-
-    hikariConfig.setJdbcUrl(endpoint);
-    hikariConfig.setDriverClassName(this.databaseType.driverClassName());
     hikariConfig.setUsername(this.config.username());
     hikariConfig.setPassword(this.config.password());
+    hikariConfig.setJdbcUrl(this.config.buildConnectionUri());
+    hikariConfig.setDriverClassName(this.databaseType.driverClassName());
 
     return hikariConfig;
   }

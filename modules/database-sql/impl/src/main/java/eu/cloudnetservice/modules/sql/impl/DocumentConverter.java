@@ -19,35 +19,17 @@ package eu.cloudnetservice.modules.sql.impl;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.driver.document.DocumentFactory;
 import eu.cloudnetservice.driver.document.StandardSerialisationStyle;
-import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 import org.jooq.Converter;
 import org.jooq.JSONB;
 
-public class DocumentConverter implements Converter<JSONB, Document> {
+final class DocumentConverter {
 
-  public static final DocumentConverter INSTANCE = new DocumentConverter();
+  public static final Converter<JSONB, Document> INSTANCE = Converter.ofNullable(
+    JSONB.class,
+    Document.class,
+    raw -> DocumentFactory.json().parse(raw.data()),
+    document -> JSONB.jsonb(document.serializeToString(StandardSerialisationStyle.COMPACT)));
 
   private DocumentConverter() {
-  }
-
-  @Override
-  public @Nullable Document from(@Nullable JSONB databaseObject) {
-    return databaseObject == null ? null : DocumentFactory.json().parse(databaseObject.data());
-  }
-
-  @Override
-  public @Nullable JSONB to(@Nullable Document userObject) {
-    return userObject == null ? null : JSONB.valueOf(userObject.serializeToString(StandardSerialisationStyle.COMPACT));
-  }
-
-  @Override
-  public @NonNull Class<JSONB> fromType() {
-    return JSONB.class;
-  }
-
-  @Override
-  public @NonNull Class<Document> toType() {
-    return Document.class;
   }
 }

@@ -40,14 +40,13 @@ public final class CloudNetSQLModule extends DriverModule {
   private static final Map<String, String> DEFAULT_HIKARI_PROPERTIES = Map.of(
     "dataSource.cachePrepStmts", "true",
     "dataSource.prepStmtCacheSize", "250",
-    "dataSource.prepStmtCacheSqlLimit", "2048",
+    "dataSource.maintainTimeStats", "false",
     "dataSource.useServerPrepStmts", "true",
     "dataSource.useLocalSessionState", "true",
-    "dataSource.rewriteBatchedStatements", "true",
+    "dataSource.prepStmtCacheSqlLimit", "2048",
     "dataSource.cacheResultSetMetadata", "true",
     "dataSource.cacheServerConfiguration", "true",
-    "dataSource.elideSetAutoCommits", "true",
-    "dataSource.maintainTimeStats", "false");
+    "dataSource.rewriteBatchedStatements", "true");
 
   static {
     System.setProperty("org.jooq.no-logo", "true");
@@ -63,37 +62,20 @@ public final class CloudNetSQLModule extends DriverModule {
       return;
     }
 
-    var serviceName = config.getString("databaseServiceName");
-    var username = config.getString("username");
-    var password = config.getString("password");
-
-    String database;
-    HostAndPort address;
-    if (config.contains("addresses")) {
-      List<LegacyConnectionEndpoint> addresses = config.readObject(
-        "addresses",
-        TypeFactory.parameterizedClass(List.class, LegacyConnectionEndpoint.class));
-      database = config.getString("database");
-      address = addresses.isEmpty() ? new HostAndPort("127.0.0.1", 3306) : addresses.getFirst().address();
-    } else {
-      List<LegacyConnectionEndpoint> endpoints = config.readObject(
-        "endpoints",
-        TypeFactory.parameterizedClass(List.class, LegacyConnectionEndpoint.class));
-      var endpoint = endpoints.isEmpty()
-        ? new LegacyConnectionEndpoint("cloudnet", new HostAndPort("127.0.0.1", 3306))
-        : endpoints.getFirst();
-      database = endpoint.database();
-      address = endpoint.address();
-    }
-
+    List<LegacyConnectionEndpoint> endpoints = config.readObject(
+      "endpoints",
+      TypeFactory.parameterizedClass(List.class, LegacyConnectionEndpoint.class));
+    var legacyEndpoint = endpoints.isEmpty()
+      ? new LegacyConnectionEndpoint("cloudnet", new HostAndPort("127.0.0.1", 3306))
+      : endpoints.getFirst();
     var convertedConfig = new SQLConfigurationEntry(
       true,
       DatabaseType.MYSQL,
-      serviceName,
-      database,
-      username,
-      password,
-      address,
+      config.getString("databaseServiceName"),
+      legacyEndpoint.database(),
+      config.getString("username"),
+      config.getString("password"),
+      legacyEndpoint.address(),
       null,
       DEFAULT_HIKARI_PROPERTIES);
     this.writeConfig(Document.newJsonDocument().appendTree(new SQLModuleConfiguration(List.of(convertedConfig))));
@@ -149,5 +131,6 @@ public final class CloudNetSQLModule extends DriverModule {
 
   @Deprecated
   record LegacyConnectionEndpoint(@Nullable String database, @NonNull HostAndPort address) {
+
   }
 }

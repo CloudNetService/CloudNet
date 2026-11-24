@@ -39,6 +39,7 @@ public class JooqDatabase extends AbstractDatabase {
 
   static final Name KEY_FIELD_NAME = DSL.name("Name");
   static final Field<String> KEY_FIELD = DSL.field(KEY_FIELD_NAME, String.class);
+
   static final Name DOCUMENT_FIELD_NAME = DSL.name("Document");
   static final Field<Document> DOCUMENT_FIELD = DSL
     .field(DOCUMENT_FIELD_NAME, JSONB.class)
