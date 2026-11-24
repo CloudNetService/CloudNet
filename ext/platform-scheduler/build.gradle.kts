@@ -25,4 +25,5 @@ repositories {
 
 dependencies {
   compileOnly(libs.folia)
+  compileOnly(projects.utils.utilsBase)
 }

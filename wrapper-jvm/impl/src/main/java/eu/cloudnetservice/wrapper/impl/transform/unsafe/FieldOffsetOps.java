@@ -16,14 +16,14 @@
 
 package eu.cloudnetservice.wrapper.impl.transform.unsafe;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Registry that holds the offsets for fields.
@@ -32,29 +32,83 @@ import org.jetbrains.annotations.Nullable;
  */
 final class FieldOffsetOps {
 
-  private static final int FIELD_COUNT_IN_CLASS = Class.class.getDeclaredFields().length;
-  private static final ClassValue<PerClassFieldCache> CLASS_FIELD_CACHE = new ClassValue<>() {
+  /**
+   * The amount of fields declared in {@code Class}, offset of all static fields.
+   */
+  static final int CLASS_FIELD_COUNT;
+  /**
+   * The offset of the field at index 0 in a field table.
+   */
+  static final long FIELD_BASE_OFFSET = 16;
+  /**
+   * The distance between the offsets of two fields. Large enough to hold every field type, so offsets are aligned and
+   * offset arithmetic (for example offset + 4) never silently addresses another field.
+   */
+  static final long FIELD_OFFSET_SCALE = 8;
+
+  // MethodHandle to get all fields in a class, unfiltered
+  private static final MethodHandle GET_DECLARED_FIELDS;
+  private static final VarHandle ACCESSOR_ELEMENT = MethodHandles.arrayElementVarHandle(FieldAccessor[].class);
+  private static final ClassValue<FieldTable> FIELD_TABLES = new ClassValue<>() {
     @Override
-    protected @NonNull PerClassFieldCache computeValue(@NonNull Class<?> type) {
-      return new PerClassFieldCache();
+    protected @NonNull FieldTable computeValue(@NonNull Class<?> type) {
+      return new FieldTable(hierarchyFields(type));
     }
   };
 
-  private static final VarHandle SLOT_CACHE; // access to PerClassFieldCache.accessorsPerFieldSlot
-  private static final VarHandle SLOT_ELEMENT; // access to elements in PerClassFieldCache.accessorsPerFieldSlot
-
   static {
     try {
-      var lookup = MethodHandles.lookup();
-      SLOT_CACHE = lookup.findVarHandle(PerClassFieldCache.class, "accessorsPerFieldSlot", FieldAccessor[].class);
-      SLOT_ELEMENT = MethodHandles.arrayElementVarHandle(FieldAccessor[].class);
-    } catch (NoSuchFieldException | IllegalAccessException exception) {
+      var lookup = OpConstants.TRUSTED_LOOKUP.get();
+      GET_DECLARED_FIELDS = lookup.findVirtual(
+        Class.class,
+        "getDeclaredFields0",
+        MethodType.methodType(Field[].class, boolean.class));
+      CLASS_FIELD_COUNT = declaredFields(Class.class).length;
+    } catch (NoSuchMethodException | IllegalAccessException exception) {
       throw new ExceptionInInitializerError(exception);
     }
   }
 
   private FieldOffsetOps() {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get all fields that are declared in the given class, without applying the reflection filter.
+   *
+   * @param type the class to get the declared fields of.
+   * @return all fields declared in the given class.
+   * @throws NullPointerException if the given type is null.
+   */
+  private static @NonNull Field[] declaredFields(@NonNull Class<?> type) {
+    try {
+      return (Field[]) GET_DECLARED_FIELDS.invokeExact(type, false);
+    } catch (RuntimeException | Error exception) {
+      throw exception;
+    } catch (Throwable throwable) {
+      throw new IllegalStateException(throwable);
+    }
+  }
+
+  /**
+   * Get all fields declared in the class hierarchy of the given class, starting with the fields of the top-most super
+   * class. The index of a field in the returned array determines the offset of the field.
+   *
+   * @param type the class to get the hierarchy fields of.
+   * @return all fields declared in the class hierarchy of the given class.
+   * @throws NullPointerException if the given type is null.
+   */
+  private static @NonNull Field[] hierarchyFields(@NonNull Class<?> type) {
+    var declaredFields = declaredFields(type);
+    var superclass = type.getSuperclass();
+    if (superclass == null) {
+      return declaredFields;
+    }
+
+    var superFields = FIELD_TABLES.get(superclass).fields;
+    var fields = Arrays.copyOf(superFields, superFields.length + declaredFields.length);
+    System.arraycopy(declaredFields, 0, fields, superFields.length, declaredFields.length);
+    return fields;
   }
 
   /**
@@ -69,52 +123,33 @@ final class FieldOffsetOps {
   }
 
   /**
+   * Converts the given index of a field in a field table into the offset of the field.
+   *
+   * @param index the index of the field in the field table.
+   * @return the offset of the field at the given index.
+   */
+  static long indexToOffset(long index) {
+    return FIELD_BASE_OFFSET + index * FIELD_OFFSET_SCALE;
+  }
+
+  /**
    * Gets the offset of the given field in the clazz hierarchy.
    *
    * @param field the field to get the offset of.
    * @return the offset of the given class in the class hierarchy.
-   * @throws NullPointerException if the given field is null.
+   * @throws NullPointerException     if the given field is null.
+   * @throws IllegalArgumentException if the given field is not declared in its declaring class.
    */
   public static long fieldOffset(@NonNull Field field) {
-    var offset = fieldSlot(field);
-    var clazz = field.getDeclaringClass();
-    while ((clazz = clazz.getSuperclass()) != null) {
-      var clazzFields = clazz.getDeclaredFields();
-      offset += clazzFields.length;
-    }
-
-    if (Modifier.isStatic(field.getModifiers())) {
-      // to get a static field, a class instance (declaring class of the field)
-      // is passed to getXXX(instance, offset) methods. these methods can therefore
-      // not differentiate between a request to a get an instance field of the "Class"
-      // class and a static field, and therefore the fields in "Class" are always visited
-      // by the method too. to prevent a conflict with invalid static field offsets caused
-      // by static fields in the class "Class", we move the offset here by the count of
-      // fields in "Class" to allow for a correct offset calculation when reading the value
-      offset += FIELD_COUNT_IN_CLASS;
-    }
-
-    return offset;
-  }
-
-  /**
-   * Get the slot of the given field in its declaring class.
-   *
-   * @param field the field to get the slot of.
-   * @return the slot of the field in its declaring class.
-   * @throws NullPointerException if the given field is null.
-   */
-  private static long fieldSlot(@NonNull Field field) {
-    var clazz = field.getDeclaringClass();
-    var fields = clazz.getDeclaredFields();
-    for (var slot = 0; slot < fields.length; slot++) {
-      var atSlot = fields[slot];
-      if (atSlot.equals(field)) {
-        return slot;
+    var fields = FIELD_TABLES.get(field.getDeclaringClass()).fields;
+    for (var index = fields.length - 1; index >= 0; index--) {
+      if (fields[index].equals(field)) {
+        var baseFieldIndex = Modifier.isStatic(field.getModifiers()) ? CLASS_FIELD_COUNT + index : index;
+        return indexToOffset(baseFieldIndex);
       }
     }
 
-    throw new AssertionError();
+    throw new IllegalArgumentException("Field " + field + " is not declared in its declaring class");
   }
 
   /**
@@ -123,95 +158,112 @@ final class FieldOffsetOps {
    * @param base   the field base to get the field based of.
    * @param offset the offset of the field to get.
    * @return the field with the given offset in the given base.
-   * @throws NullPointerException if the given base is null.
+   * @throws NullPointerException     if the given base is null.
+   * @throws IllegalArgumentException if no field with the given offset exists in the given base.
    */
-  public static @Nullable FieldAccessor fieldFromOffset(@NonNull Object base, long offset) {
-    var offsetAsInt = (int) offset;
-    if (offset < 0 || offset != offsetAsInt) {
-      // bail out early, a field with such an index is impossible
-      return null;
+  public static @NonNull FieldAccessor fieldFromOffset(Object base, long offset) {
+    if (offset < FIELD_BASE_OFFSET || (offset - FIELD_BASE_OFFSET) % FIELD_OFFSET_SCALE != 0) {
+      throw invalidOffset(base, offset);
     }
 
-    var clazz = base instanceof Class<?> c ? c : base.getClass();
-    var perClassCache = CLASS_FIELD_CACHE.get(clazz);
-    for (; ; ) {
-      var slots = perClassCache.accessorsPerFieldSlot;
-      if (offsetAsInt < slots.length) {
-        // check if the accessor was already computed and is cached
-        var accessor = (FieldAccessor) SLOT_ELEMENT.getVolatile(slots, offsetAsInt);
-        if (accessor != null) {
-          return accessor;
-        }
-
-        // accessor is not yet cached, insert into cache
-        var newAccessor = resolveFieldAccessor(clazz, base, offsetAsInt);
-        var storedAccessor = (FieldAccessor) SLOT_ELEMENT.compareAndExchange(slots, offsetAsInt, null, newAccessor);
-        return storedAccessor != null ? storedAccessor : newAccessor;
+    // access to a static field in the given class
+    var index = (offset - FIELD_BASE_OFFSET) / FIELD_OFFSET_SCALE;
+    if (base instanceof Class<?> clazz && index >= CLASS_FIELD_COUNT) {
+      var accessor = fieldFromOffset(clazz, base, index - CLASS_FIELD_COUNT, offset);
+      if (!accessor.isStatic()) {
+        throw invalidOffset(base, offset);
       }
-
-      // slow path: expand array to insert new accessor into slot, then continue the loop
-      var newArrayLength = Math.max(offsetAsInt + 1, Math.max(8, slots.length << 1));
-      var resizedSlots = Arrays.copyOf(slots, newArrayLength);
-      SLOT_CACHE.compareAndSet(perClassCache, slots, resizedSlots);
+      return accessor;
     }
+
+    // access to an instance field
+    var accessor = fieldFromOffset(base.getClass(), base, index, offset);
+    if (accessor.isStatic()) {
+      throw invalidOffset(base, offset);
+    }
+
+    return accessor;
   }
 
   /**
-   * Resolves a field accessor for the field in the given class with the given field offset.
+   * Resolves the field at the given index in the field table of the given class.
    *
-   * @param clazz  the class to find the field in.
-   * @param base   the field base to get the field based of.
-   * @param offset the offset of the field to find.
-   * @return an accessor for the field in the given class at the given offset.
-   * @throws NullPointerException     if the given class or base is null.
-   * @throws IllegalArgumentException if an invalid offset was given.
+   * @param type   the class whose field table should be used.
+   * @param base   the field base that was passed by the caller, for exception messages.
+   * @param index  the index of the field in the field table.
+   * @param offset the offset that was passed by the caller, for exception messages.
+   * @return the field at the given index in the field table of the given class.
+   * @throws IllegalArgumentException if the given index is out of bounds.
    */
-  private static @NonNull FieldAccessor resolveFieldAccessor(
-    @NonNull Class<?> clazz,
-    @NonNull Object base,
-    int offset
-  ) {
-    var classHierarchy = new ArrayList<Class<?>>();
-    for (var c = clazz; c != null; c = c.getSuperclass()) {
-      if (base instanceof Class<?> && c == Object.class) {
-        // special case handling: if a class was provided as the instance to operate
-        // on, this can have 2 meanings: either the caller requests a static field or
-        // an instance field in the class "Class" which does usually not appear in
-        // instance.getDeclaredFields() [which is intended as the fields in Class are
-        // not inherited into whatever the given class is when looking though the
-        // reflection api] - we therefore need to insert the class "Class" into the
-        // hierarchy manually here to allow finding fields in there too
-        classHierarchy.add(Class.class);
-      }
-
-      classHierarchy.add(c);
+  private static @NonNull FieldAccessor fieldFromOffset(Class<?> type, Object base, long index, long offset) {
+    var table = FIELD_TABLES.get(type);
+    if (index < 0 || index >= table.accessors.length) {
+      throw invalidOffset(base, offset);
     }
 
-    var remaining = offset;
-    for (var c : classHierarchy.reversed()) {
-      var fields = c.getDeclaredFields();
-      if (remaining < fields.length) {
-        var field = fields[remaining];
-        return FieldAccessor.make(field);
-      }
-
-      remaining -= fields.length;
-    }
-
-    throw new IllegalArgumentException("caller provided invalid field offset");
+    return table.accessor((int) index);
   }
 
   /**
-   * Cache for field accessors within a specific class.
+   * Constructs the exception to throw when an invalid field offset is passed by a caller.
    *
+   * @param base   the field base that was passed by the caller.
+   * @param offset the offset that was passed by the caller.
+   * @return the exception to throw for the invalid offset.
+   */
+  private static @NonNull IllegalArgumentException invalidOffset(Object base, long offset) {
+    var type = base instanceof Class<?> clazz ? clazz : base.getClass();
+    return new IllegalArgumentException("Invalid field offset " + offset + " for base of type " + type.getName());
+  }
+
+  /**
+   * The table of fields in the class hierarchy of a class.
+   *
+   * @param fields    all fields declared in the class hierarchy, the index of a field determines its offset.
+   * @param accessors the lazily resolved field accessors, same order as the fields.
    * @since 4.0
    */
-  private static final class PerClassFieldCache {
+  private record FieldTable(@NonNull Field[] fields, FieldAccessor[] accessors) {
 
     /**
-     * Array mapping of field slot to field accessor.
+     * Constructs a new field table for the given fields.
+     *
+     * @param fields all fields declared in the class hierarchy, the index of a field determines its offset.
+     * @throws NullPointerException if the given fields array is null.
      */
-    @SuppressWarnings("FieldMayBeFinal") // modified via VarHandle
-    private volatile FieldAccessor[] accessorsPerFieldSlot = new FieldAccessor[0];
+    FieldTable(@NonNull Field[] fields) {
+      this(fields, new FieldAccessor[fields.length]);
+    }
+
+    /**
+     * Get the accessor for the field at the given index, resolving it if it was not resolved yet.
+     *
+     * @param index the index of the field to get the accessor for.
+     * @return the accessor for the field at the given index.
+     */
+    @NonNull
+    FieldAccessor accessor(int index) {
+      var accessor = this.accessors[index];
+      return accessor != null ? accessor : this.resolveAccessor(index);
+    }
+
+    /**
+     * Resolves and caches the accessor for the field at the given index.
+     *
+     * @param index the index of the field to resolve the accessor for.
+     * @return the accessor for the field at the given index.
+     */
+    @NonNull
+    private FieldAccessor resolveAccessor(int index) {
+      var field = this.fields[index];
+      var declaringTable = FIELD_TABLES.get(field.getDeclaringClass());
+      var newAccessor = declaringTable == this ? FieldAccessor.make(field) : declaringTable.accessor(index);
+      var storedAccessor = (FieldAccessor) ACCESSOR_ELEMENT.compareAndExchange(
+        this.accessors,
+        index,
+        null,
+        newAccessor);
+      return storedAccessor != null ? storedAccessor : newAccessor;
+    }
   }
 }

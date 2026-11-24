@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 /**
@@ -51,118 +50,115 @@ public final class UnsafeReplacementDelegate {
   static final Consumer<ByteBuffer> BB_CLEANER_NOOP = _ -> {
   };
   @VisibleForTesting
-  static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = createByteBufferCleaner();
+  static final Supplier<Consumer<ByteBuffer>> BB_CLEANER = () -> ByteBufferCleanerHolder.VALUE;
 
   // accessor for the operating system mx bean
-  private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN =
-    StableValue.supplier(ManagementFactory::getOperatingSystemMXBean);
+  private static final Supplier<OperatingSystemMXBean> OS_MX_BEAN = () -> OperatingSystemMxBeanHolder.VALUE;
 
   // method handle to define a class in any class loader, takes the target class loader as the first argument
   // method descriptor: ClassLoader.defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
-  private static final Supplier<MethodHandle> CLASS_DEFINE_METHOD_HANDLE = createClassDefineMethodHandleSupplier();
+  private static final Supplier<MethodHandle> CLASS_DEFINE_METHOD_HANDLE = () -> ClassDefineMethodHandleHolder.VALUE;
 
   // the size of addresses on the machine, either 4 or 8
   private static final byte ADDRESS_SIZE = (byte) ValueLayout.ADDRESS.byteSize();
+
+  private static final class ByteBufferCleanerHolder {
+
+    private static final Consumer<ByteBuffer> VALUE = createByteBufferCleaner();
+  }
+
+  private static final class OperatingSystemMxBeanHolder {
+
+    private static final OperatingSystemMXBean VALUE = ManagementFactory.getOperatingSystemMXBean();
+  }
+
+  private static final class ClassDefineMethodHandleHolder {
+
+    private static final MethodHandle VALUE = createClassDefineMethodHandle();
+  }
 
   private UnsafeReplacementDelegate() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Creates a supplier that resolves the
-   * {@code ClassLoader.defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)} method handle
-   * once when initialized.
-   *
-   * @return a supplier for a method handle to invoke {@code ClassLoader.defineClass}.
-   */
-  private static @NonNull Supplier<MethodHandle> createClassDefineMethodHandleSupplier() {
-    return StableValue.supplier(() -> {
-      try {
-        // resolves the method handle for: Class<?> defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
-        var lookup = OpConstants.TRUSTED_LOOKUP.get();
-        var defineClassMt = MethodType.methodType(
-          Class.class,
-          ClassLoader.class,
-          String.class,
-          byte[].class,
-          int.class,
-          int.class,
-          ProtectionDomain.class,
-          String.class);
-        return lookup.findStatic(ClassLoader.class, "defineClass1", defineClassMt);
-      } catch (NoSuchMethodException | IllegalAccessException exception) {
-        throw new ExceptionInInitializerError(exception); // cannot happen
-      }
-    });
+  private static @NonNull MethodHandle createClassDefineMethodHandle() {
+    try {
+      // resolves the method handle for: Class<?> defineClass1(ClassLoader, String, byte[], int, int, ProtectionDomain, String)
+      var lookup = OpConstants.TRUSTED_LOOKUP.get();
+      var defineClassMt = MethodType.methodType(
+        Class.class,
+        ClassLoader.class,
+        String.class,
+        byte[].class,
+        int.class,
+        int.class,
+        ProtectionDomain.class,
+        String.class);
+      return lookup.findStatic(ClassLoader.class, "defineClass1", defineClassMt);
+    } catch (NoSuchMethodException | IllegalAccessException exception) {
+      throw new ExceptionInInitializerError(exception); // cannot happen
+    }
   }
 
-  /**
-   * Get a supplier that creates a consumer to clean a direct byte buffer. The consumer is only created once on the
-   * first initialization of the supplier.
-   *
-   * @return a supplier that creates a consumer to clean a direct byte buffer.
-   */
-  private static @NonNull Supplier<Consumer<ByteBuffer>> createByteBufferCleaner() {
-    return StableValue.supplier(() -> {
-      try {
-        var lookup = OpConstants.TRUSTED_LOOKUP.get();
+  private static @NonNull Consumer<ByteBuffer> createByteBufferCleaner() {
+    try {
+      var lookup = OpConstants.TRUSTED_LOOKUP.get();
 
-        // get the method handle to get the cleaner of the provided byte buffer (type: (ByteBuffer):Cleaner)
-        var directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
-        var cleanerMethod = directBufferClass.getDeclaredMethod("cleaner");
-        var cleanerHandle = MethodHandles.explicitCastArguments(
-          lookup.unreflect(cleanerMethod),
-          MethodType.methodType(cleanerMethod.getReturnType(), ByteBuffer.class));
+      // get the method handle to get the cleaner of the provided byte buffer (type: (ByteBuffer):Cleaner)
+      var directBufferClass = Class.forName("sun.nio.ch.DirectBuffer");
+      var cleanerMethod = directBufferClass.getDeclaredMethod("cleaner");
+      var cleanerHandle = MethodHandles.explicitCastArguments(
+        lookup.unreflect(cleanerMethod),
+        MethodType.methodType(cleanerMethod.getReturnType(), ByteBuffer.class));
 
-        // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner):void)
-        var cleanerClass = cleanerMethod.getReturnType();
-        var cleanMethod = cleanerClass.getDeclaredMethod("clean");
-        var cleanHandle = lookup.unreflect(cleanMethod);
+      // get the method handle to invoke the clean method on the Cleaner class (type: (Cleaner):void)
+      var cleanerClass = cleanerMethod.getReturnType();
+      var cleanMethod = cleanerClass.getDeclaredMethod("clean");
+      var cleanHandle = lookup.unreflect(cleanMethod);
 
-        // adapt the clean() method handle by pre-processing it with the result of the cleaner retrieval
-        // method handle, this results in a chained invocation (type: (ByteBuffer):void)
-        var cleanBufferHandle = MethodHandles.filterReturnValue(cleanerHandle, cleanHandle);
+      // adapt the clean() method handle by pre-processing it with the result of the cleaner retrieval
+      // method handle, this results in a chained invocation (type: (ByteBuffer):void)
+      var cleanBufferHandle = MethodHandles.filterReturnValue(cleanerHandle, cleanHandle);
 
-        // get a method handle to check if a buffer has an attachment (type: (ByteBuffer):boolean)
-        var attachementMethod = directBufferClass.getMethod("attachment");
-        var attachmentHandle = MethodHandles.explicitCastArguments(
-          lookup.unreflect(attachementMethod),
-          MethodType.methodType(attachementMethod.getReturnType(), ByteBuffer.class));
-        var isNullHandle = lookup.findStatic(
-          Objects.class,
-          "isNull",
-          MethodType.methodType(boolean.class, Object.class));
-        var isAttachmentNullHandle = MethodHandles.collectArguments(isNullHandle, 0, attachmentHandle);
+      // get a method handle to check if a buffer has an attachment (type: (ByteBuffer):boolean)
+      var attachementMethod = directBufferClass.getMethod("attachment");
+      var attachmentHandle = MethodHandles.explicitCastArguments(
+        lookup.unreflect(attachementMethod),
+        MethodType.methodType(attachementMethod.getReturnType(), ByteBuffer.class));
+      var isNullHandle = lookup.findStatic(
+        Objects.class,
+        "isNull",
+        MethodType.methodType(boolean.class, Object.class));
+      var isAttachmentNullHandle = MethodHandles.collectArguments(isNullHandle, 0, attachmentHandle);
 
-        // get a method handle that throws an IAE with the message 'duplicate or slice' (type: ():void)
-        // this handle needs to then be adapted to add an extra, ignored ByteBuffer param (type: (ByteBuffer):void)
-        var iaeMessageCtrHandle = lookup.findConstructor(
-          IllegalArgumentException.class,
-          MethodType.methodType(void.class, String.class));
-        var dupOrSliceIaeCtrHandle = MethodHandles.insertArguments(iaeMessageCtrHandle, 0, "duplicate or slice");
-        var throwIaeHandle = MethodHandles.throwException(void.class, IllegalArgumentException.class);
-        var throwDupOrSliceHandle = MethodHandles.collectArguments(throwIaeHandle, 0, dupOrSliceIaeCtrHandle);
-        var throwDupOrSliceHandleWithBBArg = MethodHandles.dropArguments(throwDupOrSliceHandle, 0, ByteBuffer.class);
+      // get a method handle that throws an IAE with the message 'duplicate or slice' (type: ():void)
+      // this handle needs to then be adapted to add an extra, ignored ByteBuffer param (type: (ByteBuffer):void)
+      var iaeMessageCtrHandle = lookup.findConstructor(
+        IllegalArgumentException.class,
+        MethodType.methodType(void.class, String.class));
+      var dupOrSliceIaeCtrHandle = MethodHandles.insertArguments(iaeMessageCtrHandle, 0, "duplicate or slice");
+      var throwIaeHandle = MethodHandles.throwException(void.class, IllegalArgumentException.class);
+      var throwDupOrSliceHandle = MethodHandles.collectArguments(throwIaeHandle, 0, dupOrSliceIaeCtrHandle);
+      var throwDupOrSliceHandleWithBBArg = MethodHandles.dropArguments(throwDupOrSliceHandle, 0, ByteBuffer.class);
 
-        // construct a method handle that conditionally invokes 'bb.cleaner().clean()' or throws an
-        // IAE depending on the fact if the provided ByteBuffer has an attachment or not
-        var cleanIfNotAttachmentHandle = MethodHandles.guardWithTest(
-          isAttachmentNullHandle,
-          cleanBufferHandle,
-          throwDupOrSliceHandleWithBBArg);
-        return buffer -> {
-          try {
-            cleanIfNotAttachmentHandle.invokeExact(buffer);
-          } catch (IllegalArgumentException exception) {
-            throw exception;
-          } catch (Throwable _) {
-          }
-        };
-      } catch (Throwable throwable) {
-        UnsafeLogUtil.debug("Unable to access byte buffer cleaning methods; falling back to no cleaning", throwable);
-        return BB_CLEANER_NOOP; // unable to clean direct buffers
-      }
-    });
+      // construct a method handle that conditionally invokes 'bb.cleaner().clean()' or throws an
+      // IAE depending on the fact if the provided ByteBuffer has an attachment or not
+      var cleanIfNotAttachmentHandle = MethodHandles.guardWithTest(
+        isAttachmentNullHandle,
+        cleanBufferHandle,
+        throwDupOrSliceHandleWithBBArg);
+      return buffer -> {
+        try {
+          cleanIfNotAttachmentHandle.invokeExact(buffer);
+        } catch (IllegalArgumentException exception) {
+          throw exception;
+        } catch (Throwable _) {
+        }
+      };
+    } catch (Throwable throwable) {
+      UnsafeLogUtil.debug("Unable to access byte buffer cleaning methods; falling back to no cleaning", throwable);
+      return BB_CLEANER_NOOP; // unable to clean direct buffers
+    }
   }
 
   //<editor-fold defaultstate="collapsed" desc="Static Replacement Fields">
@@ -289,504 +285,655 @@ public final class UnsafeReplacementDelegate {
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Field/Array Getters">
-  /* shared code to read the value from a field or array */
-  private static @Nullable Object unsafeGet(
-    @NonNull Object object,
-    long offset,
-    @NonNull ValueTypeKind kind,
-    @NonNull OpConstants.GetOp op
-  ) {
-    try {
-      var type = object.getClass();
-      if (type.isArray()) {
-        return ArrayOps.arrayGet(kind, op, object, offset);
-      }
-
-      // requested read of static or instance field
-      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
-      return fieldAccessor == null ? null : fieldAccessor.get(object, op);
-    } catch (Throwable throwable) {
-      UnsafeLogUtil.debug("Unable to unsafe get: [obj={}, offset={}, op={}]", object, offset, op, throwable);
-      return null;
-    }
-  }
-
   /* replacement for getInt(Object, long) */
   @UnsafeReplacement(name = "getInt")
   public static int unsafeGetInt(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.INT, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Number number ? number.intValue() : 0;
-      }
-      case null -> unsafeGetInt(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getInt(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetInt(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getIntVolatile(Object, long) */
   @UnsafeReplacement(name = "getIntVolatile")
   public static int unsafeGetIntVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.INT, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Number number ? number.intValue() : 0;
-      }
-      case null -> (int) MemoryOps.memGet(ValueTypeKind.INT, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getInt(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetInt(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getByte(Object, long) */
   @UnsafeReplacement(name = "getByte")
   public static byte unsafeGetByte(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.BYTE, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Number number ? number.byteValue() : 0;
-      }
-      case null -> unsafeGetByte(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getByte(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetByte(object, offset, OpConstants.MODE_PLAIN);
   }
 
-  /* replacement for getByte(Object, long) */
+  /* replacement for getByteVolatile(Object, long) */
   @UnsafeReplacement(name = "getByteVolatile")
   public static byte unsafeGetByteVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.BYTE, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Number number ? number.byteValue() : 0;
-      }
-      case null -> (byte) MemoryOps.memGet(ValueTypeKind.BYTE, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getByte(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetByte(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getShort(Object, long) */
   @UnsafeReplacement(name = "getShort")
   public static short unsafeGetShort(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.SHORT, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Number number ? number.shortValue() : 0;
-      }
-      case null -> unsafeGetShort(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getShort(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetShort(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getShortVolatile(Object, long) */
   @UnsafeReplacement(name = "getShortVolatile")
   public static short unsafeGetShortVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.SHORT, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Number number ? number.shortValue() : 0;
-      }
-      case null -> (short) MemoryOps.memGet(ValueTypeKind.SHORT, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getShort(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetShort(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getLong(Object, long) */
   @UnsafeReplacement(name = "getLong")
   public static long unsafeGetLong(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.LONG, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Number number ? number.longValue() : 0;
-      }
-      case null -> unsafeGetLong(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getLong(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetLong(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getLongVolatile(Object, long) */
   @UnsafeReplacement(name = "getLongVolatile")
   public static long unsafeGetLongVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.LONG, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Number number ? number.longValue() : 0;
-      }
-      case null -> (long) MemoryOps.memGet(ValueTypeKind.LONG, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getLong(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetLong(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getFloat(Object, long) */
   @UnsafeReplacement(name = "getFloat")
   public static float unsafeGetFloat(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.FLOAT, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Number number ? number.floatValue() : 0;
-      }
-      case null -> unsafeGetFloat(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getFloat(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetFloat(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getFloatVolatile(Object, long) */
   @UnsafeReplacement(name = "getFloatVolatile")
   public static float unsafeGetFloatVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.FLOAT, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Number number ? number.floatValue() : 0;
-      }
-      case null -> (float) MemoryOps.memGet(ValueTypeKind.FLOAT, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getFloat(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetFloat(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getDouble(Object, long) */
   @UnsafeReplacement(name = "getDouble")
   public static double unsafeGetDouble(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.DOUBLE, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Number number ? number.doubleValue() : 0;
-      }
-      case null -> unsafeGetDouble(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getDouble(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetDouble(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getDoubleVolatile(Object, long) */
   @UnsafeReplacement(name = "getDoubleVolatile")
   public static double unsafeGetDoubleVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.DOUBLE, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Number number ? number.doubleValue() : 0;
-      }
-      case null -> (double) MemoryOps.memGet(ValueTypeKind.DOUBLE, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getDouble(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetDouble(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getBoolean(Object, long) */
   @UnsafeReplacement(name = "getBoolean")
   public static boolean unsafeGetBoolean(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.BOOL, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Boolean bool && bool;
-      }
-      case null -> (boolean) MemoryOps.memGet(ValueTypeKind.BOOL, OpConstants.GetOp.DEFAULT, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getBoolean(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetBoolean(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getBooleanVolatile(Object, long) */
   @UnsafeReplacement(name = "getBooleanVolatile")
   public static boolean unsafeGetBooleanVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.BOOL, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Boolean bool && bool;
-      }
-      case null -> (boolean) MemoryOps.memGet(ValueTypeKind.BOOL, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getBoolean(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetBoolean(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getChar(Object, long) */
   @UnsafeReplacement(name = "getChar")
   public static char unsafeGetChar(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.CHAR, OpConstants.GetOp.DEFAULT);
-        yield val instanceof Character character ? character : 0;
-      }
-      case null -> unsafeGetChar(offset);
-    };
+    if (object == null) {
+      return MemoryOps.getChar(offset, OpConstants.MODE_PLAIN);
+    }
+    return heapGetChar(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getCharVolatile(Object, long) */
   @UnsafeReplacement(name = "getCharVolatile")
   public static char unsafeGetCharVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> {
-        var val = unsafeGet(obj, offset, ValueTypeKind.CHAR, OpConstants.GetOp.VOLATILE);
-        yield val instanceof Character character ? character : 0;
-      }
-      case null -> (char) MemoryOps.memGet(ValueTypeKind.CHAR, OpConstants.GetOp.VOLATILE, offset);
-    };
+    if (object == null) {
+      return MemoryOps.getChar(offset, OpConstants.MODE_VOLATILE);
+    }
+    return heapGetChar(object, offset, OpConstants.MODE_VOLATILE);
   }
 
   /* replacement for getObject(Object, long) */
   @UnsafeReplacement(name = "getObject")
-  public static @Nullable Object unsafeGetObject(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> unsafeGet(obj, offset, ValueTypeKind.REF, OpConstants.GetOp.DEFAULT);
-      case null -> null; // cannot get an object from non-heap directly
-    };
+  public static Object unsafeGetObject(Object object, long offset) {
+    // cannot get an object from non-heap memory directly
+    if (object == null) {
+      return null;
+    }
+    return heapGetObject(object, offset, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getObjectVolatile(Object, long) */
   @UnsafeReplacement(name = "getObjectVolatile")
-  public static @Nullable Object unsafeGetObjectVolatile(Object object, long offset) {
-    return switch (object) {
-      case Object obj -> unsafeGet(obj, offset, ValueTypeKind.REF, OpConstants.GetOp.VOLATILE);
-      case null -> null; // cannot get an object from non-heap directly
-    };
+  public static Object unsafeGetObjectVolatile(Object object, long offset) {
+    // cannot get an object from non-heap memory directly
+    if (object == null) {
+      return null;
+    }
+    return heapGetObject(object, offset, OpConstants.MODE_VOLATILE);
+  }
+
+  /* shared code to read a int from a field or array */
+  private static int heapGetInt(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getInt(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getInt(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getInt", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a byte from a field or array */
+  private static byte heapGetByte(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getByte(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getByte(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getByte", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a short from a field or array */
+  private static short heapGetShort(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getShort(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getShort(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getShort", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a long from a field or array */
+  private static long heapGetLong(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getLong(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getLong(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getLong", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a float from a field or array */
+  private static float heapGetFloat(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getFloat(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getFloat(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getFloat", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a double from a field or array */
+  private static double heapGetDouble(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getDouble(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getDouble(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getDouble", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a boolean from a field or array */
+  private static boolean heapGetBoolean(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getBoolean(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getBoolean(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getBoolean", object, offset, exception);
+      return false;
+    }
+  }
+
+  /* shared code to read a char from a field or array */
+  private static char heapGetChar(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getChar(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getChar(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getChar", object, offset, exception);
+      return 0;
+    }
+  }
+
+  /* shared code to read a Object from a field or array */
+  private static Object heapGetObject(Object object, long offset, int mode) {
+    try {
+      return object.getClass().isArray()
+        ? ArrayOps.getObject(object, offset, mode)
+        : FieldOffsetOps.fieldFromOffset(object, offset).getObject(object, mode);
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("getObject", object, offset, exception);
+      return null;
+    }
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Memory Getters">
   /* replacement for getByte(long) */
   @UnsafeReplacement(name = "getByte")
-  public static byte unsafeGetByte(long offset) {
-    return (byte) MemoryOps.memGet(ValueTypeKind.BYTE, OpConstants.GetOp.DEFAULT, offset);
+  public static byte unsafeGetByte(long address) {
+    return MemoryOps.getByte(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getShort(long) */
   @UnsafeReplacement(name = "getShort")
-  public static short unsafeGetShort(long offset) {
-    return (short) MemoryOps.memGet(ValueTypeKind.SHORT, OpConstants.GetOp.DEFAULT, offset);
+  public static short unsafeGetShort(long address) {
+    return MemoryOps.getShort(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getChar(long) */
   @UnsafeReplacement(name = "getChar")
-  public static char unsafeGetChar(long offset) {
-    return (char) MemoryOps.memGet(ValueTypeKind.CHAR, OpConstants.GetOp.DEFAULT, offset);
+  public static char unsafeGetChar(long address) {
+    return MemoryOps.getChar(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getInt(long) */
   @UnsafeReplacement(name = "getInt")
-  public static int unsafeGetInt(long offset) {
-    return (int) MemoryOps.memGet(ValueTypeKind.INT, OpConstants.GetOp.DEFAULT, offset);
+  public static int unsafeGetInt(long address) {
+    return MemoryOps.getInt(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getLong(long) */
   @UnsafeReplacement(name = "getLong")
-  public static long unsafeGetLong(long offset) {
-    return (long) MemoryOps.memGet(ValueTypeKind.LONG, OpConstants.GetOp.DEFAULT, offset);
+  public static long unsafeGetLong(long address) {
+    return MemoryOps.getLong(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getFloat(long) */
   @UnsafeReplacement(name = "getFloat")
-  public static float unsafeGetFloat(long offset) {
-    return (float) MemoryOps.memGet(ValueTypeKind.FLOAT, OpConstants.GetOp.DEFAULT, offset);
+  public static float unsafeGetFloat(long address) {
+    return MemoryOps.getFloat(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getDouble(long) */
   @UnsafeReplacement(name = "getDouble")
-  public static double unsafeGetDouble(long offset) {
-    return (double) MemoryOps.memGet(ValueTypeKind.DOUBLE, OpConstants.GetOp.DEFAULT, offset);
+  public static double unsafeGetDouble(long address) {
+    return MemoryOps.getDouble(address, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for getAddress(long) */
   @UnsafeReplacement(name = "getAddress")
-  public static long unsafeGetAddress(long offset) {
+  public static long unsafeGetAddress(long address) {
     return switch (ADDRESS_SIZE) {
-      case 4 -> Integer.toUnsignedLong(unsafeGetInt(offset));
-      case 8 -> unsafeGetLong(offset);
+      case 4 -> Integer.toUnsignedLong(unsafeGetInt(address));
+      case 8 -> unsafeGetLong(address);
       default -> throw new AssertionError(); // cannot happen
     };
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Field/Array Setters">
-  /* shared code to set a value of a field or array */
-  private static void unsafePut(
-    @NonNull Object object,
-    long offset,
-    @Nullable Object value,
-    @NonNull ValueTypeKind kind,
-    @NonNull OpConstants.SetOp op
-  ) {
-    try {
-      var type = object.getClass();
-      if (type.isArray()) {
-        ArrayOps.arrayPut(kind, op, object, offset, value);
-        return;
-      }
-
-      // requested read of static or instance field
-      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (fieldAccessor != null) {
-        fieldAccessor.put(object, value, op);
-      }
-    } catch (Throwable throwable) {
-      UnsafeLogUtil.debug(
-        "Unable to unsafe set: [obj={}, offset={}, val={} op={}]",
-        object, offset, value, op, throwable);
-    }
-  }
-
   /* replacement for putInt(Object, long, int) */
   @UnsafeReplacement(name = "putInt")
   public static void unsafePutInt(Object object, long offset, int value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.INT, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutInt(offset, value);
+    if (object == null) {
+      MemoryOps.putInt(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutInt(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putIntVolatile(Object, long, int) */
   @UnsafeReplacement(name = "putIntVolatile")
   public static void unsafePutIntVolatile(Object object, long offset, int value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.INT, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.INT, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putInt(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutInt(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putOrderedInt(Object, long, int) */
   @UnsafeReplacement(name = "putOrderedInt")
   public static void unsafePutOrderedInt(Object object, long offset, int value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.INT, OpConstants.SetOp.RELEASE);
-      case null -> MemoryOps.memPut(ValueTypeKind.INT, OpConstants.SetOp.RELEASE, offset, value);
+    if (object == null) {
+      MemoryOps.putInt(offset, value, OpConstants.MODE_RELEASE);
+    } else {
+      heapPutInt(object, offset, value, OpConstants.MODE_RELEASE);
     }
   }
 
   /* replacement for putByte(Object, long, byte) */
   @UnsafeReplacement(name = "putByte")
   public static void unsafePutByte(Object object, long offset, byte value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.BYTE, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutByte(offset, value);
+    if (object == null) {
+      MemoryOps.putByte(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutByte(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putByteVolatile(Object, long, byte) */
   @UnsafeReplacement(name = "putByteVolatile")
   public static void unsafePutByteVolatile(Object object, long offset, byte value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.BYTE, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.BYTE, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putByte(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutByte(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putShort(Object, long, short) */
   @UnsafeReplacement(name = "putShort")
   public static void unsafePutShort(Object object, long offset, short value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.SHORT, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutShort(offset, value);
+    if (object == null) {
+      MemoryOps.putShort(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutShort(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putShortVolatile(Object, long, short) */
   @UnsafeReplacement(name = "putShortVolatile")
   public static void unsafePutShortVolatile(Object object, long offset, short value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.SHORT, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.SHORT, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putShort(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutShort(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putLong(Object, long, long) */
   @UnsafeReplacement(name = "putLong")
   public static void unsafePutLong(Object object, long offset, long value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.LONG, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutLong(offset, value);
+    if (object == null) {
+      MemoryOps.putLong(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutLong(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putLongVolatile(Object, long, long) */
   @UnsafeReplacement(name = "putLongVolatile")
   public static void unsafePutLongVolatile(Object object, long offset, long value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.LONG, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.LONG, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putLong(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutLong(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putOrderedLong(Object, long, long) */
   @UnsafeReplacement(name = "putOrderedLong")
   public static void unsafePutOrderedLong(Object object, long offset, long value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.LONG, OpConstants.SetOp.RELEASE);
-      case null -> MemoryOps.memPut(ValueTypeKind.LONG, OpConstants.SetOp.RELEASE, offset, value);
+    if (object == null) {
+      MemoryOps.putLong(offset, value, OpConstants.MODE_RELEASE);
+    } else {
+      heapPutLong(object, offset, value, OpConstants.MODE_RELEASE);
     }
   }
 
   /* replacement for putFloat(Object, long, float) */
   @UnsafeReplacement(name = "putFloat")
   public static void unsafePutFloat(Object object, long offset, float value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.FLOAT, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutFloat(offset, value);
+    if (object == null) {
+      MemoryOps.putFloat(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutFloat(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putFloatVolatile(Object, long, float) */
   @UnsafeReplacement(name = "putFloatVolatile")
   public static void unsafePutFloatVolatile(Object object, long offset, float value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.FLOAT, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.FLOAT, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putFloat(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutFloat(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putDouble(Object, long, double) */
   @UnsafeReplacement(name = "putDouble")
   public static void unsafePutDouble(Object object, long offset, double value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.DOUBLE, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutDouble(offset, value);
+    if (object == null) {
+      MemoryOps.putDouble(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutDouble(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putDoubleVolatile(Object, long, double) */
   @UnsafeReplacement(name = "putDoubleVolatile")
   public static void unsafePutDoubleVolatile(Object object, long offset, double value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.DOUBLE, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.DOUBLE, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putDouble(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutDouble(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putBoolean(Object, long, boolean) */
   @UnsafeReplacement(name = "putBoolean")
   public static void unsafePutBoolean(Object object, long offset, boolean value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.BOOL, OpConstants.SetOp.DEFAULT);
-      case null -> MemoryOps.memPut(ValueTypeKind.BOOL, OpConstants.SetOp.DEFAULT, offset, value);
+    if (object == null) {
+      MemoryOps.putBoolean(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutBoolean(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putBooleanVolatile(Object, long, boolean) */
   @UnsafeReplacement(name = "putBooleanVolatile")
   public static void unsafePutBooleanVolatile(Object object, long offset, boolean value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.BOOL, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.BOOL, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putBoolean(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutBoolean(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putChar(Object, long, char) */
   @UnsafeReplacement(name = "putChar")
   public static void unsafePutChar(Object object, long offset, char value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.CHAR, OpConstants.SetOp.DEFAULT);
-      case null -> unsafePutChar(offset, value);
+    if (object == null) {
+      MemoryOps.putChar(offset, value, OpConstants.MODE_PLAIN);
+    } else {
+      heapPutChar(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putCharVolatile(Object, long, char) */
   @UnsafeReplacement(name = "putCharVolatile")
   public static void unsafePutCharVolatile(Object object, long offset, char value) {
-    switch (object) {
-      case Object obj -> unsafePut(obj, offset, value, ValueTypeKind.CHAR, OpConstants.SetOp.VOLATILE);
-      case null -> MemoryOps.memPut(ValueTypeKind.CHAR, OpConstants.SetOp.VOLATILE, offset, value);
+    if (object == null) {
+      MemoryOps.putChar(offset, value, OpConstants.MODE_VOLATILE);
+    } else {
+      heapPutChar(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putObject(Object, long, Object) */
   @UnsafeReplacement(name = "putObject")
   public static void unsafePutObject(Object object, long offset, Object value) {
+    // cannot put an object into non-heap memory directly
     if (object != null) {
-      unsafePut(object, offset, value, ValueTypeKind.REF, OpConstants.SetOp.DEFAULT);
+      heapPutObject(object, offset, value, OpConstants.MODE_PLAIN);
     }
   }
 
   /* replacement for putObjectVolatile(Object, long, Object) */
   @UnsafeReplacement(name = "putObjectVolatile")
   public static void unsafePutObjectVolatile(Object object, long offset, Object value) {
+    // cannot put an object into non-heap memory directly
     if (object != null) {
-      unsafePut(object, offset, value, ValueTypeKind.REF, OpConstants.SetOp.VOLATILE);
+      heapPutObject(object, offset, value, OpConstants.MODE_VOLATILE);
     }
   }
 
   /* replacement for putOrderedObject(Object, long, Object) */
   @UnsafeReplacement(name = "putOrderedObject")
   public static void unsafePutOrderedObject(Object object, long offset, Object value) {
+    // cannot put an object into non-heap memory directly
     if (object != null) {
-      unsafePut(object, offset, value, ValueTypeKind.REF, OpConstants.SetOp.RELEASE);
+      heapPutObject(object, offset, value, OpConstants.MODE_RELEASE);
+    }
+  }
+
+  /* shared code to write a int into a field or array */
+  private static void heapPutInt(Object object, long offset, int value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putInt(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putInt(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putInt", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a byte into a field or array */
+  private static void heapPutByte(Object object, long offset, byte value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putByte(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putByte(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putByte", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a short into a field or array */
+  private static void heapPutShort(Object object, long offset, short value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putShort(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putShort(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putShort", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a long into a field or array */
+  private static void heapPutLong(Object object, long offset, long value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putLong(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putLong(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putLong", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a float into a field or array */
+  private static void heapPutFloat(Object object, long offset, float value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putFloat(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putFloat(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putFloat", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a double into a field or array */
+  private static void heapPutDouble(Object object, long offset, double value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putDouble(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putDouble(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putDouble", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a boolean into a field or array */
+  private static void heapPutBoolean(Object object, long offset, boolean value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putBoolean(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putBoolean(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putBoolean", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a char into a field or array */
+  private static void heapPutChar(Object object, long offset, char value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putChar(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putChar(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putChar", object, offset, exception);
+    }
+  }
+
+  /* shared code to write a Object into a field or array */
+  private static void heapPutObject(Object object, long offset, Object value, int mode) {
+    try {
+      if (object.getClass().isArray()) {
+        ArrayOps.putObject(object, offset, value, mode);
+      } else {
+        FieldOffsetOps.fieldFromOffset(object, offset).putObject(object, value, mode);
+      }
+    } catch (RuntimeException | LinkageError exception) {
+      UnsafeLogUtil.debugAccessFailure("putObject", object, offset, exception);
     }
   }
   //</editor-fold>
@@ -794,229 +941,148 @@ public final class UnsafeReplacementDelegate {
   //<editor-fold defaultstate="collapsed" desc="Memory Setters">
   /* replacement for putByte(long, byte) */
   @UnsafeReplacement(name = "putByte")
-  public static void unsafePutByte(long offset, byte value) {
-    MemoryOps.memPut(ValueTypeKind.BYTE, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutByte(long address, byte value) {
+    MemoryOps.putByte(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putShort(long, short) */
   @UnsafeReplacement(name = "putShort")
-  public static void unsafePutShort(long offset, short value) {
-    MemoryOps.memPut(ValueTypeKind.SHORT, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutShort(long address, short value) {
+    MemoryOps.putShort(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putChar(long, char) */
   @UnsafeReplacement(name = "putChar")
-  public static void unsafePutChar(long offset, char value) {
-    MemoryOps.memPut(ValueTypeKind.CHAR, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutChar(long address, char value) {
+    MemoryOps.putChar(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putInt(long, int) */
   @UnsafeReplacement(name = "putInt")
-  public static void unsafePutInt(long offset, int value) {
-    MemoryOps.memPut(ValueTypeKind.INT, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutInt(long address, int value) {
+    MemoryOps.putInt(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putLong(long, long) */
   @UnsafeReplacement(name = "putLong")
-  public static void unsafePutLong(long offset, long value) {
-    MemoryOps.memPut(ValueTypeKind.LONG, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutLong(long address, long value) {
+    MemoryOps.putLong(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putFloat(long, float) */
   @UnsafeReplacement(name = "putFloat")
-  public static void unsafePutFloat(long offset, float value) {
-    MemoryOps.memPut(ValueTypeKind.FLOAT, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutFloat(long address, float value) {
+    MemoryOps.putFloat(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putDouble(long, double) */
   @UnsafeReplacement(name = "putDouble")
-  public static void unsafePutDouble(long offset, double value) {
-    MemoryOps.memPut(ValueTypeKind.DOUBLE, OpConstants.SetOp.DEFAULT, offset, value);
+  public static void unsafePutDouble(long address, double value) {
+    MemoryOps.putDouble(address, value, OpConstants.MODE_PLAIN);
   }
 
   /* replacement for putAddress(long, long) */
   @UnsafeReplacement(name = "putAddress")
-  public static void unsafePutAddress(long offset, long value) {
+  public static void unsafePutAddress(long address, long value) {
     switch (ADDRESS_SIZE) {
-      case 4 -> unsafePutInt(offset, (int) value);
-      case 8 -> unsafePutLong(offset, value);
+      case 4 -> unsafePutInt(address, (int) value);
+      case 8 -> unsafePutLong(address, value);
       default -> throw new AssertionError(); // cannot happen
     }
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Field/Array/Memory CAS Operations">
-  /* shared code to cas a value of a field or array */
-  private static boolean unsafeCas(
-    @NonNull Object object,
-    long offset,
-    @Nullable Object expected,
-    @Nullable Object value,
-    @NonNull ValueTypeKind kind
-  ) {
-    try {
-      var type = object.getClass();
-      if (type.isArray()) {
-        return ArrayOps.arrayComparePut(kind, object, offset, expected, value);
-      }
-
-      // requested read of static or instance field
-      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (fieldAccessor != null) {
-        return fieldAccessor.compareAndSet(object, expected, value);
-      }
-
-      return false;
-    } catch (Throwable throwable) {
-      UnsafeLogUtil.debug(
-        "Unable to unsafe CAS: [obj={}, offset={}, expected={} val={}]",
-        object, offset, expected, value, throwable);
-      return false;
-    }
-  }
-
   /* replacement for compareAndSwapInt(Object, long, int, int) */
   @UnsafeReplacement(name = "compareAndSwapInt")
   public static boolean unsafeCasInt(Object object, long offset, int expected, int value) {
-    return switch (object) {
-      case Object obj -> unsafeCas(obj, offset, expected, value, ValueTypeKind.INT);
-      case null -> MemoryOps.memComparePut(ValueTypeKind.INT, offset, expected, value);
-    };
+    if (object == null) {
+      return MemoryOps.casInt(offset, expected, value);
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.casInt(object, offset, expected, value)
+      : FieldOffsetOps.fieldFromOffset(object, offset).casInt(object, expected, value);
   }
 
   /* replacement for compareAndSwapLong(Object, long, long, long) */
   @UnsafeReplacement(name = "compareAndSwapLong")
   public static boolean unsafeCasLong(Object object, long offset, long expected, long value) {
-    return switch (object) {
-      case Object obj -> unsafeCas(obj, offset, expected, value, ValueTypeKind.LONG);
-      case null -> MemoryOps.memComparePut(ValueTypeKind.LONG, offset, expected, value);
-    };
+    if (object == null) {
+      return MemoryOps.casLong(offset, expected, value);
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.casLong(object, offset, expected, value)
+      : FieldOffsetOps.fieldFromOffset(object, offset).casLong(object, expected, value);
   }
 
   /* replacement for compareAndSwapObject(Object, long, Object, Object) */
   @UnsafeReplacement(name = "compareAndSwapObject")
   public static boolean unsafeCasObject(Object object, long offset, Object expected, Object value) {
-    return switch (object) {
-      case Object obj -> unsafeCas(obj, offset, expected, value, ValueTypeKind.REF);
-      case null -> false; // cannot put an object directly into memory
-    };
+    if (object == null) {
+      throw new UnsupportedOperationException("cannot access objects in non-heap memory directly");
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.casObject(object, offset, expected, value)
+      : FieldOffsetOps.fieldFromOffset(object, offset).casObject(object, expected, value);
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Field/Array/Memory Get&Add Operations">
-  /* shared code to cas a value of a field or array */
-  private static @Nullable Object unsafeGetAndAdd(
-    @NonNull Object object,
-    long offset,
-    @NonNull Number delta,
-    @NonNull ValueTypeKind kind
-  ) {
-    try {
-      var type = object.getClass();
-      if (type.isArray()) {
-        return ArrayOps.arrayGetAdd(kind, object, offset, delta);
-      }
-
-      // requested read of static or instance field
-      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (fieldAccessor != null) {
-        return fieldAccessor.getAndAdd(object, delta);
-      }
-
-      return null;
-    } catch (Throwable throwable) {
-      UnsafeLogUtil.debug(
-        "Unable to unsafe get and add: [obj={}, offset={}, delta={}]",
-        object, offset, delta, throwable);
-      return null;
-    }
-  }
-
   /* replacement for getAndAddInt(Object, long, int) */
   @UnsafeReplacement(name = "getAndAddInt")
   public static int unsafeGetAndAddInt(Object object, long offset, int delta) {
-    return switch (object) {
-      case Object obj -> {
-        var ret = unsafeGetAndAdd(obj, offset, delta, ValueTypeKind.INT);
-        yield ret instanceof Number number ? number.intValue() : 0;
-      }
-      case null -> (int) MemoryOps.memGetAdd(ValueTypeKind.INT, offset, delta);
-    };
+    if (object == null) {
+      return MemoryOps.getAndAddInt(offset, delta);
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.getAndAddInt(object, offset, delta)
+      : FieldOffsetOps.fieldFromOffset(object, offset).getAndAddInt(object, delta);
   }
 
   /* replacement for getAndAddLong(Object, long, long) */
   @UnsafeReplacement(name = "getAndAddLong")
   public static long unsafeGetAndAddLong(Object object, long offset, long delta) {
-    return switch (object) {
-      case Object obj -> {
-        var ret = unsafeGetAndAdd(obj, offset, delta, ValueTypeKind.LONG);
-        yield ret instanceof Number number ? number.longValue() : 0;
-      }
-      case null -> (long) MemoryOps.memGetAdd(ValueTypeKind.LONG, offset, delta);
-    };
+    if (object == null) {
+      return MemoryOps.getAndAddLong(offset, delta);
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.getAndAddLong(object, offset, delta)
+      : FieldOffsetOps.fieldFromOffset(object, offset).getAndAddLong(object, delta);
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc="Field/Array/Memory Get&Set Operations">
-  /* shared code to cas a value of a field or array */
-  private static @Nullable Object unsafeGetAndSet(
-    @NonNull Object object,
-    long offset,
-    @Nullable Object value,
-    @NonNull ValueTypeKind kind
-  ) {
-    try {
-      var type = object.getClass();
-      if (type.isArray()) {
-        return ArrayOps.arrayGetPut(kind, object, offset, value);
-      }
-
-      // requested read of static or instance field
-      var fieldAccessor = FieldOffsetOps.fieldFromOffset(object, offset);
-      if (fieldAccessor != null) {
-        return fieldAccessor.getAndPut(object, value);
-      }
-
-      return null;
-    } catch (Throwable throwable) {
-      UnsafeLogUtil.debug(
-        "Unable to unsafe get and set: [obj={}, offset={}, val={}]",
-        object, offset, value, throwable);
-      return null;
-    }
-  }
-
   /* replacement for getAndSetInt(Object, long, int) */
   @UnsafeReplacement(name = "getAndSetInt")
   public static int unsafeGetAndSetInt(Object object, long offset, int value) {
-    return switch (object) {
-      case Object obj -> {
-        var ret = unsafeGetAndSet(obj, offset, value, ValueTypeKind.INT);
-        yield ret instanceof Number number ? number.intValue() : 0;
-      }
-      case null -> (int) MemoryOps.memGetPut(ValueTypeKind.INT, offset, value);
-    };
+    if (object == null) {
+      return MemoryOps.getAndSetInt(offset, value);
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.getAndSetInt(object, offset, value)
+      : FieldOffsetOps.fieldFromOffset(object, offset).getAndSetInt(object, value);
   }
 
   /* replacement for getAndSetLong(Object, long, long) */
   @UnsafeReplacement(name = "getAndSetLong")
   public static long unsafeGetAndSetLong(Object object, long offset, long value) {
-    return switch (object) {
-      case Object obj -> {
-        var ret = unsafeGetAndSet(obj, offset, value, ValueTypeKind.LONG);
-        yield ret instanceof Number number ? number.longValue() : 0;
-      }
-      case null -> (long) MemoryOps.memGetPut(ValueTypeKind.LONG, offset, value);
-    };
+    if (object == null) {
+      return MemoryOps.getAndSetLong(offset, value);
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.getAndSetLong(object, offset, value)
+      : FieldOffsetOps.fieldFromOffset(object, offset).getAndSetLong(object, value);
   }
 
   /* replacement for getAndSetObject(Object, long, Object) */
   @UnsafeReplacement(name = "getAndSetObject")
   public static Object unsafeGetAndSetObject(Object object, long offset, Object value) {
-    return switch (object) {
-      case Object obj -> unsafeGetAndSet(obj, offset, value, ValueTypeKind.REF);
-      case null -> null; // cannot put an object directly into memory
-    };
+    if (object == null) {
+      throw new UnsupportedOperationException("cannot access objects in non-heap memory directly");
+    }
+    return object.getClass().isArray()
+      ? ArrayOps.getAndSetObject(object, offset, value)
+      : FieldOffsetOps.fieldFromOffset(object, offset).getAndSetObject(object, value);
   }
   //</editor-fold>
 
@@ -1181,6 +1247,8 @@ public final class UnsafeReplacementDelegate {
   public static void unsafePark(boolean isAbsolute, long time) {
     if (isAbsolute) {
       LockSupport.parkUntil(time);
+    } else if (time == 0) {
+      LockSupport.park(); // relative time of 0 means indefinitely
     } else {
       LockSupport.parkNanos(time);
     }
@@ -1229,8 +1297,10 @@ public final class UnsafeReplacementDelegate {
         len,
         pd,
         (String) null);
+    } catch (RuntimeException | Error exception) {
+      throw exception;
     } catch (Throwable throwable) {
-      throw new RuntimeException(throwable);
+      throw new IllegalStateException(throwable);
     }
   }
 
@@ -1272,6 +1342,10 @@ public final class UnsafeReplacementDelegate {
   public static int unsafeGetLoadAverage(double[] loadAverage, int reqSampleCount) {
     if (reqSampleCount < 0 || reqSampleCount > 3 || reqSampleCount > loadAverage.length) {
       throw new ArrayIndexOutOfBoundsException(); // mimics current behavior
+    }
+
+    if (reqSampleCount == 0) {
+      return 0;
     }
 
     var osMxBean = OS_MX_BEAN.get();

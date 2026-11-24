@@ -29,34 +29,37 @@ final class OpConstants {
   /**
    * Supplier of the jvm-static trusted lookup instance, only initialized on the first access.
    */
-  static final Supplier<MethodHandles.Lookup> TRUSTED_LOOKUP = StableValue.supplier(() -> {
-    try {
-      var trustedLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-      trustedLookupField.setAccessible(true);
-      return (MethodHandles.Lookup) trustedLookupField.get(null);
-    } catch (NoSuchFieldException | IllegalAccessException exception) {
-      throw new ExceptionInInitializerError(exception);
-    }
-  });
+  static final Supplier<MethodHandles.Lookup> TRUSTED_LOOKUP = () -> TrustedLookupHolder.VALUE;
+
+  /**
+   * Plain access mode without any memory ordering guarantees. Supported by get and put operations.
+   */
+  static final int MODE_PLAIN = 0;
+  /**
+   * Volatile access mode. Supported by get and put operations.
+   */
+  static final int MODE_VOLATILE = 1;
+  /**
+   * Release access mode (ordered put). Only supported by put operations.
+   */
+  static final int MODE_RELEASE = 2;
 
   private OpConstants() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Type of operation that can be used to get a value.
-   */
-  enum GetOp {
-    DEFAULT,
-    VOLATILE,
-  }
+  private static final class TrustedLookupHolder {
 
-  /**
-   * Type of operation that can be used to set a value.
-   */
-  enum SetOp {
-    DEFAULT,
-    VOLATILE,
-    RELEASE,
+    private static final MethodHandles.Lookup VALUE = resolveTrustedLookup();
+
+    private static MethodHandles.Lookup resolveTrustedLookup() {
+      try {
+        var trustedLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+        trustedLookupField.setAccessible(true);
+        return (MethodHandles.Lookup) trustedLookupField.get(null);
+      } catch (NoSuchFieldException | IllegalAccessException exception) {
+        throw new ExceptionInInitializerError(exception);
+      }
+    }
   }
 }
