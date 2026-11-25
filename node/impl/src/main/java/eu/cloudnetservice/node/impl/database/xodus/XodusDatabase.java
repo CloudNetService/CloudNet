@@ -117,11 +117,6 @@ public class XodusDatabase extends AbstractDatabase {
   }
 
   @Override
-  public void iterate(@NonNull BiConsumer<String, Document> consumer) {
-    this.acceptWithCursor(consumer);
-  }
-
-  @Override
   public void clear() {
     this.environment.executeInExclusiveTransaction(txn -> {
       this.environment.truncateStore(this.name, txn);

@@ -79,7 +79,6 @@ dependencies {
   annotationProcessor(projects.driver.driverAp)
 
   // internal libraries
-  implementation(libs.h2)
   implementation(libs.gson)
   implementation(libs.gulf)
   implementation(libs.xodus)
