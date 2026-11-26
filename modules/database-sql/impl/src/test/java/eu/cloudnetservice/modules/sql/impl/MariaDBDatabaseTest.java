@@ -36,8 +36,7 @@ public class MariaDBDatabaseTest extends SQLDatabaseTest {
     .withEnv("MYSQL_USER", "test")
     .withEnv("MYSQL_PASSWORD", "test")
     .withEnv("MYSQL_ROOT_PASSWORD", "test")
-    .withEnv("MYSQL_DATABASE", "cn_testing")
-    .withCommand("mariadbd", "--ssl=0");
+    .withEnv("MYSQL_DATABASE", "cn_testing");
 
   @BeforeAll
   static void setup() throws Exception {
