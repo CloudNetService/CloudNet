@@ -34,6 +34,8 @@ import eu.cloudnetservice.node.config.Configuration;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeAuthSuccessEvent;
 import eu.cloudnetservice.node.event.network.NetworkClusterNodeReconnectEvent;
 import eu.cloudnetservice.node.event.network.NetworkServiceAuthSuccessEvent;
+import eu.cloudnetservice.node.impl.cluster.util.NodeDisconnectHandler;
+import eu.cloudnetservice.node.impl.cluster.util.QueuedNetworkChannel;
 import eu.cloudnetservice.node.impl.network.NodeNetworkUtil;
 import eu.cloudnetservice.node.impl.network.packet.AuthorizationResponsePacket;
 import eu.cloudnetservice.node.impl.service.InternalCloudService;
@@ -55,6 +57,7 @@ public final class AuthorizationPacketListener implements PacketListener {
   private final NodeNetworkUtil networkUtil;
   private final DataSyncRegistry dataSyncRegistry;
   private final NodeServerProvider nodeServerProvider;
+  private final NodeDisconnectHandler disconnectHandler;
   private final CloudServiceManager cloudServiceManager;
 
   @Inject
@@ -65,6 +68,7 @@ public final class AuthorizationPacketListener implements PacketListener {
     @NonNull NodeNetworkUtil networkUtil,
     @NonNull DataSyncRegistry dataSyncRegistry,
     @NonNull NodeServerProvider nodeServerProvider,
+    @NonNull NodeDisconnectHandler disconnectHandler,
     @NonNull CloudServiceManager cloudServiceManager
   ) {
     this.i18n = i18n;
@@ -73,6 +77,7 @@ public final class AuthorizationPacketListener implements PacketListener {
     this.networkUtil = networkUtil;
     this.dataSyncRegistry = dataSyncRegistry;
     this.nodeServerProvider = nodeServerProvider;
+    this.disconnectHandler = disconnectHandler;
     this.cloudServiceManager = cloudServiceManager;
   }
 
@@ -88,6 +93,8 @@ public final class AuthorizationPacketListener implements PacketListener {
           // read the required data for the node auth
           var clusterId = content.readUniqueId();
           var node = content.readObject(NetworkClusterNode.class);
+          // the startup time of the node is not sent by nodes running an older version
+          var startupMillis = content.readableBytes() > 0 ? content.readLong() : -1;
           // check if the cluster id matches
           if (!this.configuration.clusterConfig().clusterId().equals(clusterId)) {
             break;
@@ -95,6 +102,28 @@ public final class AuthorizationPacketListener implements PacketListener {
           // search for the node server which represents the connected node and initialize it
           for (var server : this.nodeServerProvider.nodeServers()) {
             if (server.info().uniqueId().equals(node.uniqueId())) {
+              // check if the node was restarted since the last connection, in that case all data of the previous
+              // session is gone and the node must join the cluster like a newly started node instead of reconnecting
+              var lastSnapshot = server.nodeInfoSnapshot();
+              if (lastSnapshot != null && startupMillis != -1 && lastSnapshot.startupMillis() != startupMillis) {
+                server.close();
+              }
+              // the node can reconnect before this node noticed that the previous connection was lost, for example
+              // if only the other side detected the loss. everything that changed in the meantime is missing on
+              // both sides in that case, so the reconnect must run the data sync as well instead of authorizing the
+              // node like a new one. nodes of an older version don't send their startup time, a restart can't be
+              // ruled out for them. without a grace period there is no reconnect
+              if (this.disconnectHandler.hardDisconnectMillis() > 0
+                && startupMillis != -1
+                && server.state() == NodeServerState.READY
+                && server.channel() != null
+                && server.nodeInfoSnapshot() != null
+                && server.nodeInfoSnapshot().startupMillis() == startupMillis) {
+                LOGGER.debug("Node {} reconnected before the lost connection was noticed, running a reconnect sync",
+                  server.name());
+                this.disconnectHandler.markNodeServerDisconnected(server);
+              }
+
               // add the required packet listeners
               this.networkUtil.addDefaultPacketListeners(channel.packetRegistry());
               channel.packetRegistry().removeListeners(NetworkConstants.INTERNAL_AUTHORIZATION_CHANNEL);
@@ -113,9 +142,17 @@ public final class AuthorizationPacketListener implements PacketListener {
               } else {
                 // reply with a default auth success
                 channel.sendPacket(new AuthorizationResponsePacket(true, false, null));
+                // a previous reconnect of the node did not complete, flush the packets that were queued
+                // for the node and close the old channel before switching to the new channel
+                if (server.channel() instanceof QueuedNetworkChannel queuedChannel) {
+                  queuedChannel.drainPacketQueue(channel);
+                  queuedChannel.close();
+                }
                 // set the state of the node for further handling
                 server.channel(channel);
                 server.state(NodeServerState.READY);
+                // re-select the head node in case the node was the head node before it disconnected
+                this.nodeServerProvider.selectHeadNode();
                 // call the auth success event
                 this.eventManager.callEvent(new NetworkClusterNodeAuthSuccessEvent(server, channel));
               }
