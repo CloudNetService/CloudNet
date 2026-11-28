@@ -69,7 +69,7 @@ minestomExtensions = "1.2.0"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 bungeecord = "26.1-R0.1-SNAPSHOT"
 limboloohp = "0.7.9-ALPHA"
-folia = "26.1.2.build.8-stable"
+folia = "26.3.build.28-stable"
 
 # platform extensions
 adventure = "5.2.0"
