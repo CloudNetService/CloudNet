@@ -94,6 +94,11 @@ public final class EmptySpecificCloudServiceProvider implements SpecificCloudSer
   }
 
   @Override
+  public Collection<String> consoleSuggestion(@NonNull String line) {
+    return List.of();
+  }
+
+  @Override
   public @NonNull Collection<ServiceTemplate> installedTemplates() {
     return List.of();
   }
