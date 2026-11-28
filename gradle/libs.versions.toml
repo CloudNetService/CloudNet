@@ -34,7 +34,7 @@ xodus = "2.0.1"
 mongodb = "5.15.0"
 hikariCp = "7.1.0"
 mysqlConnector = "26.10.0"
-sqliteConnector = "3.51.1.0"
+sqliteConnector = "3.54.1.0"
 postgresqlConnector = "42.7.9"
 mariadbConnector = "4.0.0"
 
